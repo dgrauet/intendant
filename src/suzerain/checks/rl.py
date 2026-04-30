@@ -19,9 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 """
 
-_CONV_COMMIT_RE = re.compile(
-    r"^(feat|fix|docs|chore|refactor|test|ci|perf|build|style|revert)(\([^)]+\))?!?: .+"
-)
+# Conventional Commits 1.0 spec allows any lowercase alphabetic type;
+# only `feat` and `fix` have semantic meaning. We match any [a-z]+
+# type to avoid false positives on `release:` (release-please) and
+# other widely-used extensions.
+_CONV_COMMIT_RE = re.compile(r"^[a-z]+(\([^)]+\))?!?: .+")
 
 
 class RL001Changelog(Rule):

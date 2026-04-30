@@ -72,3 +72,29 @@ def test_rl002_skip_no_git(tmp_path: Path) -> None:
     result = RL002ConventionalCommits().check(repo)
     # Not a hard fail; accept passing or fail-with-clear-evidence
     assert "not a git repo" in result.evidence.lower() or "no git" in result.evidence.lower()
+
+
+def test_rl002_accepts_release_type(tmp_path: Path) -> None:
+    """release-please uses `release:` as a commit type — it must pass."""
+    _git_init(tmp_path)
+    _git_commit(tmp_path, "feat: initial")
+    _git_commit(tmp_path, "release: 1.0.0")
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL002ConventionalCommits().check(repo).passing is True
+
+
+def test_rl002_accepts_custom_type(tmp_path: Path) -> None:
+    """Any lowercase [a-z]+ type is valid CC 1.0."""
+    _git_init(tmp_path)
+    _git_commit(tmp_path, "feat: initial")
+    _git_commit(tmp_path, "deps: bump foo")
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL002ConventionalCommits().check(repo).passing is True
+
+
+def test_rl002_still_rejects_garbage(tmp_path: Path) -> None:
+    _git_init(tmp_path)
+    _git_commit(tmp_path, "feat: initial")
+    _git_commit(tmp_path, "Random text without colon")
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL002ConventionalCommits().check(repo).passing is False
