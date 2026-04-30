@@ -1,0 +1,35 @@
+<!-- suzerain-template: v1 -->
+# CLAUDE.md — {{ project_name }}
+
+Contexte agent pour le repo `{{ project_name }}`.
+
+## Quoi
+
+<phrase courte décrivant le projet>
+
+## Stack
+
+- <langage et version>
+- <outils principaux>
+
+## Règles maison
+
+- <règles non triviales pour Claude>
+
+## Tests
+
+```bash
+<commande pour lancer les tests>
+```
+
+## Lint & type
+
+```bash
+<commande lint>
+<commande type-check>
+```
+
+## Référence
+
+- Spec : `docs/superpowers/specs/<spec-file>.md`
+- Plan en cours : `docs/superpowers/plans/<plan-file>.md`

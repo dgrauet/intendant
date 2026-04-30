@@ -1,0 +1,49 @@
+# suzerain-template: v1
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+coverage.xml
+
+# Type checkers
+.mypy_cache/
+.pyright_cache/
+.ty_cache/
+
+# Tooling
+.ruff_cache/
+.venv/
+venv/
+
+# Node
+node_modules/
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Suzerain runtime
+.suzerain/proposed/
+
+# Local environment
+.env
