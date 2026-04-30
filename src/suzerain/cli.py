@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 
 from suzerain import __version__
+from suzerain.commands import audit as audit_cmd
 from suzerain.commands import explain as explain_cmd
 from suzerain.commands import init as init_cmd
 
@@ -42,6 +43,7 @@ def main_callback(
 
 app.command("explain")(explain_cmd.explain)
 app.command("init")(init_cmd.init)
+app.command("audit")(audit_cmd.audit)
 
 
 def main() -> None:
