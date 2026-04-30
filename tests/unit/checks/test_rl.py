@@ -1,0 +1,74 @@
+"""Tests for RL (releases) transverse rules."""
+
+import subprocess
+from pathlib import Path
+
+from suzerain.checks.rl import RL001Changelog, RL002ConventionalCommits
+from suzerain.core.repo import Repo
+
+
+def _git_init(path: Path) -> None:
+    subprocess.run(["git", "init", "-q", "-b", "main"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=path, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=path, check=True)
+
+
+def _git_commit(path: Path, message: str) -> None:
+    subprocess.run(["git", "commit", "--allow-empty", "-q", "-m", message], cwd=path, check=True)
+
+
+def test_rl001_pass(tmp_path: Path) -> None:
+    (tmp_path / "CHANGELOG.md").write_text(
+        "# Changelog\n\nAll notable changes...\n\n## [Unreleased]\n"
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL001Changelog().check(repo).passing is True
+
+
+def test_rl001_fail_no_file(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL001Changelog().check(repo)
+    assert result.passing is False
+
+
+def test_rl001_fail_wrong_format(tmp_path: Path) -> None:
+    (tmp_path / "CHANGELOG.md").write_text("Random unstructured changelog\n")
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL001Changelog().check(repo)
+    assert result.passing is False
+    assert "format" in result.evidence.lower()
+
+
+def test_rl001_fix_creates_skeleton(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    rule = RL001Changelog()
+    patch = rule.fix(repo, rule.check(repo))
+    assert patch is not None
+    assert "Keep a Changelog" in patch.content
+
+
+def test_rl002_pass_with_conv_commits(tmp_path: Path) -> None:
+    _git_init(tmp_path)
+    _git_commit(tmp_path, "feat: add thing")
+    _git_commit(tmp_path, "fix: address issue")
+    _git_commit(tmp_path, "chore: bump deps")
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL002ConventionalCommits().check(repo).passing is True
+
+
+def test_rl002_fail_with_non_conv_commits(tmp_path: Path) -> None:
+    _git_init(tmp_path)
+    _git_commit(tmp_path, "feat: add thing")
+    _git_commit(tmp_path, "did some random stuff")
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL002ConventionalCommits().check(repo)
+    assert result.passing is False
+    assert "did some random stuff" in result.evidence
+
+
+def test_rl002_skip_no_git(tmp_path: Path) -> None:
+    """If the repo isn't git-initialized, this rule reports skip-like evidence."""
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL002ConventionalCommits().check(repo)
+    # Not a hard fail; accept passing or fail-with-clear-evidence
+    assert "not a git repo" in result.evidence.lower() or "no git" in result.evidence.lower()
