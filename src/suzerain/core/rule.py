@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import ClassVar, Literal
 
+from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
 
 
@@ -18,11 +19,7 @@ class CheckResult:
 
 
 class Rule(ABC):
-    """Abstract base class for all suzerain rules.
-
-    Subclasses MUST set the class-level metadata (`id`, `title`, etc.)
-    and implement `check`. They MAY override `fix` (default returns None).
-    """
+    """Abstract base class for all suzerain rules."""
 
     id: ClassVar[str]
     title: ClassVar[str]
@@ -38,6 +35,6 @@ class Rule(ABC):
     @abstractmethod
     def check(self, repo: Repo) -> CheckResult: ...
 
-    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:  # noqa: F821
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
         """Default: no auto-fix. Subclasses override to provide one."""
         return None
