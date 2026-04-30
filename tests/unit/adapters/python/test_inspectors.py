@@ -21,6 +21,7 @@ def test_has_pyproject_false(tmp_path: Path) -> None:
 def test_load_pyproject_returns_dict(tmp_path: Path) -> None:
     (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\nversion = "1.0"\n')
     data = load_pyproject(tmp_path)
+    assert data is not None
     assert data["project"]["name"] == "x"
 
 
