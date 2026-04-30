@@ -1,0 +1,7 @@
+# suzerain-template: v1
+# Standalone commitizen config — préférer la section [tool.commitizen]
+# dans pyproject.toml.
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "pep621"
+update_changelog_on_bump = false

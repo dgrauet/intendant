@@ -1,0 +1,13 @@
+# suzerain-template: v1
+# Standalone ruff config — préférer la section [tool.ruff] dans pyproject.toml.
+# Ce fichier est fourni pour les repos où pyproject.toml n'est pas disponible.
+
+line-length = 100
+target-version = "py313"
+src = ["src", "tests"]
+
+[lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[lint.per-file-ignores]
+"tests/**" = ["S101"]

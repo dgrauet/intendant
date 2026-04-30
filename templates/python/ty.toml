@@ -1,0 +1,10 @@
+# suzerain-template: v1
+# Configuration de référence pour `ty` (Astral type-checker).
+# Vérifier la syntaxe exacte sur https://github.com/astral-sh/ty selon
+# la version utilisée — l'API peut évoluer en pré-1.0 (cf. ADR-0003).
+
+[src]
+include = ["src", "tests"]
+
+[rules]
+strict = true
