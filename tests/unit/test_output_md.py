@@ -1,0 +1,46 @@
+"""Tests for Markdown (PR-comment friendly) output."""
+
+from pathlib import Path
+
+from suzerain.audit.output.md import render_markdown
+from suzerain.core.report import Finding, Report
+
+
+def test_md_starts_with_header(tmp_path: Path) -> None:
+    report = Report(repo_path=tmp_path, stack="python", findings=[])
+    md = render_markdown(report)
+    assert md.startswith("## suzerain audit")
+
+
+def test_md_contains_score_table(tmp_path: Path) -> None:
+    findings = [
+        Finding(rule_id="A", severity="required", status="pass", evidence="", fix_available=False),
+    ]
+    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    md = render_markdown(report)
+    assert "| Score |" in md or "**Score**" in md
+
+
+def test_md_lists_failures(tmp_path: Path) -> None:
+    findings = [
+        Finding(
+            rule_id="LO001",
+            severity="required",
+            status="fail",
+            evidence="missing src/",
+            fix_available=True,
+        ),
+    ]
+    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    md = render_markdown(report)
+    assert "LO001" in md
+    assert "missing src/" in md
+
+
+def test_md_omits_pass_section_when_no_failures(tmp_path: Path) -> None:
+    findings = [
+        Finding(rule_id="A", severity="required", status="pass", evidence="", fix_available=False),
+    ]
+    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    md = render_markdown(report)
+    assert "All required checks passing" in md or "✅" in md
