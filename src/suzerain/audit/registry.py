@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from suzerain.core.config import SuzerainConfig
 from suzerain.core.repo import Repo
 from suzerain.core.rule import Rule
@@ -30,7 +32,7 @@ def collect_rules() -> list[Rule]:
     return rules
 
 
-def filter_for_repo(rules: list[Rule], repo: Repo, config: SuzerainConfig) -> list[Rule]:
+def filter_for_repo(rules: Sequence[Rule], repo: Repo, config: SuzerainConfig) -> list[Rule]:
     """Return the subset of rules that apply to the repo under the given mode.
 
     - Mode `recommended` excludes `optional` severity.

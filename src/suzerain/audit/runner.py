@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from suzerain.core.config import SuzerainConfig
 from suzerain.core.repo import Repo
 from suzerain.core.report import Finding, Report
@@ -11,7 +13,7 @@ from suzerain.core.rule import Rule
 def run_audit(
     repo: Repo,
     config: SuzerainConfig,
-    rules: list[Rule],
+    rules: Sequence[Rule],
 ) -> Report:
     """Execute every rule against the repo and return an aggregated Report.
 
