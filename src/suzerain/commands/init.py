@@ -113,6 +113,6 @@ def init(
 
     console.print()
     console.print("[bold]Next steps:[/bold]")
-    console.print("  1. Review .suzerain.toml and adjust [exemptions] as needed.")
+    console.print(r"  1. Review .suzerain.toml and adjust \[exemptions] as needed.")
     console.print("  2. Commit the new files.")
     console.print("  3. Run `suzerain explain <RULE_ID>` to read any specific rule.")
