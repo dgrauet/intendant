@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 # Matches: ### XX001 — Title text
@@ -20,7 +20,7 @@ class RuleSection:
     rule_id: str
     title: str
     severity: str  # "required" | "recommended" | "optional"
-    stacks: list[str] = field(default_factory=list)
+    stacks: tuple[str, ...] = ()
     adr_ref: str | None = None
     body: str = ""
     source_file: Path | None = None
@@ -96,9 +96,9 @@ def _parse_file(path: Path) -> dict[str, RuleSection]:
     return rules
 
 
-def _extract_meta(body: str) -> tuple[str, list[str], str | None]:
+def _extract_meta(body: str) -> tuple[str, tuple[str, ...], str | None]:
     severity = "optional"
-    stacks: list[str] = []
+    stacks: tuple[str, ...] = ()
     adr_ref: str | None = None
     for line in body.splitlines():
         sev_match = _META_LINE_RE.search(line)
@@ -107,7 +107,7 @@ def _extract_meta(body: str) -> tuple[str, list[str], str | None]:
             stacks_match = _STACKS_RE.search(line)
             if stacks_match:
                 raw = stacks_match.group(1).strip()
-                stacks = [s.strip() for s in raw.split(",")] if raw else []
+                stacks = tuple(s.strip() for s in raw.split(",")) if raw else ()
             adr_match = _ADR_RE.search(line)
             if adr_match:
                 adr_ref = adr_match.group(1)

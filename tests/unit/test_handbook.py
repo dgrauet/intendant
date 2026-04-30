@@ -23,7 +23,7 @@ def test_get_rule_returns_section(mini_handbook: Handbook) -> None:
     assert rule.rule_id == "XX001"
     assert rule.title == "Première règle de test"
     assert rule.severity == "required"
-    assert rule.stacks == ["python"]
+    assert rule.stacks == ("python",)
     assert rule.adr_ref == "9999-test-decision"
     assert "marker.txt" in rule.body
 
@@ -32,7 +32,7 @@ def test_get_rule_without_adr(mini_handbook: Handbook) -> None:
     rule = mini_handbook.get_rule("XX002")
     assert rule is not None
     assert rule.severity == "recommended"
-    assert rule.stacks == ["*"]
+    assert rule.stacks == ("*",)
     assert rule.adr_ref is None
 
 
@@ -40,7 +40,7 @@ def test_get_rule_multistack(mini_handbook: Handbook) -> None:
     rule = mini_handbook.get_rule("XX003")
     assert rule is not None
     assert rule.severity == "optional"
-    assert rule.stacks == ["node", "python"]
+    assert rule.stacks == ("node", "python")
     assert rule.adr_ref == "9999-test-decision"
 
 
