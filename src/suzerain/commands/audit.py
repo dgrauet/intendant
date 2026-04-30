@@ -1,4 +1,4 @@
-"""`suzerain audit [PATH...]` — run the audit on one or more repos."""
+"""`suzerain audit [PATH...]` — run the audit; optionally apply fixes."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
+from suzerain.audit.fix import apply_fixes
 from suzerain.audit.output.human import render_human
 from suzerain.audit.output.json_format import render_json
 from suzerain.audit.output.md import render_markdown
@@ -19,28 +20,32 @@ from suzerain.core.report import Report
 
 console = Console()
 
+_SEVERITY_ORDER = {"required": 0, "recommended": 1, "optional": 2}
+
 
 def audit(
     paths: Annotated[
         list[Path] | None,
-        typer.Argument(
-            help="Repo path(s) to audit. Defaults to current directory.",
-        ),
+        typer.Argument(help="Repo path(s) to audit. Defaults to current directory."),
     ] = None,
     output_format: Annotated[
         str,
-        typer.Option(
-            "--format",
-            help="Output format: human (default), json, md.",
-        ),
+        typer.Option("--format", help="Output format: human (default), json, md."),
     ] = "human",
     severity: Annotated[
         str | None,
-        typer.Option(
-            "--severity",
-            help="Only fail (exit 1) if a finding of this severity or higher is failing.",
-        ),
+        typer.Option("--severity", help="Threshold severity for non-zero exit."),
     ] = None,
+    fix: Annotated[
+        bool,
+        typer.Option(
+            "--fix", help="Apply safe fixes; deposit non-safe ones in .suzerain/proposed/."
+        ),
+    ] = False,
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="With --fix, show what would be done without writing."),
+    ] = False,
 ) -> None:
     """Run the suzerain audit on one or more repos."""
     target_paths = paths if paths else [Path(".")]
@@ -58,6 +63,16 @@ def audit(
         applicable = filter_for_repo(rules, repo, config)
         report = run_audit(repo, config, applicable)
         _emit(report, output_format)
+
+        if fix:
+            applied, proposed = apply_fixes(report, repo, config, dry_run=dry_run)
+            if applied:
+                action = "Would apply" if dry_run else "Applied"
+                console.print(f"[green]{action} fixes for: {applied}[/green]")
+            if proposed:
+                action = "Would propose" if dry_run else "Proposed (in .suzerain/proposed/)"
+                console.print(f"[yellow]{action} fixes for: {proposed}[/yellow]")
+
         if _report_has_blocking_failure(report, severity):
             has_failure = True
 
@@ -72,9 +87,6 @@ def _emit(report: Report, fmt: str) -> None:
         typer.echo(render_markdown(report))
     else:
         render_human(report, console=console)
-
-
-_SEVERITY_ORDER = {"required": 0, "recommended": 1, "optional": 2}
 
 
 def _report_has_blocking_failure(report: Report, severity_threshold: str | None) -> bool:
