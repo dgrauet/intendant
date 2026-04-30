@@ -39,3 +39,6 @@ Thumbs.db
 
 # Suzerain runtime
 .suzerain/proposed/
+
+# Test-generated fixtures (built at test time, not committed)
+tests/fixtures/handbook_mini_root/

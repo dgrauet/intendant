@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 
 from suzerain import __version__
+from suzerain.commands import explain as explain_cmd
 
 app = typer.Typer(
     name="suzerain",
@@ -36,6 +37,9 @@ def main_callback(
     """Suzerain entrypoint callback."""
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
+
+
+app.command("explain")(explain_cmd.explain)
 
 
 def main() -> None:
