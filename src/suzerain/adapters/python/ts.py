@@ -1,0 +1,47 @@
+"""Python adapter TS (testing) rules."""
+
+from __future__ import annotations
+
+from suzerain.adapters.python.inspectors import pyproject_tool_section
+from suzerain.core.repo import Repo
+from suzerain.core.rule import CheckResult, Rule
+
+
+class TS001Pytest(Rule):
+    """Pytest is configured via pyproject.toml, pytest.ini, or tests/conftest.py."""
+
+    id = "TS001"
+    title = "pytest configured ([tool.pytest.ini_options], pytest.ini, or tests/conftest.py)"
+    severity = "required"
+    stacks = ("python",)
+    handbook_ref = "docs/handbook/05-testing.md#ts001"
+
+    def check(self, repo: Repo) -> CheckResult:
+        # 1. [tool.pytest.ini_options] in pyproject.toml
+        pytest_section = pyproject_tool_section(repo.path, "pytest")
+        if isinstance(pytest_section, dict) and "ini_options" in pytest_section:
+            return CheckResult(
+                passing=True,
+                evidence="[tool.pytest.ini_options] in pyproject.toml",
+            )
+
+        # 2. pytest.ini at root with [pytest] section
+        pytest_ini = repo.path / "pytest.ini"
+        if pytest_ini.is_file():
+            content = pytest_ini.read_text()
+            if "[pytest]" in content:
+                return CheckResult(passing=True, evidence="pytest.ini with [pytest] section")
+
+        # 3. tests/conftest.py present
+        conftest = repo.path / "tests" / "conftest.py"
+        if conftest.is_file():
+            return CheckResult(passing=True, evidence="tests/conftest.py present")
+
+        return CheckResult(
+            passing=False,
+            evidence=(
+                "no pytest configuration found"
+                " (need [tool.pytest.ini_options] in pyproject.toml,"
+                " pytest.ini with [pytest], or tests/conftest.py)"
+            ),
+        )
