@@ -43,12 +43,10 @@ jobs:
       - name: Run tests
         run: uv run pytest --cov --cov-report=term-missing
 
-      - name: Self-audit (palier 2 placeholder)
+      - name: Self-audit (suzerain audit on itself)
         run: |
-          echo "Palier 2 will run: uv run python -m suzerain audit . --severity=required"
-          echo "For palier 1, only init + explain exist; smoke-checking those:"
-          uv run suzerain --version
-          uv run suzerain explain RL001 || true
+          uv run suzerain audit . --format=json > suzerain-self-audit.json
+          uv run suzerain audit . --severity=required
 
   commit-lint:
     name: conventional commits
