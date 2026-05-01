@@ -70,11 +70,35 @@ def new(
 def _git_init_and_commit(target: Path) -> None:
     subprocess.run(["git", "init", "-q", "-b", "main"], cwd=target, check=True)
     subprocess.run(["git", "add", "-A"], cwd=target, check=True)
-    subprocess.run(
-        ["git", "commit", "-q", "-m", "chore: scaffold from suzerain v1"],
-        cwd=target,
-        check=True,
+
+    # Only inject fallback identity if the user hasn't configured one.
+    # git config --get searches local → global → system, so a new repo that
+    # inherits the user's global config will return 0 here.
+    has_email = (
+        subprocess.run(
+            ["git", "config", "--get", "user.email"],
+            cwd=target,
+            capture_output=True,
+        ).returncode
+        == 0
     )
+    has_name = (
+        subprocess.run(
+            ["git", "config", "--get", "user.name"],
+            cwd=target,
+            capture_output=True,
+        ).returncode
+        == 0
+    )
+
+    commit_args = ["git"]
+    if not has_email:
+        commit_args.extend(["-c", "user.email=suzerain@scaffolder.local"])
+    if not has_name:
+        commit_args.extend(["-c", "user.name=suzerain"])
+    commit_args.extend(["commit", "-q", "-m", "chore: scaffold from suzerain v1"])
+
+    subprocess.run(commit_args, cwd=target, check=True)
 
 
 def _print_quickstart(target: Path, stack: str) -> None:
