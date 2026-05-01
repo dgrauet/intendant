@@ -145,3 +145,37 @@ def test_sk003_skipped_when_frontmatter_invalid(tmp_path: Path) -> None:
     repo = _make_skill(tmp_path, "no frontmatter at all\n")
     result = SK003DescriptionQuality().check(_skill_repo(repo))
     assert result.skipped is True
+
+
+def test_sk004_passes_when_name_matches_dir(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK004NameMatchesDir
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    result = SK004NameMatchesDir().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "my-skill" in result.evidence
+
+
+def test_sk004_fails_when_name_differs_from_dir(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK004NameMatchesDir
+
+    repo = _make_skill(tmp_path, "---\nname: other-name\ndescription: x\n---\n")
+    result = SK004NameMatchesDir().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "other-name" in result.evidence
+    assert "my-skill" in result.evidence
+
+
+def test_sk004_skipped_when_no_skill_md(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK004NameMatchesDir
+
+    result = SK004NameMatchesDir().check(_skill_repo(tmp_path))
+    assert result.skipped is True
+
+
+def test_sk004_skipped_when_name_missing(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK004NameMatchesDir
+
+    repo = _make_skill(tmp_path, "---\ndescription: x\n---\n")
+    result = SK004NameMatchesDir().check(_skill_repo(repo))
+    assert result.skipped is True

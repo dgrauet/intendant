@@ -116,3 +116,35 @@ class SK003DescriptionQuality(Rule):
                 evidence=f"description too long: {n} chars (max 1024)",
             )
         return CheckResult(passing=True, evidence=f"description length: {n} chars")
+
+
+class SK004NameMatchesDir(Rule):
+    id = "SK004"
+    title = "frontmatter name matches parent directory name"
+    severity = "recommended"
+    stacks = ("skill",)
+    handbook_ref = "docs/handbook/09-skill.md#sk004"
+
+    def check(self, repo: Repo) -> CheckResult:
+        skill_md = find_skill_md(repo.path)
+        if skill_md is None:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no SKILL.md found (covered by SK001)",
+            )
+        data = parse_frontmatter(skill_md)
+        if data is None or "name" not in data:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="frontmatter or name absent (covered by SK002)",
+            )
+        frontmatter_name = str(data["name"])
+        dir_name = skill_md.parent.name
+        if frontmatter_name == dir_name:
+            return CheckResult(passing=True, evidence=f"name matches directory: {dir_name!r}")
+        return CheckResult(
+            passing=False,
+            evidence=f"name {frontmatter_name!r} does not match directory {dir_name!r}",
+        )
