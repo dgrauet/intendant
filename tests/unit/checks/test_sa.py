@@ -144,3 +144,96 @@ def test_sa004_metadata() -> None:
     assert rule.id == "SA004"
     assert rule.severity == "required"
     assert "*" in rule.stacks
+
+
+# ---------------------------------------------------------------------------
+# SA001 .fix() tests
+# ---------------------------------------------------------------------------
+
+
+def test_sa001_fix_creates_file_when_missing(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA001PreCommit()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.kind == "create"
+    assert "trailing-whitespace" in patch.content
+    assert "end-of-file-fixer" in patch.content
+    assert "check-yaml" in patch.content
+    assert patch.safe is True
+
+
+def test_sa001_fix_appends_when_no_pre_commit_hooks_repo(tmp_path: Path) -> None:
+    (tmp_path / ".pre-commit-config.yaml").write_text(
+        "repos:\n"
+        "  - repo: https://github.com/astral-sh/ruff-pre-commit\n"
+        "    rev: v0.9.0\n"
+        "    hooks:\n"
+        "      - id: ruff\n"
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA001PreCommit()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.kind == "overwrite"
+    assert "pre-commit/pre-commit-hooks" in patch.content
+    assert "trailing-whitespace" in patch.content
+    assert patch.safe is True
+
+
+def test_sa001_fix_returns_none_when_pre_commit_hooks_partially_declared(tmp_path: Path) -> None:
+    # pre-commit-hooks repo is declared but missing some baseline hooks — too risky to merge
+    (tmp_path / ".pre-commit-config.yaml").write_text(
+        "repos:\n"
+        "  - repo: https://github.com/pre-commit/pre-commit-hooks\n"
+        "    rev: v5.0.0\n"
+        "    hooks:\n"
+        "      - id: trailing-whitespace\n"
+        # missing end-of-file-fixer and check-yaml
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA001PreCommit()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is None
+
+
+# ---------------------------------------------------------------------------
+# SA002 .fix() tests
+# ---------------------------------------------------------------------------
+
+
+def test_sa002_fix_creates_file_when_missing(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA002Gitleaks()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.kind == "create"
+    assert "gitleaks" in patch.content
+    assert patch.safe is True
+
+
+def test_sa002_fix_appends_when_no_gitleaks_repo(tmp_path: Path) -> None:
+    (tmp_path / ".pre-commit-config.yaml").write_text(
+        "repos:\n"
+        "  - repo: https://github.com/pre-commit/pre-commit-hooks\n"
+        "    rev: v5.0.0\n"
+        "    hooks:\n"
+        "      - id: trailing-whitespace\n"
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA002Gitleaks()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.kind == "overwrite"
+    assert "gitleaks" in patch.content
+    assert patch.safe is True

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
+import tomllib
 
 from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
@@ -81,6 +83,63 @@ class RL003ReleasePlease(Rule):
                 evidence=f"missing release-please files: {missing}",
             )
         return CheckResult(passing=True)
+
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+        config_path = repo.path / "release-please-config.json"
+        manifest_path = repo.path / ".release-please-manifest.json"
+
+        # Need pyproject.toml for package name + version (Python only)
+        pyproject_path = repo.path / "pyproject.toml"
+        if not pyproject_path.is_file():
+            return None
+        try:
+            pyproject = tomllib.loads(pyproject_path.read_text())
+        except tomllib.TOMLDecodeError:
+            return None
+        name = pyproject.get("project", {}).get("name")
+        version = pyproject.get("project", {}).get("version", "0.0.0")
+        if not name:
+            return None
+
+        # Propose manifest first (smaller, simpler); config on second run
+        if not manifest_path.is_file():
+            content = json.dumps({".": str(version)}, indent=2) + "\n"
+            return Patch(
+                target_path=manifest_path,
+                kind="create",
+                content=content,
+                diff="--- /dev/null\n+++ .release-please-manifest.json\n",
+                safe=True,
+            )
+
+        # Manifest exists; propose config
+        if not config_path.is_file():
+            config = {
+                "$schema": (
+                    "https://raw.githubusercontent.com/googleapis/release-please"
+                    "/main/schemas/config.json"
+                ),
+                "release-type": "python",
+                "include-component-in-tag": False,
+                "include-v-in-tag": True,
+                "bump-minor-pre-major": True,
+                "bump-patch-for-minor-pre-major": True,
+                "packages": {
+                    ".": {
+                        "package-name": name,
+                        "changelog-path": "CHANGELOG.md",
+                    }
+                },
+            }
+            return Patch(
+                target_path=config_path,
+                kind="create",
+                content=json.dumps(config, indent=2) + "\n",
+                diff="--- /dev/null\n+++ release-please-config.json\n",
+                safe=True,
+            )
+
+        return None  # both exist, rule should have passed
 
 
 class RL002ConventionalCommits(Rule):

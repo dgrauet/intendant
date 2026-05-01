@@ -143,3 +143,64 @@ def test_rl003_metadata() -> None:
     assert rule.id == "RL003"
     assert rule.severity == "required"
     assert "*" in rule.stacks
+
+
+# ---------------------------------------------------------------------------
+# RL003 .fix() tests
+# ---------------------------------------------------------------------------
+
+
+def _write_pyproject(tmp_path: Path, name: str = "my-package", version: str = "1.2.3") -> None:
+    (tmp_path / "pyproject.toml").write_text(f'[project]\nname = "{name}"\nversion = "{version}"\n')
+
+
+def test_rl003_fix_creates_manifest_first(tmp_path: Path) -> None:
+    """Neither file exists, pyproject has name+version → fix creates manifest."""
+    _write_pyproject(tmp_path, name="my-package", version="1.2.3")
+    repo = Repo(path=tmp_path, stack="python")
+    rule = RL003ReleasePlease()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.target_path.name == ".release-please-manifest.json"
+    assert patch.kind == "create"
+    assert "1.2.3" in patch.content
+    assert patch.safe is True
+
+
+def test_rl003_fix_creates_config_when_manifest_exists(tmp_path: Path) -> None:
+    """Manifest exists, config missing → fix creates config with correct package name."""
+    _write_pyproject(tmp_path, name="my-package", version="1.2.3")
+    (tmp_path / ".release-please-manifest.json").write_text('{".": "1.2.3"}\n')
+    repo = Repo(path=tmp_path, stack="python")
+    rule = RL003ReleasePlease()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.target_path.name == "release-please-config.json"
+    assert patch.kind == "create"
+    assert "my-package" in patch.content
+    assert patch.safe is True
+
+
+def test_rl003_fix_returns_none_without_pyproject(tmp_path: Path) -> None:
+    """No pyproject.toml → fix returns None."""
+    repo = Repo(path=tmp_path, stack="python")
+    rule = RL003ReleasePlease()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is None
+
+
+def test_rl003_fix_returns_none_without_project_name(tmp_path: Path) -> None:
+    """pyproject.toml without [project].name → fix returns None."""
+    (tmp_path / "pyproject.toml").write_text('[build-system]\nrequires = ["setuptools"]\n')
+    repo = Repo(path=tmp_path, stack="python")
+    rule = RL003ReleasePlease()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is None

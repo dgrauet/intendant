@@ -2,10 +2,45 @@
 
 from __future__ import annotations
 
+from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
 
 _MINIMUM_HOOK_IDS = {"trailing-whitespace", "end-of-file-fixer", "check-yaml"}
+
+_BASELINE_HOOKS_REPO_YAML = """\
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+"""
+
+_BASELINE_PRECOMMIT_CONTENT = """\
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+"""
+
+_GITLEAKS_REPO_YAML = """\
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+"""
+
+_GITLEAKS_PRECOMMIT_CONTENT = """\
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+"""
 
 
 class SA001PreCommit(Rule):
@@ -30,6 +65,34 @@ class SA001PreCommit(Rule):
             )
         return CheckResult(passing=True)
 
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+        target = repo.path / ".pre-commit-config.yaml"
+        if not target.is_file():
+            return Patch(
+                target_path=target,
+                kind="create",
+                content=_BASELINE_PRECOMMIT_CONTENT,
+                diff="--- /dev/null\n+++ .pre-commit-config.yaml\n",
+                safe=True,
+            )
+        text = target.read_text()
+        if "pre-commit/pre-commit-hooks" in text:
+            # Repo already declared but baseline hooks incomplete — too risky to merge
+            return None
+        addition = "\n" + _BASELINE_HOOKS_REPO_YAML
+        new_content = text.rstrip() + addition
+        return Patch(
+            target_path=target,
+            kind="overwrite",
+            content=new_content,
+            diff=(
+                "--- a/.pre-commit-config.yaml\n"
+                "+++ b/.pre-commit-config.yaml\n"
+                f"@@ +N @@\n{addition}"
+            ),
+            safe=True,
+        )
+
 
 class SA002Gitleaks(Rule):
     id = "SA002"
@@ -51,6 +114,34 @@ class SA002Gitleaks(Rule):
                 evidence="gitleaks hook not found in .pre-commit-config.yaml",
             )
         return CheckResult(passing=True)
+
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+        target = repo.path / ".pre-commit-config.yaml"
+        if not target.is_file():
+            return Patch(
+                target_path=target,
+                kind="create",
+                content=_GITLEAKS_PRECOMMIT_CONTENT,
+                diff="--- /dev/null\n+++ .pre-commit-config.yaml\n",
+                safe=True,
+            )
+        text = target.read_text()
+        if "gitleaks" in text:
+            # Already present; rule should have passed — nothing to fix
+            return None
+        addition = "\n" + _GITLEAKS_REPO_YAML
+        new_content = text.rstrip() + addition
+        return Patch(
+            target_path=target,
+            kind="overwrite",
+            content=new_content,
+            diff=(
+                "--- a/.pre-commit-config.yaml\n"
+                "+++ b/.pre-commit-config.yaml\n"
+                f"@@ +N @@\n{addition}"
+            ),
+            safe=True,
+        )
 
 
 _GITIGNORE_BASELINES = ("__pycache__/", ".DS_Store", ".venv/")
