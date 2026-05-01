@@ -6,7 +6,7 @@ import re
 
 import yaml
 
-from suzerain.adapters.skill.inspectors import find_skill_md
+from suzerain.adapters.skill.inspectors import find_skill_md, parse_frontmatter
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
 
@@ -79,3 +79,40 @@ class SK002FrontmatterValid(Rule):
             passing=True,
             evidence=f"frontmatter valid: name={name!r}, description='{len(str(desc))} chars'",
         )
+
+
+class SK003DescriptionQuality(Rule):
+    id = "SK003"
+    title = "SKILL.md description length within 10-1024 chars"
+    severity = "recommended"
+    stacks = ("skill",)
+    handbook_ref = "docs/handbook/09-skill.md#sk003"
+
+    def check(self, repo: Repo) -> CheckResult:
+        skill_md = find_skill_md(repo.path)
+        if skill_md is None:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no SKILL.md found (covered by SK001)",
+            )
+        data = parse_frontmatter(skill_md)
+        if data is None or "description" not in data:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="frontmatter or description absent (covered by SK002)",
+            )
+        desc = str(data["description"]).strip()
+        n = len(desc)
+        if n < 10:
+            return CheckResult(
+                passing=False,
+                evidence=f"description too short: {n} chars (min 10)",
+            )
+        if n > 1024:
+            return CheckResult(
+                passing=False,
+                evidence=f"description too long: {n} chars (max 1024)",
+            )
+        return CheckResult(passing=True, evidence=f"description length: {n} chars")

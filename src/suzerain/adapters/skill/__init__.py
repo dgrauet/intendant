@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
-from suzerain.adapters.skill.sk import SK001SkillMdExists, SK002FrontmatterValid
+from suzerain.adapters.skill.sk import (
+    SK001SkillMdExists,
+    SK002FrontmatterValid,
+    SK003DescriptionQuality,
+)
 from suzerain.core.rule import Rule
 
 RULES: list[Rule] = [
     SK001SkillMdExists(),
     SK002FrontmatterValid(),
+    SK003DescriptionQuality(),
 ]

@@ -106,3 +106,42 @@ def test_sk002_fails_when_no_skill_md(tmp_path: Path) -> None:
 
     result = SK002FrontmatterValid().check(_skill_repo(tmp_path))
     assert result.passing is False
+
+
+def test_sk003_passes_with_normal_description(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK003DescriptionQuality
+
+    repo = _make_skill(
+        tmp_path,
+        "---\nname: foo\ndescription: a useful skill that does X\n---\nbody\n",
+    )
+    result = SK003DescriptionQuality().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "description length:" in result.evidence
+
+
+def test_sk003_fails_when_description_too_short(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK003DescriptionQuality
+
+    repo = _make_skill(tmp_path, "---\nname: foo\ndescription: hi\n---\nbody\n")
+    result = SK003DescriptionQuality().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "too short" in result.evidence
+
+
+def test_sk003_fails_when_description_too_long(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK003DescriptionQuality
+
+    long_desc = "x" * 1100
+    repo = _make_skill(tmp_path, f"---\nname: foo\ndescription: {long_desc}\n---\nbody\n")
+    result = SK003DescriptionQuality().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "too long" in result.evidence
+
+
+def test_sk003_skipped_when_frontmatter_invalid(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK003DescriptionQuality
+
+    repo = _make_skill(tmp_path, "no frontmatter at all\n")
+    result = SK003DescriptionQuality().check(_skill_repo(repo))
+    assert result.skipped is True
