@@ -6,7 +6,7 @@ Suzerain matérialise des standards de gestion de projet (workflows, CI, release
 
 ## Statut
 
-✅ **v0.1.1** — paliers 1 et 2 livrés. CLI opérationnel : `init`, `explain`, `audit`, `doctor`. 16 règles (8 transverses + 8 Python adapter), score de conformité pondéré, frontière safe/proposed sur les fixes auto-applicables.
+✅ **Paliers 1, 2, 3 livrés** — CLI complet : `init`, `explain`, `audit`, `doctor`, `new`. 16 règles (8 transverses + 8 Python adapter). Le scaffolder produit un projet qui passe `audit --severity=required` à 100% (modulo `uv lock` post-scaffold, exempté automatiquement avec une note).
 
 ## Installation
 
@@ -38,6 +38,12 @@ suzerain explain LO001
 
 # Vérifier l'install
 suzerain doctor
+
+# Scaffolder un nouveau projet conforme
+suzerain new my-project --stack=python --description="..." --author="..."
+cd my-project
+uv sync && uv run pre-commit install
+suzerain audit . --severity=required   # exit 0 si tout va bien
 ```
 
 ## Domaines couverts (30 règles, 16 implémentées)
@@ -65,7 +71,7 @@ Les autres règles documentées dans le handbook s'ajouteront en palier 2.5.
 
 - ✅ **Palier 1** — handbook + ADRs + commandes `init` / `explain`.
 - ✅ **Palier 2** — auditeur (`audit`, `audit --fix`, `doctor`) avec frontière safe/proposed.
-- ⏳ **Palier 3** — scaffolder (`suzerain new <name> --stack=...`).
+- ✅ **Palier 3** — scaffolder (`suzerain new <name> --stack=python`).
 
 ## Licence
 
