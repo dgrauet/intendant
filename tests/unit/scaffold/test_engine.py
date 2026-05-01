@@ -132,3 +132,11 @@ def test_scaffold_unknown_stack_raises(tmp_path: Path, context: SubstitutionCont
     target = tmp_path / "my-test"
     with pytest.raises(ValueError, match="unknown stack"):
         scaffold_project(target, "rust", context)
+
+
+def test_scaffold_creates_placeholder_test(tmp_path: Path, context: SubstitutionContext) -> None:
+    target = tmp_path / "my-test"
+    scaffold_project(target, "python", context)
+    placeholder = target / "tests" / "test_placeholder.py"
+    assert placeholder.is_file()
+    assert "test_placeholder" in placeholder.read_text()

@@ -107,6 +107,14 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
     tests_dir.mkdir(parents=True, exist_ok=True)
     (tests_dir / "__init__.py").write_text("", encoding="utf-8")
     (tests_dir / "conftest.py").write_text("", encoding="utf-8")
+    (tests_dir / "test_placeholder.py").write_text(
+        '"""Placeholder test — replace with real tests."""\n'
+        "\n"
+        "\n"
+        "def test_placeholder() -> None:\n"
+        '    """This passes by default. Delete when real tests are added."""\n',
+        encoding="utf-8",
+    )
     (target / ".python-version").write_text("3.13\n", encoding="utf-8")
 
 
