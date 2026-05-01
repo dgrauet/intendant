@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import subprocess
+
 from suzerain.adapters.python.inspectors import (
     has_pyproject,
     load_pyproject,
@@ -54,6 +56,47 @@ class QU002Ty(Rule):
             passing=False,
             evidence=f"neither ty nor pyright in dev deps; found: {sorted(deps)[:5]}",
         )
+
+
+class QU004TyCheck(Rule):
+    """Run `uvx ty check` against the repo; skip if ty/pyright not in deps."""
+
+    id = "QU004"
+    title = "ty check passes (Python type-checker)"
+    severity = "recommended"
+    stacks = ("python",)
+    handbook_ref = "docs/handbook/04-quality.md#qu004"
+    adr_ref = "0003-ty-with-pyright-fallback"
+
+    def applies(self, repo: Repo) -> bool:
+        if not super().applies(repo):
+            return False
+        # Only run if ty is declared in dev deps OR pyright (fallback path).
+        # Reuse the dep collection logic from QU002.
+        data = load_pyproject(repo.path)
+        if data is None:
+            return False
+        deps = _collect_dev_deps(data)
+        return any(d.startswith(("ty", "pyright")) for d in deps)
+
+    def check(self, repo: Repo) -> CheckResult:
+        try:
+            result = subprocess.run(
+                ["uvx", "ty", "check"],
+                cwd=repo.path,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+        except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
+            return CheckResult(passing=False, evidence=f"ty invocation failed: {exc}")
+        if result.returncode == 0:
+            return CheckResult(passing=True)
+        # Capture the diagnostic count from the last line, if present
+        output = (result.stdout or "") + (result.stderr or "")
+        last_line = output.rstrip().rsplit("\n", 1)[-1] if output else ""
+        summary = last_line if last_line.startswith("Found") else f"ty exited {result.returncode}"
+        return CheckResult(passing=False, evidence=summary)
 
 
 def _collect_dev_deps(pyproject: dict) -> set[str]:

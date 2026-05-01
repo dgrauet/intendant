@@ -7,7 +7,7 @@ from suzerain.adapters.python.pk import (
     PK003PythonVersion,
     PK004NoRequirementsTxt,
 )
-from suzerain.adapters.python.qu import QU001Ruff, QU002Ty
+from suzerain.adapters.python.qu import QU001Ruff, QU002Ty, QU004TyCheck
 from suzerain.adapters.python.ts import TS001Pytest, TS003CoverageConfigured
 from suzerain.core.rule import Rule
 
@@ -20,6 +20,7 @@ RULES: list[Rule] = [
     PK004NoRequirementsTxt(),
     QU001Ruff(),
     QU002Ty(),
+    QU004TyCheck(),
     TS001Pytest(),
     TS003CoverageConfigured(),
 ]
