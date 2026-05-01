@@ -127,3 +127,29 @@ def test_run_audit_findings_in_rule_order(tmp_path: Path) -> None:
     rules = [_PassingRule(), _FailingRule()]
     report = run_audit(repo, config, rules=rules)
     assert [f.rule_id for f in report.findings] == ["PASS001", "FAIL001"]
+
+
+def test_run_audit_skipped_check_emits_skip_status(tmp_path: Path) -> None:
+    """A rule whose check() returns skipped=True is reported as status='skip'."""
+    from suzerain.audit.runner import run_audit
+    from suzerain.core.config import SuzerainConfig
+    from suzerain.core.repo import Repo
+    from suzerain.core.rule import CheckResult, Rule
+
+    class SkippableRule(Rule):
+        id = "ZZ999"
+        title = "test"
+        severity = "recommended"
+        stacks = ("*",)
+        handbook_ref = "n/a"
+
+        def check(self, repo: Repo) -> CheckResult:
+            return CheckResult(passing=True, evidence="precondition not met", skipped=True)
+
+    repo = Repo(path=tmp_path, stack="auto")
+    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    report = run_audit(repo, cfg, [SkippableRule()])
+    assert len(report.findings) == 1
+    finding = report.findings[0]
+    assert finding.status == "skip"
+    assert finding.evidence == "precondition not met"

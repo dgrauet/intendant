@@ -16,6 +16,7 @@ class CheckResult:
 
     passing: bool
     evidence: str = ""
+    skipped: bool = False
 
 
 class Rule(ABC):

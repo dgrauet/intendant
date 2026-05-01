@@ -21,6 +21,7 @@ def run_audit(
     - `applies()` returns False → `skip`
     - `is_rule_exempt(rule.id)` → `exempt` (regardless of check outcome)
     - `check()` raises → `fail` with the exception message in evidence
+    - `check()` returns skipped=True → `skip` with the evidence string
     - `check()` returns passing=True → `pass`
     - `check()` returns passing=False → `fail` (fix preview computed if available)
     """
@@ -32,6 +33,16 @@ def run_audit(
 
 
 def _run_one(rule: Rule, repo: Repo, config: SuzerainConfig) -> Finding:
+    """Run a single rule and return a Finding.
+
+    Status mapping:
+    - applies() returns False → skip with stack reason
+    - is_rule_exempt(rule.id) → exempt with exemption reason
+    - check() raises → fail with the exception message in evidence
+    - check() returns skipped=True → skip with the evidence string
+    - check() returns passing=True → pass
+    - check() returns passing=False → fail (fix preview computed if available)
+    """
     if not rule.applies(repo):
         return Finding(
             rule_id=rule.id,
@@ -57,6 +68,14 @@ def _run_one(rule: Rule, repo: Repo, config: SuzerainConfig) -> Finding:
             severity=rule.severity,
             status="fail",
             evidence=f"rule raised: {exc}",
+            fix_available=False,
+        )
+    if result.skipped:
+        return Finding(
+            rule_id=rule.id,
+            severity=rule.severity,
+            status="skip",
+            evidence=result.evidence,
             fix_available=False,
         )
     if result.passing:
