@@ -102,3 +102,25 @@ def test_filter_does_not_remove_exempt_rules(tmp_path: Path) -> None:
     filtered = filter_for_repo(rules, repo, config)
     rule_ids = {r.id for r in filtered}
     assert "TST001" in rule_ids
+
+
+def test_collect_rules_includes_skill_adapter() -> None:
+    """The registry imports the skill adapter's RULES list (initially empty)."""
+    from suzerain.adapters.skill import RULES as SKILL_RULES
+    from suzerain.audit.registry import collect_rules
+
+    rules = collect_rules()
+    # All skill rules must appear in the collected list (set-equality on ids)
+    skill_ids = {r.id for r in SKILL_RULES}
+    collected_ids = {r.id for r in rules}
+    assert skill_ids.issubset(collected_ids)
+
+
+def test_registry_imports_skill_adapter_module() -> None:
+    """The registry must import skill adapter module without raising."""
+    from suzerain.audit.registry import collect_rules
+
+    # Should not raise even if skill adapter is empty
+    collect_rules()
+    # Direct import test — the adapter module must be importable
+    import suzerain.adapters.skill  # noqa: F401
