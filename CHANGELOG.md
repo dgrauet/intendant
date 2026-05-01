@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4](https://github.com/dgrauet/suzerain/compare/v0.1.3...v0.1.4) (2026-05-01)
+
+
+### Bug Fixes
+
+* **scaffold:** add placeholder test to avoid pytest exit 5 on fresh scaffolds ([2dc204d](https://github.com/dgrauet/suzerain/commit/2dc204defb3e1b33bc21154b660e57823ffd9b52))
+
 ## [0.1.3](https://github.com/dgrauet/suzerain/compare/v0.1.2...v0.1.3) (2026-05-01)
 
 
