@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2](https://github.com/dgrauet/suzerain/compare/v0.1.1...v0.1.2) (2026-05-01)
+
+
+### Features
+
+* **cli:** add 'suzerain new' scaffolder command ([5204cf7](https://github.com/dgrauet/suzerain/commit/5204cf7feba3ef95ac732590e057e6c9a67e3389))
+* **scaffold:** add engine for copying + substituting templates ([488fec9](https://github.com/dgrauet/suzerain/commit/488fec9ad3b1f727a804d7ec0d17e91601a0af66))
+* **scaffold:** add substitutions module with placeholder resolver ([07b25f2](https://github.com/dgrauet/suzerain/commit/07b25f2074e79b1bd820db3411d6575a0e472cb3))
+* **templates:** add baseline ADR-0000 template for new repos ([beabb49](https://github.com/dgrauet/suzerain/commit/beabb496e03352e063c77f3857a13efdbc6f3cdf))
+
+
+### Bug Fixes
+
+* **cli:** inject git committer fallback for fresh environments ([475de6a](https://github.com/dgrauet/suzerain/commit/475de6a66382ce87d369b1f160a934aaee9a7547))
+
+
+### Documentation
+
+* document 'suzerain new' in README quickstart and roadmap ([72069c5](https://github.com/dgrauet/suzerain/commit/72069c505b9b7156427f91c745c96f180dbe59cd))
+* update README for v0.1.1 (paliers 1+2 shipped, full CLI surface) ([6362146](https://github.com/dgrauet/suzerain/commit/636214628d0ae24de4b2d281a523fb03c696da52))
+
 ## [0.1.1](https://github.com/dgrauet/suzerain/compare/v0.1.0...v0.1.1) (2026-04-30)
 
 
