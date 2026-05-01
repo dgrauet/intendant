@@ -36,3 +36,73 @@ def test_sk001_fails_when_no_skill_md(tmp_path: Path) -> None:
     result = SK001SkillMdExists().check(_skill_repo(tmp_path))
     assert result.passing is False
     assert "no SKILL.md found" in result.evidence
+
+
+def test_sk002_passes_with_valid_frontmatter(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: useful tool\n---\nbody\n")
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "name='my-skill'" in result.evidence
+
+
+def test_sk002_fails_when_no_frontmatter(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, "# just a body\nno frontmatter\n")
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "no frontmatter block found" in result.evidence
+
+
+def test_sk002_fails_when_yaml_broken(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, "---\nkey: [unclosed\n---\nbody\n")
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "YAML parse error" in result.evidence
+
+
+def test_sk002_fails_when_name_missing(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, "---\ndescription: x\n---\nbody\n")
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "missing required field: name" in result.evidence
+
+
+def test_sk002_fails_when_description_missing(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, "---\nname: foo\n---\nbody\n")
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "missing required field: description" in result.evidence
+
+
+def test_sk002_fails_when_name_empty(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, '---\nname: ""\ndescription: x\n---\nbody\n')
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "field 'name' is empty" in result.evidence
+
+
+def test_sk002_fails_when_description_empty(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    repo = _make_skill(tmp_path, '---\nname: foo\ndescription: ""\n---\nbody\n')
+    result = SK002FrontmatterValid().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "field 'description' is empty" in result.evidence
+
+
+def test_sk002_fails_when_no_skill_md(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK002FrontmatterValid
+
+    result = SK002FrontmatterValid().check(_skill_repo(tmp_path))
+    assert result.passing is False
