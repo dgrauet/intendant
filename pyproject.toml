@@ -56,6 +56,9 @@ select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers --strict-config"
 pythonpath = ["src"]
+markers = [
+    "e2e: end-to-end tests",
+]
 
 [tool.coverage.run]
 source = ["src/suzerain"]
