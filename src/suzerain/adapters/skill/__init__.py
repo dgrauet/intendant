@@ -8,6 +8,7 @@ from suzerain.adapters.skill.sk import (
     SK003DescriptionQuality,
     SK004NameMatchesDir,
     SK005EvalsNonEmpty,
+    SK006ReferencedDirsExist,
 )
 from suzerain.core.rule import Rule
 
@@ -17,4 +18,5 @@ RULES: list[Rule] = [
     SK003DescriptionQuality(),
     SK004NameMatchesDir(),
     SK005EvalsNonEmpty(),
+    SK006ReferencedDirsExist(),
 ]

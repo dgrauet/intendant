@@ -229,3 +229,67 @@ def test_sk005_skipped_when_no_skill_md(tmp_path: Path) -> None:
 
     result = SK005EvalsNonEmpty().check(_skill_repo(tmp_path))
     assert result.skipped is True
+
+
+def test_sk006_passes_when_no_dir_mentioned(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK006ReferencedDirsExist
+
+    repo = _make_skill(
+        tmp_path,
+        "---\nname: my-skill\ndescription: x\n---\nNo references at all.\n",
+    )
+    result = SK006ReferencedDirsExist().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "no references/ or scripts/ mentioned" in result.evidence
+
+
+def test_sk006_passes_when_referenced_dirs_exist(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK006ReferencedDirsExist
+
+    repo = _make_skill(
+        tmp_path,
+        "---\nname: my-skill\ndescription: x\n---\nSee references/api.md and scripts/run.sh\n",
+    )
+    (repo / "my-skill" / "references").mkdir()
+    (repo / "my-skill" / "scripts").mkdir()
+    result = SK006ReferencedDirsExist().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "all referenced dirs present" in result.evidence
+
+
+def test_sk006_fails_when_referenced_dir_missing(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK006ReferencedDirsExist
+
+    repo = _make_skill(
+        tmp_path,
+        "---\nname: my-skill\ndescription: x\n---\nSee scripts/run.sh\n",
+    )
+    result = SK006ReferencedDirsExist().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "scripts" in result.evidence
+
+
+def test_sk006_does_not_flag_references_inside_code_block(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK006ReferencedDirsExist
+
+    body = (
+        "---\nname: my-skill\ndescription: x\n---\n"
+        "Example only:\n"
+        "```\n"
+        "scripts/example.sh\n"
+        "references/example.md\n"
+        "```\n"
+        "End.\n"
+    )
+    repo = _make_skill(tmp_path, body)
+    # No actual scripts/ or references/ dirs created — should still pass because
+    # mentions are inside a fenced code block.
+    result = SK006ReferencedDirsExist().check(_skill_repo(repo))
+    assert result.passing is True
+
+
+def test_sk006_skipped_when_no_skill_md(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK006ReferencedDirsExist
+
+    result = SK006ReferencedDirsExist().check(_skill_repo(tmp_path))
+    assert result.skipped is True

@@ -178,3 +178,49 @@ class SK005EvalsNonEmpty(Rule):
                 evidence="evals/ directory exists but empty (no .md/.json/.yaml/.txt files)",
             )
         return CheckResult(passing=True, evidence=f"evals/ present with {len(files)} file(s)")
+
+
+_DIR_REF_RE = re.compile(r"\b(references|scripts)/[\w/.-]+")
+_FENCED_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
+
+
+def _strip_frontmatter_and_codeblocks(text: str) -> str:
+    """Return the SKILL.md body with frontmatter and fenced code blocks removed."""
+    body = _FRONTMATTER_BLOCK_RE.sub("", text, count=1)
+    body = _FENCED_BLOCK_RE.sub("", body)
+    return body
+
+
+class SK006ReferencedDirsExist(Rule):
+    id = "SK006"
+    title = "referenced top-level dirs (references/, scripts/) exist when mentioned"
+    severity = "recommended"
+    stacks = ("skill",)
+    handbook_ref = "docs/handbook/09-skill.md#sk006"
+
+    def check(self, repo: Repo) -> CheckResult:
+        skill_md = find_skill_md(repo.path)
+        if skill_md is None:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no SKILL.md found (covered by SK001)",
+            )
+        text = skill_md.read_text(encoding="utf-8", errors="replace")
+        if text.startswith("﻿"):
+            text = text[1:]
+        body = _strip_frontmatter_and_codeblocks(text)
+        mentioned_top_levels = {m.group(1) for m in _DIR_REF_RE.finditer(body)}
+        if not mentioned_top_levels:
+            return CheckResult(
+                passing=True,
+                evidence="no references/ or scripts/ mentioned",
+            )
+        skill_dir = skill_md.parent
+        missing = sorted(d for d in mentioned_top_levels if not (skill_dir / d).is_dir())
+        if missing:
+            return CheckResult(
+                passing=False,
+                evidence=f"SKILL.md references missing dirs: {missing}",
+            )
+        return CheckResult(passing=True, evidence="all referenced dirs present")
