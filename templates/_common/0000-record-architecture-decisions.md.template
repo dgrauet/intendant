@@ -1,0 +1,38 @@
+<!-- suzerain-template: v1 -->
+# ADR-0000 : Record architecture decisions
+
+- **Statut** : accepted
+- **Date** : {{ year }}-01-01
+- **Stacks concernées** : * (transverse)
+
+## Contexte
+
+`{{ project_name }}` adopte la pratique des Architecture Decision Records
+(ADRs) pour documenter les choix non triviaux d'architecture de manière
+traçable et révisable.
+
+## Décision
+
+- Format ADR (Michael Nygard) avec extension : rubrique non standard
+  **Porte de sortie / révision** documentant ce qui ferait reconsidérer
+  la décision.
+- Numérotation séquentielle `NNNN` (4 chiffres), jamais réutilisée.
+- Statuts : `proposed | accepted | superseded by ADR-MMMM | deprecated`.
+- Template canonique fourni par suzerain (`templates/_common/adr.md`).
+
+## Conséquences
+
+- Toute décision d'architecture non triviale fait l'objet d'une ADR.
+- Les ADRs ne sont pas modifiées rétroactivement : on les supersede
+  ou déprécie.
+- Les règles suzerain peuvent pointer vers ces ADRs via `adr_ref`.
+
+## Alternatives considérées
+
+- Pas d'ADRs : trop d'informel, gouvernance non auditable.
+- ADRs sans statut : casse la traçabilité d'évolution.
+
+## Porte de sortie / révision
+
+- Si un format alternatif (Y-statements, etc.) émerge comme standard
+  industriel, migrer toutes les ADRs en bloc.
