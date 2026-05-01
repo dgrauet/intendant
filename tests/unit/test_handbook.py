@@ -62,3 +62,17 @@ def test_get_adr_unknown_returns_none(mini_handbook: Handbook) -> None:
 def test_handbook_root_must_exist(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         Handbook(root=tmp_path / "no_handbook")
+
+
+def test_handbook_indexes_all_sk_rules() -> None:
+    from suzerain.core.handbook import Handbook
+    from suzerain.core.paths import docs_root
+
+    handbook = Handbook(root=docs_root())
+    rule_ids = handbook.list_rules()
+    for sk_id in ("SK001", "SK002", "SK003", "SK004", "SK005", "SK006", "SK007"):
+        assert sk_id in rule_ids, f"{sk_id} missing from handbook"
+        section = handbook.get_rule(sk_id)
+        assert section is not None
+        assert section.severity in ("required", "recommended")
+        assert "skill" in section.stacks
