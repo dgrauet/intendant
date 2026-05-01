@@ -147,6 +147,13 @@ def test_sk003_skipped_when_frontmatter_invalid(tmp_path: Path) -> None:
     assert result.skipped is True
 
 
+def test_sk003_skipped_when_no_skill_md(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK003DescriptionQuality
+
+    result = SK003DescriptionQuality().check(_skill_repo(tmp_path))
+    assert result.skipped is True
+
+
 def test_sk004_passes_when_name_matches_dir(tmp_path: Path) -> None:
     from suzerain.adapters.skill.sk import SK004NameMatchesDir
 
@@ -293,6 +300,23 @@ def test_sk006_skipped_when_no_skill_md(tmp_path: Path) -> None:
 
     result = SK006ReferencedDirsExist().check(_skill_repo(tmp_path))
     assert result.skipped is True
+
+
+def test_sk006_does_not_flag_external_path_substring(tmp_path: Path) -> None:
+    """Cross-repo paths like 'upstream/scripts/foo.sh' must NOT be treated as
+    references to the skill's own top-level dir.
+    """
+    from suzerain.adapters.skill.sk import SK006ReferencedDirsExist
+
+    repo = _make_skill(
+        tmp_path,
+        "---\nname: my-skill\ndescription: x\n---\n"
+        "Compare with upstream-repo/scripts/build.sh and github.com/owner/references/api.md\n",
+    )
+    # No actual scripts/ or references/ dirs created — the rule must NOT flag,
+    # because the mentions are inside other path prefixes.
+    result = SK006ReferencedDirsExist().check(_skill_repo(repo))
+    assert result.passing is True
 
 
 def test_sk007_passes_when_readme_mentions_claude_skills_path(tmp_path: Path) -> None:

@@ -181,7 +181,7 @@ class SK005EvalsNonEmpty(Rule):
         return CheckResult(passing=True, evidence=f"evals/ present with {len(files)} file(s)")
 
 
-_DIR_REF_RE = re.compile(r"\b(references|scripts)/[\w/.-]+")
+_DIR_REF_RE = re.compile(r"(?<!\S)(references|scripts)/[\w/.-]+")
 _FENCED_BLOCK_RE = re.compile(r"```.*?```", re.DOTALL)
 
 
