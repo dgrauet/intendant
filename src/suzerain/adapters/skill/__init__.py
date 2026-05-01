@@ -9,6 +9,7 @@ from suzerain.adapters.skill.sk import (
     SK004NameMatchesDir,
     SK005EvalsNonEmpty,
     SK006ReferencedDirsExist,
+    SK007ReadmeInstallPath,
 )
 from suzerain.core.rule import Rule
 
@@ -19,4 +20,5 @@ RULES: list[Rule] = [
     SK004NameMatchesDir(),
     SK005EvalsNonEmpty(),
     SK006ReferencedDirsExist(),
+    SK007ReadmeInstallPath(),
 ]

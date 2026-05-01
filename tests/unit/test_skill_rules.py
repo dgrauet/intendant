@@ -293,3 +293,79 @@ def test_sk006_skipped_when_no_skill_md(tmp_path: Path) -> None:
 
     result = SK006ReferencedDirsExist().check(_skill_repo(tmp_path))
     assert result.skipped is True
+
+
+def test_sk007_passes_when_readme_mentions_claude_skills_path(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    (repo / "README.md").write_text("Install: ~/.claude/skills/my-skill\n")
+    result = SK007ReadmeInstallPath().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "documented" in result.evidence
+
+
+def test_sk007_passes_when_readme_mentions_plugins_path(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    (repo / "README.md").write_text("Bundled in claude/plugins/foo\n")
+    result = SK007ReadmeInstallPath().check(_skill_repo(repo))
+    assert result.passing is True
+
+
+def test_sk007_fails_when_readme_lacks_install_path(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    (repo / "README.md").write_text("Just a project, no install instructions.\n")
+    result = SK007ReadmeInstallPath().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "does not mention" in result.evidence
+
+
+def test_sk007_skipped_when_no_readme_at_root(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    result = SK007ReadmeInstallPath().check(_skill_repo(repo))
+    assert result.skipped is True
+    assert "DG003" in result.evidence
+
+
+def test_sk007_fix_appends_install_block(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    readme = repo / "README.md"
+    readme.write_text("# my-skill\nA short description.\n")
+    rule = SK007ReadmeInstallPath()
+    result = rule.check(_skill_repo(repo))
+    patch = rule.fix(_skill_repo(repo), result)
+    assert patch is not None
+    assert patch.safe is True
+    assert "~/.claude/skills/my-skill" in patch.content
+    assert "<repo-url>" in patch.content
+
+
+def test_sk007_fix_idempotent_when_install_path_already_present(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    (repo / "README.md").write_text("Install at ~/.claude/skills/my-skill\n")
+    rule = SK007ReadmeInstallPath()
+    result = rule.check(_skill_repo(repo))
+    # Already passing; fix() should return None.
+    patch = rule.fix(_skill_repo(repo), result)
+    assert patch is None
+
+
+def test_sk007_fix_returns_none_when_skipped(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK007ReadmeInstallPath
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    rule = SK007ReadmeInstallPath()
+    result = rule.check(_skill_repo(repo))
+    assert result.skipped is True
+    patch = rule.fix(_skill_repo(repo), result)
+    assert patch is None

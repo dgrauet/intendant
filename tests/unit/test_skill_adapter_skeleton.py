@@ -5,4 +5,4 @@ from suzerain.adapters.skill import RULES
 
 def test_skill_adapter_exports_rules_list() -> None:
     assert isinstance(RULES, list)
-    assert RULES == []
+    assert len(RULES) == 7

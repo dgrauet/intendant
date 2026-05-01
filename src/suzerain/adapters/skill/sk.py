@@ -7,6 +7,7 @@ import re
 import yaml
 
 from suzerain.adapters.skill.inspectors import find_skill_md, parse_frontmatter
+from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
 
@@ -224,3 +225,63 @@ class SK006ReferencedDirsExist(Rule):
                 evidence=f"SKILL.md references missing dirs: {missing}",
             )
         return CheckResult(passing=True, evidence="all referenced dirs present")
+
+
+_INSTALL_BLOCK_TEMPLATE = """
+
+## Installation
+
+Clone into your local Claude skills directory:
+
+```bash
+git clone <repo-url> ~/.claude/skills/{skill_name}
+```
+"""
+
+
+class SK007ReadmeInstallPath(Rule):
+    id = "SK007"
+    title = "README mentions skill install path (~/.claude/skills/ or claude/plugins/)"
+    severity = "recommended"
+    stacks = ("skill",)
+    handbook_ref = "docs/handbook/09-skill.md#sk007"
+
+    def check(self, repo: Repo) -> CheckResult:
+        readme = repo.path / "README.md"
+        if not readme.is_file():
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="README.md not found at repo root (covered by DG003)",
+            )
+        text = readme.read_text(encoding="utf-8", errors="replace")
+        if "~/.claude/skills/" in text or "claude/plugins/" in text:
+            return CheckResult(passing=True, evidence="install path documented in README.md")
+        return CheckResult(
+            passing=False,
+            evidence="README.md does not mention skill install path "
+            "(~/.claude/skills/ or claude/plugins/)",
+        )
+
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+        # Re-check before patching: never patch when skipped (no README) or already passing.
+        if result.skipped or result.passing:
+            return None
+        readme = repo.path / "README.md"
+        if not readme.is_file():
+            return None
+        text = readme.read_text(encoding="utf-8", errors="replace")
+        # Idempotency: if path is now present (race or stale result), no-op.
+        if "~/.claude/skills/" in text or "claude/plugins/" in text:
+            return None
+        skill_md = find_skill_md(repo.path)
+        skill_name = skill_md.parent.name if skill_md else "skill-name"
+        addition = _INSTALL_BLOCK_TEMPLATE.format(skill_name=skill_name)
+        new_content = text.rstrip() + addition
+        return Patch(
+            target_path=readme,
+            kind="overwrite",
+            content=new_content,
+            diff=(f"--- a/README.md\n+++ b/README.md\n@@ +N @@\n{addition}"),
+            safe=True,
+        )
