@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.skill.inspectors import find_skill_md
+from suzerain.adapters.skill.inspectors import find_skill_md, parse_frontmatter
 
 
 def test_find_skill_md_at_depth_1(tmp_path: Path) -> None:
@@ -58,3 +58,62 @@ def test_find_skill_md_does_not_recurse_to_depth_3(tmp_path: Path) -> None:
     deep.mkdir(parents=True)
     (deep / "SKILL.md").write_text("---\nname: deep\n---\n")
     assert find_skill_md(tmp_path) is None
+
+
+def _write_skill(tmp_path: Path, body: str) -> Path:
+    p = tmp_path / "SKILL.md"
+    p.write_text(body)
+    return p
+
+
+def test_parse_frontmatter_valid(tmp_path: Path) -> None:
+    p = _write_skill(
+        tmp_path,
+        "---\nname: foo\ndescription: a useful skill\n---\nbody\n",
+    )
+    data = parse_frontmatter(p)
+    assert data == {"name": "foo", "description": "a useful skill"}
+
+
+def test_parse_frontmatter_no_frontmatter_returns_none(tmp_path: Path) -> None:
+    p = _write_skill(tmp_path, "# Just a heading\nno frontmatter here\n")
+    assert parse_frontmatter(p) is None
+
+
+def test_parse_frontmatter_broken_yaml_returns_none(tmp_path: Path) -> None:
+    p = _write_skill(tmp_path, "---\nname: foo\n  bad indent\n---\nbody\n")
+    assert parse_frontmatter(p) is None
+
+
+def test_parse_frontmatter_handles_utf8_bom(tmp_path: Path) -> None:
+    p = tmp_path / "SKILL.md"
+    p.write_bytes(b"\xef\xbb\xbf---\nname: foo\ndescription: bom\n---\nbody\n")
+    data = parse_frontmatter(p)
+    assert data is not None
+    assert data["name"] == "foo"
+
+
+def test_parse_frontmatter_with_list_values(tmp_path: Path) -> None:
+    p = _write_skill(
+        tmp_path,
+        "---\nname: foo\ndescription: x\ntools: [bash, edit]\n---\nbody\n",
+    )
+    data = parse_frontmatter(p)
+    assert data is not None
+    assert data["tools"] == ["bash", "edit"]
+
+
+def test_parse_frontmatter_with_multiline_description(tmp_path: Path) -> None:
+    p = _write_skill(
+        tmp_path,
+        "---\nname: foo\ndescription: |\n  multi\n  line\n---\nbody\n",
+    )
+    data = parse_frontmatter(p)
+    assert data is not None
+    assert data["description"] == "multi\nline\n"
+
+
+def test_parse_frontmatter_returns_none_for_non_dict_root(tmp_path: Path) -> None:
+    # YAML root is a list, not a mapping
+    p = _write_skill(tmp_path, "---\n- foo\n- bar\n---\nbody\n")
+    assert parse_frontmatter(p) is None

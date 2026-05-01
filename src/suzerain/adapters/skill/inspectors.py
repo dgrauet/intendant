@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
+
+import yaml
 
 _EXCLUDED_PARTS = frozenset(
     {
@@ -15,6 +18,30 @@ _EXCLUDED_PARTS = frozenset(
         "build",
     }
 )
+
+_FRONTMATTER_RE = re.compile(r"^---\n(.*?\n)---\n", re.DOTALL)
+_BOM = "﻿"
+# Matches a line whose value ends with a YAML block-scalar indicator (| or >).
+_BLOCK_SCALAR_RE = re.compile(r":\s*[|>][-+]?\s*$")
+
+
+def _has_unexpected_indent(yaml_block: str) -> bool:
+    """Return True if the block contains indented lines outside a block scalar.
+
+    PyYAML silently folds indented continuation lines into the preceding
+    scalar value, making ``"key: val\\n  extra"`` parse without error.
+    This helper rejects such structurally-malformed frontmatter.
+    """
+    in_block_scalar = False
+    for line in yaml_block.splitlines():
+        if not line or not line.strip():
+            continue
+        if line[0] == " ":
+            if not in_block_scalar:
+                return True
+        else:
+            in_block_scalar = bool(_BLOCK_SCALAR_RE.search(line))
+    return False
 
 
 def find_skill_md(repo_path: Path) -> Path | None:
@@ -35,3 +62,25 @@ def find_skill_md(repo_path: Path) -> Path | None:
         if candidates:
             return candidates[0]
     return None
+
+
+def parse_frontmatter(skill_md_path: Path) -> dict | None:
+    """Extract and parse YAML frontmatter from a SKILL.md file.
+
+    Returns the parsed dict, or ``None`` if frontmatter is absent or malformed.
+    Treats UTF-8 BOM at file start as if it were not there.
+    """
+    text = skill_md_path.read_text(encoding="utf-8", errors="replace")
+    if text.startswith(_BOM):
+        text = text[len(_BOM) :]
+    match = _FRONTMATTER_RE.match(text)
+    if not match:
+        return None
+    raw = match.group(1)
+    if _has_unexpected_indent(raw):
+        return None
+    try:
+        data = yaml.safe_load(raw)
+    except yaml.YAMLError:
+        return None
+    return data if isinstance(data, dict) else None
