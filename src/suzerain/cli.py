@@ -9,6 +9,7 @@ from suzerain.commands import audit as audit_cmd
 from suzerain.commands import doctor as doctor_cmd
 from suzerain.commands import explain as explain_cmd
 from suzerain.commands import init as init_cmd
+from suzerain.commands import new as new_cmd
 
 app = typer.Typer(
     name="suzerain",
@@ -46,6 +47,7 @@ app.command("explain")(explain_cmd.explain)
 app.command("init")(init_cmd.init)
 app.command("audit")(audit_cmd.audit)
 app.command("doctor")(doctor_cmd.doctor)
+app.command("new")(new_cmd.new)
 
 
 def main() -> None:
