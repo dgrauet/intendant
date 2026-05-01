@@ -179,3 +179,53 @@ def test_sk004_skipped_when_name_missing(tmp_path: Path) -> None:
     repo = _make_skill(tmp_path, "---\ndescription: x\n---\n")
     result = SK004NameMatchesDir().check(_skill_repo(repo))
     assert result.skipped is True
+
+
+def test_sk005_passes_when_evals_dir_has_files(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK005EvalsNonEmpty
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    evals = repo / "my-skill" / "evals"
+    evals.mkdir()
+    (evals / "case-1.md").write_text("- input: foo\n- expected: bar\n")
+    result = SK005EvalsNonEmpty().check(_skill_repo(repo))
+    assert result.passing is True
+    assert "1 file" in result.evidence
+
+
+def test_sk005_fails_when_evals_dir_missing(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK005EvalsNonEmpty
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    result = SK005EvalsNonEmpty().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "missing" in result.evidence
+
+
+def test_sk005_fails_when_evals_dir_empty(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK005EvalsNonEmpty
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    (repo / "my-skill" / "evals").mkdir()
+    result = SK005EvalsNonEmpty().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "empty" in result.evidence
+
+
+def test_sk005_ignores_non_eval_extensions(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK005EvalsNonEmpty
+
+    repo = _make_skill(tmp_path, "---\nname: my-skill\ndescription: x\n---\n")
+    evals = repo / "my-skill" / "evals"
+    evals.mkdir()
+    (evals / "ignored.png").write_bytes(b"\x89PNG\r\n")
+    result = SK005EvalsNonEmpty().check(_skill_repo(repo))
+    assert result.passing is False
+    assert "empty" in result.evidence
+
+
+def test_sk005_skipped_when_no_skill_md(tmp_path: Path) -> None:
+    from suzerain.adapters.skill.sk import SK005EvalsNonEmpty
+
+    result = SK005EvalsNonEmpty().check(_skill_repo(tmp_path))
+    assert result.skipped is True

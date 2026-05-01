@@ -148,3 +148,33 @@ class SK004NameMatchesDir(Rule):
             passing=False,
             evidence=f"name {frontmatter_name!r} does not match directory {dir_name!r}",
         )
+
+
+_EVAL_EXTENSIONS = frozenset({".md", ".json", ".yaml", ".yml", ".txt"})
+
+
+class SK005EvalsNonEmpty(Rule):
+    id = "SK005"
+    title = "evals/ directory present and non-empty"
+    severity = "recommended"
+    stacks = ("skill",)
+    handbook_ref = "docs/handbook/09-skill.md#sk005"
+
+    def check(self, repo: Repo) -> CheckResult:
+        skill_md = find_skill_md(repo.path)
+        if skill_md is None:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no SKILL.md found (covered by SK001)",
+            )
+        evals_dir = skill_md.parent / "evals"
+        if not evals_dir.is_dir():
+            return CheckResult(passing=False, evidence="evals/ directory missing")
+        files = [p for p in evals_dir.iterdir() if p.is_file() and p.suffix in _EVAL_EXTENSIONS]
+        if not files:
+            return CheckResult(
+                passing=False,
+                evidence="evals/ directory exists but empty (no .md/.json/.yaml/.txt files)",
+            )
+        return CheckResult(passing=True, evidence=f"evals/ present with {len(files)} file(s)")

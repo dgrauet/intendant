@@ -7,6 +7,7 @@ from suzerain.adapters.skill.sk import (
     SK002FrontmatterValid,
     SK003DescriptionQuality,
     SK004NameMatchesDir,
+    SK005EvalsNonEmpty,
 )
 from suzerain.core.rule import Rule
 
@@ -15,4 +16,5 @@ RULES: list[Rule] = [
     SK002FrontmatterValid(),
     SK003DescriptionQuality(),
     SK004NameMatchesDir(),
+    SK005EvalsNonEmpty(),
 ]
