@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5](https://github.com/dgrauet/suzerain/compare/v0.1.4...v0.1.5) (2026-05-01)
+
+
+### Features
+
+* **checks:** add .fix() for SA001/SA002/RL003 (palier 2.6) ([1ae0d66](https://github.com/dgrauet/suzerain/commit/1ae0d663e7eb33a90865bf9035cae955312cf140))
+
 ## [0.1.4](https://github.com/dgrauet/suzerain/compare/v0.1.3...v0.1.4) (2026-05-01)
 
 
