@@ -81,7 +81,8 @@ def test_parse_frontmatter_no_frontmatter_returns_none(tmp_path: Path) -> None:
 
 
 def test_parse_frontmatter_broken_yaml_returns_none(tmp_path: Path) -> None:
-    p = _write_skill(tmp_path, "---\nname: foo\n  bad indent\n---\nbody\n")
+    # Truly malformed YAML: unclosed flow sequence triggers yaml.YAMLError.
+    p = _write_skill(tmp_path, "---\nkey: [unclosed\n---\nbody\n")
     assert parse_frontmatter(p) is None
 
 
