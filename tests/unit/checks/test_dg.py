@@ -2,7 +2,13 @@
 
 from pathlib import Path
 
-from suzerain.checks.dg import DG001Readme, DG003ADRDir, DG004License, DG005SpecsLocalOnly
+from suzerain.checks.dg import (
+    DG001Readme,
+    DG002CLAUDEmd,
+    DG003ADRDir,
+    DG004License,
+    DG005SpecsLocalOnly,
+)
 from suzerain.core.repo import Repo
 
 
@@ -93,3 +99,28 @@ def test_dg005_fix_writes_gitattributes(tmp_path: Path) -> None:
     patch = rule.fix(repo, rule.check(repo))
     assert patch is not None
     assert patch.target_path == tmp_path / ".gitattributes"
+
+
+# ---------------------------------------------------------------------------
+# DG002CLAUDEmd
+# ---------------------------------------------------------------------------
+
+
+def test_dg002_pass(tmp_path: Path) -> None:
+    (tmp_path / "CLAUDE.md").write_text("# CLAUDE.md\n")
+    repo = _setup_repo(tmp_path)
+    assert DG002CLAUDEmd().check(repo).passing is True
+
+
+def test_dg002_fail(tmp_path: Path) -> None:
+    repo = _setup_repo(tmp_path)
+    result = DG002CLAUDEmd().check(repo)
+    assert result.passing is False
+    assert "CLAUDE.md" in result.evidence
+
+
+def test_dg002_metadata(tmp_path: Path) -> None:
+    rule = DG002CLAUDEmd()
+    assert rule.id == "DG002"
+    assert rule.severity == "recommended"
+    assert "*" in rule.stacks

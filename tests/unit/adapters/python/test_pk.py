@@ -6,6 +6,7 @@ from suzerain.adapters.python.pk import (
     PK001PyprojectExists,
     PK002UvLock,
     PK003PythonVersion,
+    PK004NoRequirementsTxt,
     _resolve_python_version,
 )
 from suzerain.core.repo import Repo
@@ -123,3 +124,28 @@ def test_resolve_python_version_no_pyproject(tmp_path: Path) -> None:
     repo = Repo(path=tmp_path, stack="python")
     version = _resolve_python_version(repo)
     assert re.match(r"\d+\.\d+", version)
+
+
+# ---------------------------------------------------------------------------
+# PK004NoRequirementsTxt
+# ---------------------------------------------------------------------------
+
+
+def test_pk004_pass_no_requirements_txt(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    assert PK004NoRequirementsTxt().check(repo).passing is True
+
+
+def test_pk004_fail_requirements_txt_present(tmp_path: Path) -> None:
+    (tmp_path / "requirements.txt").write_text("requests==2.28.0\n")
+    repo = Repo(path=tmp_path, stack="python")
+    result = PK004NoRequirementsTxt().check(repo)
+    assert result.passing is False
+    assert "requirements.txt" in result.evidence
+
+
+def test_pk004_metadata() -> None:
+    rule = PK004NoRequirementsTxt()
+    assert rule.id == "PK004"
+    assert rule.severity == "recommended"
+    assert "python" in rule.stacks

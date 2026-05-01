@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from suzerain.adapters.python.inspectors import pyproject_tool_section
+from suzerain.adapters.python.inspectors import has_pyproject, pyproject_tool_section
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
 
@@ -44,4 +44,25 @@ class TS001Pytest(Rule):
                 " (need [tool.pytest.ini_options] in pyproject.toml,"
                 " pytest.ini with [pytest], or tests/conftest.py)"
             ),
+        )
+
+
+class TS003CoverageConfigured(Rule):
+    """[tool.coverage] section (or sub-section) exists in pyproject.toml."""
+
+    id = "TS003"
+    title = "[tool.coverage] configured in pyproject.toml"
+    severity = "recommended"
+    stacks = ("python",)
+    handbook_ref = "docs/handbook/05-tests.md#ts003"
+
+    def check(self, repo: Repo) -> CheckResult:
+        if not has_pyproject(repo.path):
+            return CheckResult(passing=True, evidence="no pyproject.toml — skip")
+        coverage_section = pyproject_tool_section(repo.path, "coverage")
+        if coverage_section:
+            return CheckResult(passing=True)
+        return CheckResult(
+            passing=False,
+            evidence="no [tool.coverage] section found in pyproject.toml",
         )

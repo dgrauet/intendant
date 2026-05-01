@@ -60,6 +60,19 @@ class DG001Readme(Rule):
         )
 
 
+class DG002CLAUDEmd(Rule):
+    id = "DG002"
+    title = "CLAUDE.md present at repo root"
+    severity = "recommended"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/08-docs-and-agent.md#dg002"
+
+    def check(self, repo: Repo) -> CheckResult:
+        if (repo.path / "CLAUDE.md").is_file():
+            return CheckResult(passing=True)
+        return CheckResult(passing=False, evidence="CLAUDE.md not found at repo root")
+
+
 class DG003ADRDir(Rule):
     id = "DG003"
     title = "docs/adr/ directory exists with at least one ADR"

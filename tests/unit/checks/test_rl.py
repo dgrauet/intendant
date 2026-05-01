@@ -3,7 +3,7 @@
 import subprocess
 from pathlib import Path
 
-from suzerain.checks.rl import RL001Changelog, RL002ConventionalCommits
+from suzerain.checks.rl import RL001Changelog, RL002ConventionalCommits, RL003ReleasePlease
 from suzerain.core.repo import Repo
 
 
@@ -98,3 +98,48 @@ def test_rl002_still_rejects_garbage(tmp_path: Path) -> None:
     _git_commit(tmp_path, "Random text without colon")
     repo = Repo(path=tmp_path, stack="python")
     assert RL002ConventionalCommits().check(repo).passing is False
+
+
+# ---------------------------------------------------------------------------
+# RL003ReleasePlease
+# ---------------------------------------------------------------------------
+
+
+def _write_release_please_files(tmp_path: Path) -> None:
+    (tmp_path / "release-please-config.json").write_text('{"packages": {".": {}}}\n')
+    (tmp_path / ".release-please-manifest.json").write_text('{".": "0.1.0"}\n')
+
+
+def test_rl003_pass(tmp_path: Path) -> None:
+    _write_release_please_files(tmp_path)
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL003ReleasePlease().check(repo).passing is True
+
+
+def test_rl003_fail_no_config(tmp_path: Path) -> None:
+    (tmp_path / ".release-please-manifest.json").write_text('{".": "0.1.0"}\n')
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL003ReleasePlease().check(repo)
+    assert result.passing is False
+    assert "release-please-config.json" in result.evidence
+
+
+def test_rl003_fail_no_manifest(tmp_path: Path) -> None:
+    (tmp_path / "release-please-config.json").write_text('{"packages": {".": {}}}\n')
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL003ReleasePlease().check(repo)
+    assert result.passing is False
+    assert ".release-please-manifest.json" in result.evidence
+
+
+def test_rl003_fail_both_missing(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL003ReleasePlease().check(repo)
+    assert result.passing is False
+
+
+def test_rl003_metadata() -> None:
+    rule = RL003ReleasePlease()
+    assert rule.id == "RL003"
+    assert rule.severity == "required"
+    assert "*" in rule.stacks

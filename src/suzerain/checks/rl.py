@@ -59,6 +59,30 @@ class RL001Changelog(Rule):
         )
 
 
+class RL003ReleasePlease(Rule):
+    id = "RL003"
+    title = "release-please-config.json and .release-please-manifest.json present"
+    severity = "required"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/07-releases.md#rl003"
+    adr_ref = "0005-release-please"
+
+    def check(self, repo: Repo) -> CheckResult:
+        config = repo.path / "release-please-config.json"
+        manifest = repo.path / ".release-please-manifest.json"
+        missing = []
+        if not config.is_file():
+            missing.append("release-please-config.json")
+        if not manifest.is_file():
+            missing.append(".release-please-manifest.json")
+        if missing:
+            return CheckResult(
+                passing=False,
+                evidence=f"missing release-please files: {missing}",
+            )
+        return CheckResult(passing=True)
+
+
 class RL002ConventionalCommits(Rule):
     id = "RL002"
     title = "Recent commits follow Conventional Commits"

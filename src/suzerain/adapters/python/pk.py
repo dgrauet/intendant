@@ -82,6 +82,23 @@ class PK003PythonVersion(Rule):
         )
 
 
+class PK004NoRequirementsTxt(Rule):
+    id = "PK004"
+    title = "requirements.txt absent (pyproject.toml + uv.lock is the source of truth)"
+    severity = "recommended"
+    stacks = ("python",)
+    handbook_ref = "docs/handbook/02-packaging.md#pk004"
+    adr_ref = "0002-uv-as-dependency-manager"
+
+    def check(self, repo: Repo) -> CheckResult:
+        if (repo.path / "requirements.txt").is_file():
+            return CheckResult(
+                passing=False,
+                evidence="requirements.txt found — use pyproject.toml + uv.lock instead",
+            )
+        return CheckResult(passing=True)
+
+
 def _resolve_python_version(repo: Repo) -> str:
     """Return a ``major.minor`` string for the Python version to pin."""
     # 1. Try requires-python from pyproject.toml
