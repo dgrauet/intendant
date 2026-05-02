@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.10](https://github.com/dgrauet/suzerain/compare/v0.1.9...v0.1.10) (2026-05-02)
+
+
+### Features
+
+* **adapters/python:** PK002 auto-fix runs sandboxed uv lock ([e5fc2d2](https://github.com/dgrauet/suzerain/commit/e5fc2d2cea47831a86277e315a071f5348145cb3))
+
 ## [0.1.9](https://github.com/dgrauet/suzerain/compare/v0.1.8...v0.1.9) (2026-05-02)
 
 
