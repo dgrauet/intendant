@@ -6,7 +6,7 @@ import re
 
 import yaml
 
-from suzerain.adapters.skill.inspectors import find_skill_md, parse_frontmatter
+from suzerain.adapters.claude_skill.inspectors import find_skill_md, parse_frontmatter
 from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
@@ -19,8 +19,8 @@ class SK001SkillMdExists(Rule):
     id = "SK001"
     title = "SKILL.md exists at depth <= 2"
     severity = "required"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk001"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk001"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -40,8 +40,8 @@ class SK002FrontmatterValid(Rule):
     id = "SK002"
     title = "SKILL.md frontmatter valid (name + description present and non-empty)"
     severity = "required"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk002"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk002"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -86,8 +86,8 @@ class SK003DescriptionQuality(Rule):
     id = "SK003"
     title = "SKILL.md description length within 10-1024 chars"
     severity = "recommended"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk003"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk003"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -123,8 +123,8 @@ class SK004NameMatchesDir(Rule):
     id = "SK004"
     title = "frontmatter name matches parent directory name"
     severity = "recommended"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk004"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk004"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -158,8 +158,8 @@ class SK005EvalsNonEmpty(Rule):
     id = "SK005"
     title = "evals/ directory present and non-empty"
     severity = "recommended"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk005"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk005"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -196,8 +196,8 @@ class SK006ReferencedDirsExist(Rule):
     id = "SK006"
     title = "referenced top-level dirs (references/, scripts/) exist when mentioned"
     severity = "recommended"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk006"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk006"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -243,8 +243,8 @@ class SK007ReadmeInstallPath(Rule):
     id = "SK007"
     title = "README mentions skill install path (~/.claude/skills/ or claude/plugins/)"
     severity = "recommended"
-    stacks = ("skill",)
-    handbook_ref = "docs/handbook/09-skill.md#sk007"
+    stacks = ("claude-skill",)
+    handbook_ref = "docs/handbook/09-claude-skill.md#sk007"
 
     def check(self, repo: Repo) -> CheckResult:
         readme = repo.path / "README.md"

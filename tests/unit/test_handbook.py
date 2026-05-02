@@ -75,4 +75,4 @@ def test_handbook_indexes_all_sk_rules() -> None:
         section = handbook.get_rule(sk_id)
         assert section is not None
         assert section.severity in ("required", "recommended")
-        assert "skill" in section.stacks
+        assert "claude-skill" in section.stacks

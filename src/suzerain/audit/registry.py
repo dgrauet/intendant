@@ -30,7 +30,7 @@ def collect_rules() -> list[Rule]:
     except ImportError:
         pass
     try:
-        from suzerain.adapters.skill import RULES
+        from suzerain.adapters.claude_skill import RULES
 
         rules.extend(RULES)
     except ImportError:

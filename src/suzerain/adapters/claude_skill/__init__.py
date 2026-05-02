@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from suzerain.adapters.skill.sk import (
+from suzerain.adapters.claude_skill.sk import (
     SK001SkillMdExists,
     SK002FrontmatterValid,
     SK003DescriptionQuality,

@@ -19,7 +19,7 @@ def detect_stack(path: Path) -> str | None:
     """Return the detected stack for ``path``, or ``None`` if unknown.
 
     Detection order:
-    1. ``skill`` if a SKILL.md exists at depth ≤ 2 (via skill adapter inspector).
+    1. ``claude-skill`` if a SKILL.md exists at depth ≤ 2 (via skill adapter inspector).
     2. ``python``/``node``/``rust`` if their root marker file exists.
 
     Raises ``FileNotFoundError`` if ``path`` does not exist.
@@ -27,10 +27,10 @@ def detect_stack(path: Path) -> str | None:
     if not path.exists():
         raise FileNotFoundError(f"path does not exist: {path}")
     # Lazy import to avoid circular: adapters depend on core, not the reverse.
-    from suzerain.adapters.skill.inspectors import find_skill_md
+    from suzerain.adapters.claude_skill.inspectors import find_skill_md
 
     if find_skill_md(path) is not None:
-        return "skill"
+        return "claude-skill"
     for stack, markers in _STACK_MARKERS.items():
         if any((path / marker).is_file() for marker in markers):
             return stack
@@ -42,7 +42,7 @@ class Repo:
     """A repository with its detected stack."""
 
     path: Path
-    stack: str  # "skill" | "python" | "node" | "rust" | "auto"
+    stack: str  # "claude-skill" | "python" | "node" | "rust" | "auto"
 
     @classmethod
     def from_path(cls, path: Path) -> Repo:

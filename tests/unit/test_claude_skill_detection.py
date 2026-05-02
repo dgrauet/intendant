@@ -9,23 +9,23 @@ from suzerain.core.repo import detect_stack
 
 def test_detect_skill_at_depth_1(tmp_path: Path) -> None:
     (tmp_path / "SKILL.md").write_text("---\nname: foo\n---\n")
-    assert detect_stack(tmp_path) == "skill"
+    assert detect_stack(tmp_path) == "claude-skill"
 
 
 def test_detect_skill_at_depth_2(tmp_path: Path) -> None:
     sub = tmp_path / "my-skill"
     sub.mkdir()
     (sub / "SKILL.md").write_text("---\nname: my-skill\n---\n")
-    assert detect_stack(tmp_path) == "skill"
+    assert detect_stack(tmp_path) == "claude-skill"
 
 
-def test_skill_takes_precedence_over_python(tmp_path: Path) -> None:
-    """When both pyproject.toml and SKILL.md exist, skill wins."""
+def test_claude_skill_takes_precedence_over_python(tmp_path: Path) -> None:
+    """When both pyproject.toml and SKILL.md exist, claude-skill wins."""
     (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n")
     sub = tmp_path / "my-skill"
     sub.mkdir()
     (sub / "SKILL.md").write_text("---\nname: my-skill\n---\n")
-    assert detect_stack(tmp_path) == "skill"
+    assert detect_stack(tmp_path) == "claude-skill"
 
 
 def test_python_still_detected_when_no_skill(tmp_path: Path) -> None:
