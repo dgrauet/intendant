@@ -1,44 +1,44 @@
-# 00 — Charte
+# 00 — Charter
 
 ## Mission
 
-Suzerain est un framework de gouvernance multi-stack. Il matérialise des
-standards de gestion de projet sous une forme à la fois lisible
-(handbook + ADRs) et exécutable (CLI d'audit et de scaffolding).
+Suzerain is a multi-stack governance framework. It materializes project
+management standards in a form that is both human-readable
+(handbook + ADRs) and executable (audit and scaffolding CLI).
 
-## Périmètre
+## Scope
 
-8 domaines :
+8 domains:
 
 1. [Layout](01-layout.md)
-2. [Packaging & dépendances](02-packaging.md)
+2. [Packaging & dependencies](02-packaging.md)
 3. [CI](03-ci.md)
-4. [Qualité](04-quality.md)
+4. [Quality](04-quality.md)
 5. [Tests](05-tests.md)
 6. [Sanitizing & secrets](06-sanitizing.md)
 7. [Releases](07-releases.md)
-8. [Docs & gouvernance interne](08-docs-and-agent.md)
+8. [Docs & internal governance](08-docs-and-agent.md)
 
 ## Non-goals
 
-- Pas de remplacement de Make/Just/Taskfile (orchestration).
-- Pas d'enforcement d'une architecture applicative (DDD, hexagonal...).
-- Pas de revue de code applicatif.
+- No replacement for Make/Just/Taskfile (orchestration).
+- No enforcement of an application architecture (DDD, hexagonal...).
+- No application code review.
 
-## Niveaux de conformité
+## Compliance levels
 
-Chaque règle a une `severity` :
+Each rule has a `severity`:
 
-- `required` : bloque la PR si activée en mode `strict`.
-- `recommended` : warning, n'arrête pas le pipeline.
-- `optional` : informationnel.
+- `required`: blocks the PR if enabled in `strict` mode.
+- `recommended`: warning, does not stop the pipeline.
+- `optional`: informational.
 
-Le mode appliqué est déclaré par repo dans `.suzerain.toml`
+The applied mode is declared per repo in `.suzerain.toml`
 (`mode = "strict" | "recommended" | "advisory"`).
 
 ## Exemptions
 
-Une règle peut être exemptée par repo via `.suzerain.toml`, avec une
-**raison écrite** et optionnellement une **date d'expiration**. L'exemption
-n'efface pas le finding : il apparaît `EXEMPT(reason)` dans le rapport.
-La dette technique reste visible.
+A rule can be exempted per repo via `.suzerain.toml`, with a
+**written reason** and optionally an **expiration date**. The exemption
+does not erase the finding: it appears as `EXEMPT(reason)` in the report.
+Technical debt remains visible.

@@ -1,18 +1,19 @@
 # CLAUDE.md — suzerain
 
-Contexte agent pour le repo suzerain.
+Agent context for the suzerain repo.
 
-## Quoi
+## What
 
-Framework de gouvernance multi-stack. Ce repo définit, héberge et exécute les standards qui régissent les autres projets de `~/Work/`.
+Multi-stack governance framework. This repo defines, hosts, and enforces the standards
+that govern the other projects in `~/Work/`.
 
-## Règles maison
+## House rules
 
-- **Specs et plans local-only** : `docs/superpowers/specs/` et `docs/superpowers/plans/` ne sont JAMAIS poussés sur le remote public. Rebase la branche sur `origin/main` avant push.
-- **TDD strict** sur le code Python du CLI (`src/suzerain/`). Tout nouveau composant moteur arrive avec son test rouge d'abord.
-- **Conventional commits strict**. Le hook `commit-msg` rejette les commits non conformes.
-- **Suzerain mange sa propre nourriture** : suzerain est gouverné par son propre `.suzerain.toml` (`mode = "strict"`).
-- **Type-checker** : `ty` (Astral) en V1. `pyright` documenté en porte de sortie (ADR-0003).
+- **Specs and plans local-only**: `docs/superpowers/specs/` and `docs/superpowers/plans/` are NEVER pushed to the public remote. Rebase the branch onto `origin/main` before pushing.
+- **Strict TDD** on the CLI Python code (`src/suzerain/`). Every new engine component comes with its failing test first.
+- **Strict conventional commits**. The `commit-msg` hook rejects non-conformant commits.
+- **Suzerain eats its own dog food**: suzerain is governed by its own `.suzerain.toml` (`mode = "strict"`).
+- **Type-checker**: `ty` (Astral) in V1. `pyright` documented as fallback (ADR-0003).
 
 ## Stack
 
@@ -23,9 +24,9 @@ Framework de gouvernance multi-stack. Ce repo définit, héberge et exécute les
 ## Tests
 
 ```bash
-uv run pytest                  # tous les tests
+uv run pytest                  # all tests
 uv run pytest tests/unit -v    # unit only
-uv run pytest --cov            # avec couverture
+uv run pytest --cov            # with coverage
 ```
 
 ## Lint & type
@@ -33,10 +34,10 @@ uv run pytest --cov            # avec couverture
 ```bash
 uv run ruff check .
 uv run ruff format --check .
-uvx ty check                   # ou: uv run ty check (selon installation)
+uvx ty check                   # or: uv run ty check (depending on installation)
 ```
 
-## Référence design
+## Design reference
 
-- Spec : `docs/superpowers/specs/2026-04-30-suzerain-design.md`
-- Plan palier 1 : `docs/superpowers/plans/2026-04-30-suzerain-palier1.md`
+- Spec: `docs/superpowers/specs/2026-04-30-suzerain-design.md`
+- Tier 1 plan: `docs/superpowers/plans/2026-04-30-suzerain-palier1.md`

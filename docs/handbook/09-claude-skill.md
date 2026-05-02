@@ -1,64 +1,64 @@
 # 09 — Skill (Claude Skill repositories)
 
-Convention de gouvernance pour les repos contenant un Claude Skill standalone.
-Le skill adapter détecte ces repos par la présence d'un fichier `SKILL.md`
-à profondeur ≤ 2 (au format Anthropic, frontmatter YAML).
+Governance convention for repositories containing a standalone Claude Skill.
+The skill adapter detects these repos by the presence of a `SKILL.md` file
+at depth ≤ 2 (in Anthropic frontmatter YAML format).
 
-## Règles
+## Rules
 
-### SK001 — SKILL.md présent
-
-**Severity:** required · **Stacks:** claude-skill
-
-Le repo doit contenir au moins un fichier `SKILL.md` à profondeur 1 ou 2
-(typiquement `<repo>/<skill-name>/SKILL.md`). Sans ce fichier, Claude ne
-peut pas charger le skill.
-
-### SK002 — Frontmatter valide
+### SK001 — SKILL.md present
 
 **Severity:** required · **Stacks:** claude-skill
 
-Le `SKILL.md` doit commencer par un bloc YAML `---` contenant au minimum
-les champs `name` et `description`, tous deux non-vides. Un frontmatter
-cassé empêche Claude de charger le skill.
+The repo must contain at least one `SKILL.md` file at depth 1 or 2
+(typically `<repo>/<skill-name>/SKILL.md`). Without this file, Claude cannot
+load the skill.
 
-### SK003 — Qualité de la description
+### SK002 — Valid frontmatter
 
-**Severity:** recommended · **Stacks:** claude-skill
+**Severity:** required · **Stacks:** claude-skill
 
-Le champ `description` doit faire entre 10 et 1024 caractères. Trop court
-indique un placeholder oublié ; trop long est tronqué dans le listing
-de skills exposé à l'utilisateur.
+The `SKILL.md` must begin with a `---` YAML block containing at minimum
+the `name` and `description` fields, both non-empty. A broken frontmatter
+prevents Claude from loading the skill.
 
-### SK004 — `name` correspond au dossier
-
-**Severity:** recommended · **Stacks:** claude-skill
-
-Le champ `name` du frontmatter doit être identique au nom du dossier
-parent du `SKILL.md`. Convention forte attendue par la communauté ;
-non enforcée par Claude mais utile pour la lisibilité.
-
-### SK005 — `evals/` non-vide
+### SK003 — Description quality
 
 **Severity:** recommended · **Stacks:** claude-skill
 
-Un dossier `evals/` à côté du `SKILL.md` doit exister et contenir au
-moins un fichier d'eval (`.md`/`.json`/`.yaml`/`.txt`). Les evals
-documentent les comportements attendus et permettent les régressions.
+The `description` field must be between 10 and 1024 characters. Too short
+indicates a forgotten placeholder; too long gets truncated in the skills
+listing exposed to the user.
 
-### SK006 — Dossiers référencés existants
-
-**Severity:** recommended · **Stacks:** claude-skill
-
-Si le `SKILL.md` mentionne `references/` ou `scripts/` dans son corps
-(hors blocs de code), ces dossiers doivent exister à côté du
-`SKILL.md`. Empêche la doc rot où le texte promet des fichiers absents.
-
-### SK007 — README documente le chemin d'installation
+### SK004 — `name` matches the folder
 
 **Severity:** recommended · **Stacks:** claude-skill
 
-Le `README.md` racine doit mentionner soit `~/.claude/skills/` soit
-`claude/plugins/` pour aider l'utilisateur à installer le skill. Un
-fix automatique peut appendre le bloc d'installation standard. Si
-`README.md` est absent, la règle est `skip` (DG003 couvre l'absence).
+The `name` field in the frontmatter must match the name of the parent
+folder of the `SKILL.md`. A strong convention expected by the community;
+not enforced by Claude but useful for readability.
+
+### SK005 — Non-empty `evals/`
+
+**Severity:** recommended · **Stacks:** claude-skill
+
+An `evals/` folder next to the `SKILL.md` must exist and contain at
+least one eval file (`.md`/`.json`/`.yaml`/`.txt`). Evals document
+expected behaviors and enable regression detection.
+
+### SK006 — Referenced folders exist
+
+**Severity:** recommended · **Stacks:** claude-skill
+
+If the `SKILL.md` mentions `references/` or `scripts/` in its body
+(outside code blocks), those folders must exist next to the
+`SKILL.md`. Prevents doc rot where the text promises files that are absent.
+
+### SK007 — README documents the installation path
+
+**Severity:** recommended · **Stacks:** claude-skill
+
+The root `README.md` must mention either `~/.claude/skills/` or
+`claude/plugins/` to help the user install the skill. An
+auto-fix can append the standard installation block. If
+`README.md` is absent, the rule is `skip` (DG003 covers the absence).

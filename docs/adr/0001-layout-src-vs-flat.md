@@ -1,21 +1,21 @@
 # ADR-0001 : Layout `src/` over flat layout
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : python
+- **Stacks** : python
 
-## Contexte
+## Context
 
-Les projets Python peuvent organiser leur code soit en flat layout
-(`mypackage/__init__.py` à la racine), soit en src layout
-(`src/mypackage/__init__.py`). Le flat layout est historiquement répandu
-mais cause des erreurs subtiles : pytest peut importer le code source
-plutôt que le package installé, masquant des bugs de packaging.
+Python projects can organize their code either with a flat layout
+(`mypackage/__init__.py` at the root) or a src layout
+(`src/mypackage/__init__.py`). The flat layout is historically widespread
+but causes subtle errors: pytest can import the source code
+rather than the installed package, masking packaging bugs.
 
-## Décision
+## Decision
 
-Tous les projets Python neufs ou refactorés utilisent le **src layout**.
-Les fichiers de tests vivent à la racine dans `tests/`.
+All new or refactored Python projects use the **src layout**.
+Test files live at the root in `tests/`.
 
 ```
 project/
@@ -26,22 +26,22 @@ project/
     └── test_*.py
 ```
 
-## Conséquences
+## Consequences
 
-- `pyproject.toml` doit déclarer `[tool.hatch.build.targets.wheel] packages = ["src/package_name"]`
-  (ou équivalent selon le build backend).
-- `[tool.pytest.ini_options] pythonpath = ["src"]` permet l'import en test
-  sans installation.
-- Les imports d'application sont toujours absolus (`from package_name.module import x`).
+- `pyproject.toml` must declare `[tool.hatch.build.targets.wheel] packages = ["src/package_name"]`
+  (or equivalent depending on the build backend).
+- `[tool.pytest.ini_options] pythonpath = ["src"]` enables importing during tests
+  without installation.
+- Application imports are always absolute (`from package_name.module import x`).
 
-## Alternatives considérées
+## Alternatives considered
 
-- Flat layout : abandonné pour les raisons listées en Contexte.
-- src/ avec namespace packages PEP 420 : surcomplique sans bénéfice pour
-  des projets non-monorepo.
+- Flat layout: abandoned for the reasons listed in the Context.
+- src/ with PEP 420 namespace packages: over-complicates without benefit for
+  non-monorepo projects.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-- Pour les forks de projets upstream à layout flat (ex. `Hunyuan3D-2.1-mlx`),
-  exempter via `.suzerain.toml` avec justification, jusqu'à un éventuel
+- For forks of upstream projects with a flat layout (e.g. `Hunyuan3D-2.1-mlx`),
+  exempt via `.suzerain.toml` with justification, until a potential
   refactor.

@@ -1,48 +1,47 @@
 # ADR-0004 : Conventional Commits strict (commitizen + commitlint)
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : * (transverse)
+- **Stacks** : * (transverse)
 
-## Contexte
+## Context
 
-Sans format de commit standardisé, le CHANGELOG ne peut pas être
-auto-généré, la sémantique des bumps de version est manuelle et
-sujette à erreur, et la lecture de l'historique est plus pénible.
-Conventional Commits (`<type>(<scope>): <subject>`) résout ces trois
-problèmes mais ne fonctionne que si l'enforcement est strict.
+Without a standardized commit format, the CHANGELOG cannot be
+auto-generated, version bump semantics are manual and error-prone, and
+reading the history is more painful.
+Conventional Commits (`<type>(<scope>): <subject>`) solves these three
+problems but only works if enforcement is strict.
 
-## Décision
+## Decision
 
-- **Format** : Conventional Commits 1.0.0
+- **Format**: Conventional Commits 1.0.0
   (https://www.conventionalcommits.org/).
-- **Types acceptés** : `feat`, `fix`, `docs`, `chore`, `refactor`, `test`,
+- **Accepted types**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`,
   `ci`, `perf`, `build`, `style`, `revert`.
-- **Enforcement à 2 niveaux** :
-  1. **Local** : hook `pre-commit` (stage `commit-msg`) avec
-     `commitizen-tools/commitizen` (côté Python) ou `commitlint`
-     (côté Node).
-  2. **CI** : job `commit-lint` qui valide les messages des commits de la
+- **Two-level enforcement**:
+  1. **Local**: `pre-commit` hook (stage `commit-msg`) with
+     `commitizen-tools/commitizen` (Python side) or `commitlint`
+     (Node side).
+  2. **CI**: `commit-lint` job that validates commit messages in the
      PR via `cz check --rev-range origin/main..HEAD`.
-- **Squash merge sur GitHub** : titre de PR conforme requis (devient le
-  message de squash commit).
+- **Squash merge on GitHub**: PR title must be compliant (becomes the
+  squash commit message).
 
-## Conséquences
+## Consequences
 
-- `release-please` (ADR-0005) consomme directement ces commits pour
-  générer le CHANGELOG et bumper la version.
-- Les contributeurs doivent apprendre le format. Compensé par `cz commit`
-  qui guide en interactif.
-- Les commits `fix:` bumpent le patch, `feat:` bumpent le minor, et
-  `feat!:` ou `BREAKING CHANGE:` dans le footer bumpent le major.
+- `release-please` (ADR-0005) consumes these commits directly to
+  generate the CHANGELOG and bump the version.
+- Contributors must learn the format. Mitigated by `cz commit`
+  which guides interactively.
+- `fix:` commits bump the patch, `feat:` bump the minor, and
+  `feat!:` or `BREAKING CHANGE:` in the footer bump the major.
 
-## Alternatives considérées
+## Alternatives considered
 
-- Format informel : abandonné, casse l'auto-CHANGELOG.
-- Format `gitmoji` : moins standard, mauvaise interop avec release-please.
+- Informal format: abandoned, breaks auto-CHANGELOG.
+- `gitmoji` format: less standard, poor interop with release-please.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-- Si une équipe collaboratrice rejette la friction, basculer en mode
-  "recommandé" (hook local seulement, pas de CI bloquante). Ne pas
-  abandonner le format lui-même.
+- If a collaborating team rejects the friction, switch to "recommended"
+  mode (local hook only, no blocking CI). Do not abandon the format itself.

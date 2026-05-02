@@ -1,51 +1,50 @@
 # ADR-0006 : Python harness for the suzerain CLI, PyO3 escape hatch
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : * (impacte le code source de suzerain)
+- **Stacks** : * (impacts suzerain source code)
 
-## Contexte
+## Context
 
-Le CLI suzerain pourrait être écrit en Rust pour bénéficier d'une vitesse
-brute (cohérence avec `uv`, `ruff`, `ty`). Mais le profil de l'auditeur
-est dominé par I/O et invocations subprocess vers les outils tiers
-(eux-mêmes en Rust). Le bottleneck réel n'est pas le CPU : c'est le coût
-d'évolution des règles, qui sera fréquent au palier 2.
+The suzerain CLI could be written in Rust to benefit from raw speed
+(consistency with `uv`, `ruff`, `ty`). But the auditor's profile is
+dominated by I/O and subprocess invocations to third-party tools
+(themselves written in Rust). The real bottleneck is not the CPU: it is the
+cost of evolving rules, which will be frequent in tier 2.
 
-## Décision
+## Decision
 
-Le CLI est écrit en **Python**. Justifications :
+The CLI is written in **Python**. Justifications:
 
-- Itération rapide sur les règles (chaque règle = ~10–20 lignes Python).
-- Adaptateurs (Python, Node, Go, Rust à venir) vivent dans des sous-modules
-  Python : ajouter une stack = créer un dossier, pas recompiler.
-- Distribution simple : `uv tool install suzerain`.
-- L'utilisateur (Damien) maîtrise déjà l'écosystème Python.
+- Rapid iteration on rules (each rule ≈ 10–20 lines of Python).
+- Adapters (Python, Node, Go, Rust to come) live in Python sub-modules:
+  adding a stack = creating a folder, not recompiling.
+- Simple distribution: `uv tool install suzerain`.
+- The user (Damien) already masters the Python ecosystem.
 
-**Porte de sortie explicite** : si `suzerain audit ~/Work/*` dépasse
-durablement 30 s à froid (mesuré sur 3 runs consécutifs), profiler avec
-`py-spy` ou `cProfile`. Si une règle individuelle est responsable, la
-réécrire en extension Rust via PyO3 (intégration locale, pas une
-réécriture globale).
+**Explicit exit hatch**: if `suzerain audit ~/Work/*` durably exceeds
+30 s cold (measured over 3 consecutive runs), profile with
+`py-spy` or `cProfile`. If an individual rule is responsible, rewrite it
+as a Rust extension via PyO3 (local integration, not a global rewrite).
 
-## Conséquences
+## Consequences
 
-- Toute la pile : Python ≥ 3.13, type hints stricts (ADR-0003), tests
-  pytest.
-- Pas d'ABI plugin nécessaire pour les adaptateurs.
-- Dette assumée : le CLI sera plus lent qu'un équivalent Rust pur. Acceptable
-  vu le profil d'usage (audit ponctuel, pas en boucle keystroke).
+- The entire stack: Python ≥ 3.13, strict type hints (ADR-0003), pytest
+  tests.
+- No plugin ABI needed for adapters.
+- Acknowledged debt: the CLI will be slower than a pure Rust equivalent. Acceptable
+  given the usage profile (occasional audit, not a keystroke loop).
 
-## Alternatives considérées
+## Alternatives considered
 
-- **CLI 100 % Rust** : gain marginal sur le temps total (dominé par
-  subprocess), coût massif sur l'agilité.
-- **CLI mixte Python + bibliothèque Rust dès V1** : prématuré, ajoute du
-  build complexe sans bénéfice prouvé.
+- **100% Rust CLI**: marginal gain on total time (dominated by
+  subprocess), massive cost on agility.
+- **Mixed Python + Rust library from V1**: premature, adds complex
+  build overhead without proven benefit.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-- Profiler à chaque major release et tagger les règles > 200 ms comme
-  candidates PyO3.
-- Si > 5 règles dépassent ce seuil, envisager un sous-projet
-  `suzerain-rs` (extension Rust) avant de pousser le palier suivant.
+- Profile at each major release and tag rules > 200 ms as
+  PyO3 candidates.
+- If > 5 rules exceed this threshold, consider a
+  `suzerain-rs` sub-project (Rust extension) before pushing the next tier.

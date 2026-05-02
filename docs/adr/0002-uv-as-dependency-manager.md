@@ -1,48 +1,48 @@
 # ADR-0002 : `uv` as the Python dependency manager
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : python
+- **Stacks** : python
 
-## Contexte
+## Context
 
-L'écosystème Python a longtemps souffert d'une fragmentation des outils de
-packaging (`pip`, `pipenv`, `poetry`, `pdm`, `hatch`, `rye`...). Chacun a
-ses forces, mais maintenir une cohérence cross-projet exige un choix
-unique. `uv` (Astral, Rust) consolide création de venv + résolution + lock
-+ install en un binaire unique, considérablement plus rapide que les
-alternatives, avec un format `pyproject.toml` standard.
+The Python ecosystem has long suffered from fragmentation in packaging tools
+(`pip`, `pipenv`, `poetry`, `pdm`, `hatch`, `rye`...). Each has its
+strengths, but maintaining cross-project consistency requires a single choice.
+`uv` (Astral, Rust) consolidates venv creation + resolution + locking
++ installation into a single binary, considerably faster than alternatives,
+with a standard `pyproject.toml` format.
 
-## Décision
+## Decision
 
-`uv` est l'outil canonique pour :
+`uv` is the canonical tool for:
 
-- Créer et synchroniser le venv (`uv sync`).
-- Locker les dépendances (`uv.lock`, **commité au repo**, obligatoire).
-- Exécuter les commandes locales (`uv run <cmd>`).
-- Installer suzerain et les outils CLI (`uv tool install`).
+- Creating and synchronizing the venv (`uv sync`).
+- Locking dependencies (`uv.lock`, **committed to the repo**, required).
+- Running local commands (`uv run <cmd>`).
+- Installing suzerain and CLI tools (`uv tool install`).
 
-`pip` n'est plus utilisé en local pour les projets régis par suzerain.
-`requirements.txt` peut être généré (`uv export`) pour interop avec des
-systèmes legacy.
+`pip` is no longer used locally for projects governed by suzerain.
+`requirements.txt` can be generated (`uv export`) for interop with
+legacy systems.
 
-## Conséquences
+## Consequences
 
-- Tous les projets ont un `uv.lock` versionné.
-- Les CI installent `uv` puis font `uv sync` (workflow type au palier 1
-  livré dans `templates/github/ci.yml`).
-- `pyproject.toml` utilise `[dependency-groups]` (PEP 735) plutôt que
-  `[project.optional-dependencies]` pour les deps dev.
+- All projects have a versioned `uv.lock`.
+- CI installs `uv` then runs `uv sync` (template workflow for tier 1
+  delivered in `templates/github/ci.yml`).
+- `pyproject.toml` uses `[dependency-groups]` (PEP 735) rather than
+  `[project.optional-dependencies]` for dev deps.
 
-## Alternatives considérées
+## Alternatives considered
 
-- `poetry` : mature mais lent ; format `pyproject.toml` moins standard
-  (`tool.poetry` au lieu de `project`).
-- `pdm` : bon mais moins de momentum communautaire.
-- `pip + pip-tools` : pas de venv intégré, deux outils à coordonner.
+- `poetry`: mature but slow; `pyproject.toml` format less standard
+  (`tool.poetry` instead of `project`).
+- `pdm`: good but less community momentum.
+- `pip + pip-tools`: no integrated venv, two tools to coordinate.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-- Si `uv` cesse d'être maintenu ou si Astral pivote, basculer vers `pdm`
-  (le plus proche en philosophie) avec un script de migration `uv export`
+- If `uv` stops being maintained or Astral pivots, switch to `pdm`
+  (closest in philosophy) with a migration script `uv export`
   + `pdm import`.

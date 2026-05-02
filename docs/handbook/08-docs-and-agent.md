@@ -1,44 +1,44 @@
-# 08 — Docs & gouvernance interne
+# 08 — Docs & internal governance
 
-## Règles
+## Rules
 
-### DG001 — `README.md` structuré
+### DG001 — Structured `README.md`
 
 **Severity:** required · **Stacks:** *
 
-Le `README.md` racine contient au minimum : une description en une
-phrase, le statut, l'installation, un quickstart, un lien vers la doc
-complète, la licence.
+The root `README.md` contains at minimum: a one-sentence description,
+the status, installation instructions, a quickstart, a link to the full
+documentation, and the license.
 
-### DG002 — `CLAUDE.md` pour le contexte agent
+### DG002 — `CLAUDE.md` for agent context
 
 **Severity:** recommended · **Stacks:** *
 
-Si le projet est exploré par Claude Code, un `CLAUDE.md` à la racine
-décrit la stack, les règles maison, les commandes principales (tests,
-lint, build), et les conventions non triviales.
+If the project is explored by Claude Code, a `CLAUDE.md` at the root
+describes the stack, house rules, main commands (tests,
+lint, build), and non-trivial conventions.
 
-### DG003 — `docs/adr/` pour les décisions d'architecture
+### DG003 — `docs/adr/` for architecture decisions
 
 **Severity:** required · **Stacks:** * · **ADR:** [0000-record-architecture-decisions](../adr/0000-record-architecture-decisions.md)
 
-Toute décision d'architecture non triviale est documentée comme ADR
-dans `docs/adr/NNNN-<slug>.md`. Format : cf. ADR-0000 et le template
+Every non-trivial architecture decision is documented as an ADR
+in `docs/adr/NNNN-<slug>.md`. Format: see ADR-0000 and the template
 `templates/_common/adr.md`.
 
-### DG004 — `LICENSE` à la racine
+### DG004 — `LICENSE` at the root
 
 **Severity:** required · **Stacks:** *
 
-Un fichier `LICENSE` à la racine déclare la licence. Le champ `license`
-de `pyproject.toml` (ou équivalent) doit correspondre.
+A `LICENSE` file at the root declares the license. The `license`
+field in `pyproject.toml` (or equivalent) must match.
 
-### DG005 — Specs et plans local-only
+### DG005 — Specs and plans local-only
 
 **Severity:** required · **Stacks:** *
 
-Les fichiers sous `docs/superpowers/specs/` et `docs/superpowers/plans/`
-ne sont jamais poussés sur les remotes publics. Un hook `pre-push`
-bloque les push qui les contiennent vers `origin/main`. Politique née
-d'une préférence utilisateur explicite : ces artefacts contiennent du
-brainstorming et des plans internes qui ne doivent pas leak.
+Files under `docs/superpowers/specs/` and `docs/superpowers/plans/`
+are never pushed to public remotes. A `pre-push` hook blocks pushes
+containing them to `origin/main`. Policy born of an explicit user
+preference: these artifacts contain brainstorming and internal plans
+that must not leak.

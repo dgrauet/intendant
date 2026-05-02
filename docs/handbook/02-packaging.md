@@ -1,35 +1,34 @@
-# 02 — Packaging & dépendances
+# 02 — Packaging & dependencies
 
-## Règles
+## Rules
 
-### PK001 — `pyproject.toml` à la racine (Python)
+### PK001 — `pyproject.toml` at the root (Python)
 
 **Severity:** required · **Stacks:** python · **ADR:** [0002-uv-as-dependency-manager](../adr/0002-uv-as-dependency-manager.md)
 
-Un `pyproject.toml` conforme PEP 621 (section `[project]`) doit exister à
-la racine. Champs minimum : `name`, `version`, `description`, `requires-python`,
+A PEP 621-compliant `pyproject.toml` (with a `[project]` section) must exist at
+the root. Minimum fields: `name`, `version`, `description`, `requires-python`,
 `license`, `dependencies`.
 
-### PK002 — `uv.lock` versionné (Python)
+### PK002 — `uv.lock` versioned (Python)
 
 **Severity:** required · **Stacks:** python · **ADR:** [0002-uv-as-dependency-manager](../adr/0002-uv-as-dependency-manager.md)
 
-Le fichier `uv.lock` produit par `uv lock` est commité au repo. Garantit
-des installations reproductibles et permet les audits de sécurité par
-hash de paquet.
+The `uv.lock` file produced by `uv lock` is committed to the repo. Guarantees
+reproducible installs and enables security audits by package hash.
 
-### PK003 — Version Python pinned
+### PK003 — Python version pinned
 
 **Severity:** required · **Stacks:** python
 
-Le fichier `.python-version` à la racine fige la version Python utilisée
-en local et en CI. La même valeur apparaît dans `pyproject.toml`
-(`requires-python`) et dans le workflow CI.
+The `.python-version` file at the root pins the Python version used
+locally and in CI. The same value appears in `pyproject.toml`
+(`requires-python`) and in the CI workflow.
 
-### PK004 — Pas de `requirements.txt`
+### PK004 — No `requirements.txt`
 
 **Severity:** recommended · **Stacks:** python · **ADR:** [0002-uv-as-dependency-manager](../adr/0002-uv-as-dependency-manager.md)
 
-`requirements.txt` n'est pas la source de vérité. Si un système legacy
-l'exige, le générer à la volée via `uv export -o requirements.txt`
-(et marquer le fichier `.gitignore`).
+`requirements.txt` is not the source of truth. If a legacy system
+requires it, generate it on the fly via `uv export -o requirements.txt`
+(and mark the file in `.gitignore`).

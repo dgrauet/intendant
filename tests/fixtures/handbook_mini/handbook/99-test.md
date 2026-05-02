@@ -1,24 +1,24 @@
-# 99 — Domaine de test
+# 99 — Test domain
 
-Ce fichier sert de fixture aux tests du parser handbook.
+This file serves as a fixture for the handbook parser tests.
 
-## Règles
+## Rules
 
-### XX001 — Première règle de test
+### XX001 — First test rule
 
 **Severity:** required · **Stacks:** python · **ADR:** [9999-test-decision](../adr/9999-test-decision.md)
 
-Corps de XX001. Cette règle exige la présence d'un fichier `marker.txt`
-à la racine du repo Python.
+Body of XX001. This rule requires the presence of a `marker.txt` file
+at the root of the Python repo.
 
-### XX002 — Deuxième règle de test
+### XX002 — Second test rule
 
 **Severity:** recommended · **Stacks:** *
 
-Corps de XX002, sans ADR liée. S'applique transverse à toutes les stacks.
+Body of XX002, with no linked ADR. Applies transversally to all stacks.
 
-### XX003 — Troisième règle de test
+### XX003 — Third test rule
 
 **Severity:** optional · **Stacks:** node, python · **ADR:** [9999-test-decision](../adr/9999-test-decision.md)
 
-Corps de XX003 multi-stack avec ADR.
+Body of XX003 multi-stack with ADR.

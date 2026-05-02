@@ -1,43 +1,42 @@
 # ADR-0000 : Record architecture decisions
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : * (transverse)
+- **Stacks** : * (transverse)
 
-## Contexte
+## Context
 
-Suzerain produit des règles exécutables et une documentation humaine. Toute
-règle est traçable jusqu'à une décision d'architecture explicite. Sans ADRs,
-la rationale derrière les règles se perd, les évolutions deviennent
-arbitraires et la gouvernance perd sa légitimité.
+Suzerain produces executable rules and human documentation. Every
+rule is traceable to an explicit architecture decision. Without ADRs,
+the rationale behind the rules is lost, changes become arbitrary, and
+governance loses its legitimacy.
 
-## Décision
+## Decision
 
-On adopte le format ADR (Architecture Decision Records, popularisé par
-Michael Nygard) avec une légère extension :
+We adopt the ADR format (Architecture Decision Records, popularized by
+Michael Nygard) with a slight extension:
 
-- Numérotation séquentielle `NNNN` à 4 chiffres, jamais réutilisée.
-- Statut : `proposed | accepted | superseded by ADR-MMMM | deprecated`.
-- Une rubrique non standard **Porte de sortie / révision** documente ce qui
-  ferait reconsidérer la décision.
+- Sequential `NNNN` numbering with 4 digits, never reused.
+- Status: `proposed | accepted | superseded by ADR-MMMM | deprecated`.
+- A non-standard section **Exit hatch / revision** documents what would
+  make us reconsider the decision.
 
-Le template canonique vit dans `templates/_common/adr.md`.
+The canonical template lives in `templates/_common/adr.md`.
 
-## Conséquences
+## Consequences
 
-- Toute nouvelle règle suzerain pointe vers une ADR via `RuleSection.adr_ref`.
-- Le test e2e `tests/unit/test_handbook.py` peut vérifier que chaque ADR
-  référencée existe (à ajouter au palier 2).
-- Les ADRs ne sont pas modifiées rétroactivement : on les supersede ou
-  déprécie.
+- Every new suzerain rule points to an ADR via `RuleSection.adr_ref`.
+- The e2e test `tests/unit/test_handbook.py` can verify that each referenced ADR
+  exists (to be added in tier 2).
+- ADRs are not modified retroactively: they are superseded or deprecated.
 
-## Alternatives considérées
+## Alternatives considered
 
-- Pas d'ADRs : trop d'informel, gouvernance non auditable.
-- ADRs sans numérotation séquentielle : casse l'ordre temporel et la
-  citation stable depuis les règles.
+- No ADRs: too informal, governance is not auditable.
+- ADRs without sequential numbering: breaks chronological order and
+  stable citations from rules.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-- Si un format alternatif (Y-statements, etc.) émerge comme standard
-  industriel, migrer toutes les ADRs en bloc.
+- If an alternative format (Y-statements, etc.) emerges as an industry
+  standard, migrate all ADRs in bulk.

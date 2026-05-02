@@ -1,37 +1,37 @@
 # 06 — Sanitizing & secrets
 
-## Règles
+## Rules
 
-### SA001 — `pre-commit` configuré et installé
+### SA001 — `pre-commit` configured and installed
 
 **Severity:** required · **Stacks:** *
 
-Un fichier `.pre-commit-config.yaml` à la racine définit au minimum :
+A `.pre-commit-config.yaml` file at the root defines at minimum:
 `trailing-whitespace`, `end-of-file-fixer`, `check-yaml`, `check-toml`,
-`detect-private-key`, et le linter du langage (ruff côté Python).
+`detect-private-key`, and the language linter (ruff on the Python side).
 
-### SA002 — Détection de secrets (gitleaks)
-
-**Severity:** required · **Stacks:** *
-
-`gitleaks` est inclus dans les hooks pre-commit. Empêche le commit
-accidentel de clés API, tokens, mots de passe.
-
-### SA003 — `.env.example` sans secret
+### SA002 — Secret detection (gitleaks)
 
 **Severity:** required · **Stacks:** *
 
-Si le projet utilise des variables d'environnement, un fichier
-`.env.example` à la racine documente les noms attendus avec des
-valeurs vides ou bidons. Le vrai `.env` est dans `.gitignore`.
+`gitleaks` is included in pre-commit hooks. Prevents accidental
+commits of API keys, tokens, and passwords.
+
+### SA003 — `.env.example` without secrets
+
+**Severity:** required · **Stacks:** *
+
+If the project uses environment variables, a `.env.example` file
+at the root documents the expected variable names with empty or
+dummy values. The real `.env` is in `.gitignore`.
 
 ### SA004 — `.gitignore` baseline
 
 **Severity:** required · **Stacks:** *
 
-Le `.gitignore` à la racine ignore au minimum :
-- Le venv (`.venv/`, `venv/`).
-- Les caches (`__pycache__/`, `.pytest_cache/`, `.ruff_cache/`,
+The root `.gitignore` ignores at minimum:
+- The venv (`.venv/`, `venv/`).
+- Caches (`__pycache__/`, `.pytest_cache/`, `.ruff_cache/`,
   `.ty_cache/`, `.mypy_cache/`).
-- Les artefacts de build (`dist/`, `build/`, `*.egg-info/`).
-- Les fichiers OS (`.DS_Store`, `Thumbs.db`).
+- Build artifacts (`dist/`, `build/`, `*.egg-info/`).
+- OS files (`.DS_Store`, `Thumbs.db`).

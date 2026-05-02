@@ -1,30 +1,30 @@
-# 04 — Qualité
+# 04 — Quality
 
-## Règles
+## Rules
 
-### QU001 — `ruff` comme linter et formatter
+### QU001 — `ruff` as linter and formatter
 
 **Severity:** required · **Stacks:** python
 
-`ruff` est l'outil unique pour lint et format Python. Remplace `black`,
-`isort`, `flake8`, et leurs plugins. Configuration dans `[tool.ruff]` du
-`pyproject.toml`. Règles minimales activées : `E`, `F`, `I`, `N`, `UP`,
+`ruff` is the single tool for Python linting and formatting. Replaces `black`,
+`isort`, `flake8`, and their plugins. Configuration in `[tool.ruff]` of
+`pyproject.toml`. Minimum enabled rules: `E`, `F`, `I`, `N`, `UP`,
 `B`, `SIM`, `RUF`.
 
-### QU002 — `ty` comme type-checker
+### QU002 — `ty` as type-checker
 
 **Severity:** required · **Stacks:** python · **ADR:** [0003-ty-with-pyright-fallback](../adr/0003-ty-with-pyright-fallback.md)
 
-`ty` (Astral) est invoqué via `uvx ty check`. `pyright` reste documenté
-en porte de sortie (cf. ADR-0003).
+`ty` (Astral) is invoked via `uvx ty check`. `pyright` remains documented
+as a fallback (see ADR-0003).
 
-### QU003 — Annotations de type strictes
+### QU003 — Strict type annotations
 
 **Severity:** required · **Stacks:** python
 
-Tous les paramètres de fonctions et méthodes publiques sont typés. Tous
-les retours sont typés (sauf `__init__`). Pas d'`Any` implicite. Le mode
-strict du type-checker est activé.
+All public function and method parameters are typed. All return types are
+annotated (except `__init__`). No implicit `Any`. The type-checker's
+strict mode is enabled.
 
 ### QU004 — `ty check` passes (Python type-checker)
 

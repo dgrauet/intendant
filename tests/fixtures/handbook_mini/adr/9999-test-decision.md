@@ -1,25 +1,25 @@
-# ADR-9999 : Décision de test
+# ADR-9999 : Test decision
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : * (transverse)
+- **Stacks** : * (transverse)
 
-## Contexte
+## Context
 
-Fixture ADR pour les tests.
+Fixture ADR for the tests.
 
-## Décision
+## Decision
 
-On utilise cette ADR pour valider la résolution `RuleSection.adr_ref` → contenu ADR.
+This ADR is used to validate the `RuleSection.adr_ref` → ADR content resolution.
 
-## Conséquences
+## Consequences
 
-Aucune en production.
+None in production.
 
-## Alternatives considérées
+## Alternatives considered
 
-Aucune.
+None.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-Supprimer cette fixture si elle n'est plus utilisée par les tests.
+Delete this fixture if it is no longer used by the tests.

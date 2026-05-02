@@ -1,54 +1,51 @@
 # ADR-0003 : `ty` (Astral) as the Python type-checker, pyright as fallback
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : python
+- **Stacks** : python
 
-## Contexte
+## Context
 
-Le typage statique Python s'appuie typiquement sur `mypy` (mature, lent,
-historique) ou `pyright` (Microsoft, rapide, gold standard IDE).
-Astral développe `ty`, un type-checker en Rust qui s'inscrit dans la même
-philosophie que `ruff` et `uv` : performance et cohérence d'écosystème.
+Python static typing typically relies on `mypy` (mature, slow,
+historical) or `pyright` (Microsoft, fast, IDE gold standard).
+Astral is developing `ty`, a Rust type-checker in the same
+philosophy as `ruff` and `uv`: performance and ecosystem consistency.
 
-Au moment de la décision (2026-04), `ty` est en pré-1.0 mais utilisable.
-Le pari est de l'adopter dès maintenant pour bénéficier de la cohérence
-de la suite Astral et de sa vitesse, en gardant `pyright` comme porte de
-sortie documentée.
+At the time of the decision (2026-04), `ty` is pre-1.0 but usable.
+The bet is to adopt it now to benefit from the consistency
+of the Astral suite and its speed, while keeping `pyright` as a
+documented fallback.
 
-## Décision
+## Decision
 
-- **Type-checker par défaut** : `ty` (invoqué via `uvx ty check` ou
+- **Default type-checker**: `ty` (invoked via `uvx ty check` or
   `uv tool install ty`).
-- **Configuration** : `[tool.ty]` dans `pyproject.toml`, ou `ty.toml`
-  séparé.
-- **Fallback documenté** : `pyright` en version stricte, configuré dans
-  `pyrightconfig.json` ou `[tool.pyright]`. À activer si `ty` introduit
-  un blocage majeur (régression, faux positifs massifs, abandon).
+- **Configuration**: `[tool.ty]` in `pyproject.toml`, or a separate `ty.toml`.
+- **Documented fallback**: `pyright` in strict mode, configured in
+  `pyrightconfig.json` or `[tool.pyright]`. Activate if `ty` introduces
+  a major blocker (regression, massive false positives, abandonment).
 
-## Conséquences
+## Consequences
 
-- CI roule `uvx ty check` (cf. `templates/github/ci.yml`).
-- `pyproject.toml` peut déclarer `ty` en `[dependency-groups] dev`.
-- Les annotations de type sont strictes (équivalent `--strict` en mypy
-  parlance) : tous les paramètres typés, retours typés, pas d'`Any`
-  implicite.
+- CI runs `uvx ty check` (see `templates/github/ci.yml`).
+- `pyproject.toml` can declare `ty` in `[dependency-groups] dev`.
+- Type annotations are strict (equivalent to `--strict` in mypy
+  parlance): all parameters typed, return types typed, no implicit `Any`.
 
-## Alternatives considérées
+## Alternatives considered
 
-- `mypy` : mature mais lent. Perte d'élan face à pyright/ty.
-- `pyright` : très bon, mais cohérence Astral l'emporte au moment de la
-  décision.
+- `mypy`: mature but slow. Losing momentum to pyright/ty.
+- `pyright`: very good, but Astral ecosystem consistency wins at the time of
+  the decision.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-Bascule vers `pyright` si **un seul** des critères suivants devient vrai :
+Switch to `pyright` if **any one** of the following criteria becomes true:
 
-1. `ty` introduit une régression bloquante non corrigée sous 2 semaines.
-2. `ty` est officiellement abandonné par Astral.
-3. Faux positifs > 10 % sur le code de suzerain pendant 3 versions
-   consécutives.
+1. `ty` introduces a blocking regression unresolved within 2 weeks.
+2. `ty` is officially abandoned by Astral.
+3. False positives > 10% on suzerain's codebase for 3 consecutive versions.
 
-Procédure de bascule : remplacer la dep + l'invocation CI + la config
-section, mettre à jour cette ADR (statut `superseded by ADR-NNNN`),
-ouvrir une nouvelle ADR `pyright-after-ty-rollback`.
+Switch procedure: replace the dep + the CI invocation + the config
+section, update this ADR (status `superseded by ADR-NNNN`),
+open a new ADR `pyright-after-ty-rollback`.

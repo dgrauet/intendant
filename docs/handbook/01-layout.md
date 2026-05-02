@@ -1,28 +1,28 @@
 # 01 — Layout
 
-Convention de structure de dossiers pour les projets régis par suzerain.
+Folder structure convention for projects governed by suzerain.
 
-## Règles
+## Rules
 
-### LO001 — `src/` layout obligatoire (Python)
-
-**Severity:** required · **Stacks:** python · **ADR:** [0001-layout-src-vs-flat](../adr/0001-layout-src-vs-flat.md)
-
-Le code source vit dans `src/<package_name>/`, jamais à la racine. Les
-tests vivent dans `tests/` à la racine. Cf. ADR-0001 pour la rationale.
-
-### LO002 — Tests dans `tests/` à la racine
+### LO001 — `src/` layout required (Python)
 
 **Severity:** required · **Stacks:** python · **ADR:** [0001-layout-src-vs-flat](../adr/0001-layout-src-vs-flat.md)
 
-Les tests vivent dans un dossier `tests/` à la racine du repo. Pas de
-co-location avec le code source. Permet une séparation claire et
-empêche que les tests soient packagés involontairement.
+Source code lives in `src/<package_name>/`, never at the root. Tests
+live in `tests/` at the root. See ADR-0001 for the rationale.
 
-### LO003 — Documentation dans `docs/`
+### LO002 — Tests in `tests/` at the root
+
+**Severity:** required · **Stacks:** python · **ADR:** [0001-layout-src-vs-flat](../adr/0001-layout-src-vs-flat.md)
+
+Tests live in a `tests/` folder at the repo root. No co-location
+with the source code. Enables a clear separation and prevents tests
+from being accidentally packaged.
+
+### LO003 — Documentation in `docs/`
 
 **Severity:** recommended · **Stacks:** *
 
-Toute la documentation longue (handbook, ADRs, specs, tutorials) vit dans
-`docs/`. Le `README.md` racine reste un point d'entrée court qui pointe
-vers `docs/`.
+All long-form documentation (handbook, ADRs, specs, tutorials) lives in
+`docs/`. The root `README.md` remains a short entry point that links
+to `docs/`.

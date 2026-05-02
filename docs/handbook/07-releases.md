@@ -1,38 +1,37 @@
 # 07 — Releases
 
-## Règles
+## Rules
 
-### RL001 — `CHANGELOG.md` au format Keep-a-Changelog
+### RL001 — `CHANGELOG.md` in Keep-a-Changelog format
 
 **Severity:** required · **Stacks:** * · **ADR:** [0005-release-please](../adr/0005-release-please.md)
 
-Un `CHANGELOG.md` à la racine, format
-[Keep-a-Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
-Les entrées sont ajoutées par `release-please` à partir des conventional
-commits.
+A `CHANGELOG.md` at the root, in
+[Keep-a-Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) format.
+Entries are added by `release-please` from conventional commits.
 
 ### RL002 — Conventional Commits strict
 
 **Severity:** required · **Stacks:** * · **ADR:** [0004-conventional-commits-strict](../adr/0004-conventional-commits-strict.md)
 
-Tous les commits suivent
+All commits follow
 [Conventional Commits 1.0.0](https://www.conventionalcommits.org/).
-Validé en local par `commitizen` (hook `commit-msg`) et en CI par
+Validated locally by `commitizen` (the `commit-msg` hook) and in CI by
 `cz check`.
 
-### RL003 — `release-please` configuré
+### RL003 — `release-please` configured
 
 **Severity:** required · **Stacks:** * · **ADR:** [0005-release-please](../adr/0005-release-please.md)
 
-Les fichiers `release-please-config.json` et
-`.release-please-manifest.json` à la racine, plus le workflow
-`.github/workflows/release-please.yml`, automatisent versionnement,
-CHANGELOG et tag git.
+The files `release-please-config.json` and
+`.release-please-manifest.json` at the root, plus the workflow
+`.github/workflows/release-please.yml`, automate versioning,
+CHANGELOG, and git tagging.
 
-### RL004 — Versionnement sémantique strict
+### RL004 — Strict semantic versioning
 
 **Severity:** required · **Stacks:** *
 
-[SemVer 2.0.0](https://semver.org). `release-please` interprète les
-conventional commits : `fix:` → patch, `feat:` → minor, `feat!:` ou
+[SemVer 2.0.0](https://semver.org). `release-please` interprets
+conventional commits: `fix:` → patch, `feat:` → minor, `feat!:` or
 `BREAKING CHANGE:` → major.

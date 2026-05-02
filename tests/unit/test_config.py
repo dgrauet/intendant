@@ -44,10 +44,10 @@ def test_load_with_dict_exemption(tmp_path: Path) -> None:
     (tmp_path / ".suzerain.toml").write_text(
         '[suzerain]\nversion = "1"\nstack = "python"\nmode = "strict"\n'
         "[exemptions]\n"
-        'CI003 = { reason = "Repo privé", until = "2026-09-01" }\n'
+        'CI003 = { reason = "Private repo", until = "2026-09-01" }\n'
     )
     config = load_config(tmp_path)
-    assert config.exemptions["CI003"].reason == "Repo privé"
+    assert config.exemptions["CI003"].reason == "Private repo"
     assert config.exemptions["CI003"].until == "2026-09-01"
 
 

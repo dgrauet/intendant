@@ -26,7 +26,7 @@ def test_explain_existing_rule(fake_root: Path, monkeypatch: pytest.MonkeyPatch)
     result = runner.invoke(app, ["explain", "XX001"])
     assert result.exit_code == 0
     assert "XX001" in result.stdout
-    assert "Première règle de test" in result.stdout
+    assert "First test rule" in result.stdout
     assert "marker.txt" in result.stdout
     assert "ADR-9999" in result.stdout
 

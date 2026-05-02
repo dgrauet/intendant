@@ -1,38 +1,38 @@
 # ADR-0007 : Adopt suzerain
 
-- **Statut** : accepted
+- **Status** : accepted
 - **Date** : 2026-04-30
-- **Stacks concernées** : * (transverse)
+- **Stacks** : * (transverse)
 
-## Contexte
+## Context
 
-Ce repo adopte [suzerain](https://github.com/dgrauet/suzerain) comme framework
-de gouvernance — handbook, audit (palier 2), scaffolder (palier 3). Le fichier
-`.suzerain.toml` à la racine du repo déclare la stack, le mode de conformité
-appliqué, et les exemptions justifiées.
+This repo adopts [suzerain](https://github.com/dgrauet/suzerain) as its
+governance framework — handbook, audit (tier 2), scaffolder (tier 3). The
+`.suzerain.toml` file at the repo root declares the stack, the applied
+compliance mode, and justified exemptions.
 
-## Décision
+## Decision
 
-- Stack détectée à l'adoption : `python`
-- Mode initial : `advisory` (les findings sont rapportés mais ne bloquent rien).
-- Toutes les ADRs futures du repo numérotées à partir de 0001.
+- Stack detected at adoption: `python`
+- Initial mode: `advisory` (findings are reported but nothing is blocked).
+- All future ADRs in this repo numbered starting from 0001.
 
-## Conséquences
+## Consequences
 
-- L'auditeur (palier 2 de suzerain) pourra rouler sur ce repo et rapporter
-  les écarts vs le baseline.
-- Les exemptions doivent être listées dans `.suzerain.toml` avec une raison.
+- The auditor (suzerain tier 2) can run on this repo and report
+  deviations from the baseline.
+- Exemptions must be listed in `.suzerain.toml` with a reason.
 
-## Alternatives considérées
+## Alternatives considered
 
-- Ne rien adopter (garder les conventions implicites). Rejeté : la dette
-  conventionnelle s'accumule en silence.
-- Adopter un autre framework : aucun équivalent multi-stack identifié au
-  moment de l'adoption.
+- Adopt nothing (keep implicit conventions). Rejected: conventional debt
+  accumulates silently.
+- Adopt another framework: no equivalent multi-stack framework identified at
+  the time of adoption.
 
-## Porte de sortie / révision
+## Exit hatch / revision
 
-- Si suzerain ne suit plus l'évolution des outils, basculer en `mode = advisory`
-  permanent et reprendre les standards à la main.
-- Si un baseline `v2` casse trop de règles : geler à `version = "1"` et planifier
-  une migration ciblée.
+- If suzerain no longer tracks tool evolution, switch to `mode = advisory`
+  permanently and manage the standards manually.
+- If a `v2` baseline breaks too many rules: freeze at `version = "1"` and plan
+  a targeted migration.

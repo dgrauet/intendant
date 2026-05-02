@@ -1,28 +1,28 @@
 # 05 — Tests
 
-## Règles
+## Rules
 
-### TS001 — `pytest` comme test runner
+### TS001 — `pytest` as test runner
 
 **Severity:** required · **Stacks:** python
 
-`pytest` est le test runner canonique. Configuration dans
-`[tool.pytest.ini_options]` du `pyproject.toml`. Pas de `unittest`
-discovery ni `nose`.
+`pytest` is the canonical test runner. Configuration in
+`[tool.pytest.ini_options]` of `pyproject.toml`. No `unittest`
+discovery or `nose`.
 
-### TS002 — Tests dans `tests/`, regression dans `regression_tests/`
+### TS002 — Tests in `tests/`, regression in `regression_tests/`
 
 **Severity:** recommended · **Stacks:** *
 
-Les tests unitaires et d'intégration vivent dans `tests/`. Les tests de
-régression (snapshots, parité numérique) vivent dans `regression_tests/`
-à la racine. Permet de ne lancer que `tests/` rapidement en CI et de
-réserver `regression_tests/` aux runs nightly.
+Unit and integration tests live in `tests/`. Regression tests
+(snapshots, numerical parity) live in `regression_tests/`
+at the root. Allows running only `tests/` quickly in CI and
+reserving `regression_tests/` for nightly runs.
 
-### TS003 — Couverture mesurée
+### TS003 — Coverage measured
 
 **Severity:** recommended · **Stacks:** python
 
-`pytest-cov` configuré (section `[tool.coverage.run]`). Pas de seuil
-strict imposé : suzerain mesure et reporte, l'utilisateur fixe le seuil
-qui a du sens pour son projet.
+`pytest-cov` configured (section `[tool.coverage.run]`). No strict
+threshold imposed: suzerain measures and reports, the user sets the threshold
+that makes sense for their project.

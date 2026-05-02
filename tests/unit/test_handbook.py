@@ -21,7 +21,7 @@ def test_get_rule_returns_section(mini_handbook: Handbook) -> None:
     rule = mini_handbook.get_rule("XX001")
     assert rule is not None
     assert rule.rule_id == "XX001"
-    assert rule.title == "Première règle de test"
+    assert rule.title == "First test rule"
     assert rule.severity == "required"
     assert rule.stacks == ("python",)
     assert rule.adr_ref == "9999-test-decision"
@@ -52,7 +52,7 @@ def test_get_adr_returns_content(mini_handbook: Handbook) -> None:
     adr = mini_handbook.get_adr("9999-test-decision")
     assert adr is not None
     assert "ADR-9999" in adr
-    assert "Décision de test" in adr
+    assert "Test decision" in adr
 
 
 def test_get_adr_unknown_returns_none(mini_handbook: Handbook) -> None:
