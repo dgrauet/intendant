@@ -2,7 +2,12 @@
 
 from pathlib import Path
 
-from suzerain.checks.sa import SA001PreCommit, SA002Gitleaks, SA004GitignoreBaseline
+from suzerain.checks.sa import (
+    SA001PreCommit,
+    SA002Gitleaks,
+    SA003EnvExample,
+    SA004GitignoreBaseline,
+)
 from suzerain.core.repo import Repo
 
 
@@ -237,3 +242,66 @@ def test_sa002_fix_appends_when_no_gitleaks_repo(tmp_path: Path) -> None:
     assert patch.kind == "overwrite"
     assert "gitleaks" in patch.content
     assert patch.safe is True
+
+
+# ---------------------------------------------------------------------------
+# SA003EnvExample
+# ---------------------------------------------------------------------------
+
+
+def test_sa003_skipped_when_no_env_artifact(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = SA003EnvExample().check(repo)
+    assert result.passing is True
+    assert result.skipped is True
+
+
+def test_sa003_fails_when_env_present_and_example_missing(tmp_path: Path) -> None:
+    (tmp_path / ".env").write_text("SECRET=hunter2\n")
+    repo = Repo(path=tmp_path, stack="python")
+    result = SA003EnvExample().check(repo)
+    assert result.passing is False
+    assert ".env.example" in result.evidence
+
+
+def test_sa003_passes_when_both_env_and_example_present(tmp_path: Path) -> None:
+    (tmp_path / ".env").write_text("SECRET=hunter2\n")
+    (tmp_path / ".env.example").write_text("SECRET=\n")
+    repo = Repo(path=tmp_path, stack="python")
+    result = SA003EnvExample().check(repo)
+    assert result.passing is True
+
+
+def test_sa003_fails_when_dotenv_dep_and_example_missing(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\ndependencies = ["python-dotenv>=1.0"]\n'
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    result = SA003EnvExample().check(repo)
+    assert result.passing is False
+    assert ".env.example" in result.evidence
+
+
+def test_sa003_fix_creates_env_example(tmp_path: Path) -> None:
+    (tmp_path / ".env").write_text("SECRET=hunter2\n")
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA003EnvExample()
+    result = rule.check(repo)
+    assert result.passing is False
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.kind == "create"
+    assert patch.target_path == tmp_path / ".env.example"
+    assert patch.safe is True
+    assert "Document expected" in patch.content
+
+
+def test_sa003_fix_returns_none_when_already_present(tmp_path: Path) -> None:
+    (tmp_path / ".env").write_text("SECRET=hunter2\n")
+    (tmp_path / ".env.example").write_text("SECRET=\n")
+    repo = Repo(path=tmp_path, stack="python")
+    rule = SA003EnvExample()
+    result = rule.check(repo)
+    assert result.passing is True
+    patch = rule.fix(repo, result)
+    assert patch is None

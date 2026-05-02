@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import tomllib
+from pathlib import Path
+
 from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
@@ -140,6 +143,85 @@ class SA002Gitleaks(Rule):
                 "+++ b/.pre-commit-config.yaml\n"
                 f"@@ +N @@\n{addition}"
             ),
+            safe=True,
+        )
+
+
+_ENV_DOTENV_PKGS = ("python-dotenv", "python_dotenv", "dotenv", "django-dotenv")
+
+_ENV_EXAMPLE_TEMPLATE = (
+    "# Document expected environment variable names here with empty values.\n"
+    "# Real .env should be gitignored and never committed.\n"
+)
+
+
+def _project_uses_env(repo_path: Path) -> bool:
+    """Heuristic: detect if the project uses environment variables."""
+    if (repo_path / ".env").is_file():
+        return True
+    pyproject = repo_path / "pyproject.toml"
+    if pyproject.is_file():
+        try:
+            data = tomllib.loads(pyproject.read_text())
+        except tomllib.TOMLDecodeError:
+            return False
+        deps_strings: list[str] = []
+        deps_strings.extend(data.get("project", {}).get("dependencies", []))
+        for grp in data.get("project", {}).get("optional-dependencies", {}).values():
+            if isinstance(grp, list):
+                deps_strings.extend(grp)
+        for grp in data.get("dependency-groups", {}).values():
+            if isinstance(grp, list):
+                deps_strings.extend(grp)
+        for dep in deps_strings:
+            if not isinstance(dep, str):
+                continue
+            name = (
+                dep.split("[", 1)[0]
+                .split(">=", 1)[0]
+                .split("==", 1)[0]
+                .split("<", 1)[0]
+                .strip()
+                .lower()
+            )
+            if name in _ENV_DOTENV_PKGS:
+                return True
+    return False
+
+
+class SA003EnvExample(Rule):
+    id = "SA003"
+    title = ".env.example documents env vars (without secrets)"
+    severity = "required"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/06-sanitizing.md#sa003"
+
+    def check(self, repo: Repo) -> CheckResult:
+        if not _project_uses_env(repo.path):
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no .env file and no dotenv-style dep — rule does not apply",
+            )
+        env_example = repo.path / ".env.example"
+        if env_example.is_file():
+            return CheckResult(passing=True, evidence=".env.example present at repo root")
+        return CheckResult(
+            passing=False,
+            evidence=".env.example not found at repo root (project uses env vars)",
+        )
+
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+        if result.skipped or result.passing:
+            return None
+        target = repo.path / ".env.example"
+        if target.is_file():
+            return None
+        return Patch(
+            target_path=target,
+            kind="create",
+            content=_ENV_EXAMPLE_TEMPLATE,
+            diff=f"--- /dev/null\n+++ .env.example\n@@ +1 @@\n+{_ENV_EXAMPLE_TEMPLATE}",
             safe=True,
         )
 

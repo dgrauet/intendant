@@ -10,7 +10,12 @@ from suzerain.checks.dg import (
 )
 from suzerain.checks.lo import LO003DocsDirectory
 from suzerain.checks.rl import RL001Changelog, RL002ConventionalCommits, RL003ReleasePlease
-from suzerain.checks.sa import SA001PreCommit, SA002Gitleaks, SA004GitignoreBaseline
+from suzerain.checks.sa import (
+    SA001PreCommit,
+    SA002Gitleaks,
+    SA003EnvExample,
+    SA004GitignoreBaseline,
+)
 from suzerain.core.rule import Rule
 
 RULES: list[Rule] = [
@@ -27,5 +32,6 @@ RULES: list[Rule] = [
     CI004CacheConfigured(),
     SA001PreCommit(),
     SA002Gitleaks(),
+    SA003EnvExample(),
     SA004GitignoreBaseline(),
 ]
