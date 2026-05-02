@@ -26,7 +26,7 @@ def _make_marker(parent: Path, body: str = "") -> None:
 def test_dashboard_scan_dataclass_is_frozen(tmp_path: Path) -> None:
     scan = DashboardScan(root=tmp_path, reports=[], timestamp=datetime.now())
     try:
-        scan.root = tmp_path / "other"  # type: ignore[misc]
+        scan.root = tmp_path / "other"  # ty: ignore[invalid-assignment]
     except (AttributeError, TypeError):
         return
     raise AssertionError("DashboardScan must be frozen")
