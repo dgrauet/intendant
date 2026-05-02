@@ -1,0 +1,16 @@
+[project]
+name = "repo_a_clean"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+
+[dependency-groups]
+dev = ["ty>=0.0.0a1", "pytest>=8", "pytest-cov>=5"]
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
