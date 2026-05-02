@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8](https://github.com/dgrauet/suzerain/compare/v0.1.7...v0.1.8) (2026-05-02)
+
+
+### Features
+
+* **audit:** add dashboard_human formatter (A3 + legend) ([d6b5b14](https://github.com/dgrauet/suzerain/commit/d6b5b14ad65ba11e95cb88cdf068971998824cdf))
+* **audit:** add dashboard_json formatter with schema_version=1 ([a3ead07](https://github.com/dgrauet/suzerain/commit/a3ead078738425a7bf9f8a375171c091f8948377))
+* **audit:** add find_suzerain_repos for multi-repo discovery ([802cc19](https://github.com/dgrauet/suzerain/commit/802cc197b7ac5e70b06675035410fe411a454ac9))
+* **checks:** DG005 requires both .gitignore and .gitattributes (2-pass fix) ([c8601ed](https://github.com/dgrauet/suzerain/commit/c8601ed0420b9ab951d9aa0545cd33889c4d07be))
+* **commands:** add DashboardScan + scan helpers for dashboard command ([f54240d](https://github.com/dgrauet/suzerain/commit/f54240d77c8cecdbcbc137cd34dc2b3ad4829a2b))
+* **commands:** add suzerain dashboard CLI command ([45a8669](https://github.com/dgrauet/suzerain/commit/45a8669182fb8ac7e595b8c79cb13d76b8e587d3))
+
+
+### Bug Fixes
+
+* **audit:** restore ✓/⚠ glyphs in dashboard_human per spec ([cc02d23](https://github.com/dgrauet/suzerain/commit/cc02d23d7909600592da1313e74aea80182bb72b))
+* **tests:** silence ty invalid-assignment on intentional frozen test ([efaa434](https://github.com/dgrauet/suzerain/commit/efaa434cdaa03a673bd6a3e1eae53d7bd96c0084))
+
+
+### Documentation
+
+* redact local archive path references from public docs ([90e0def](https://github.com/dgrauet/suzerain/commit/90e0def8e74ba273f687d012af50a72b6219c1bf))
+* redact remaining personal references from public files ([0c02a69](https://github.com/dgrauet/suzerain/commit/0c02a692cf18174cf1247d56c90103dbf3299c0a))
+* translate handbook, ADRs, README, CLAUDE.md to English ([8342ddd](https://github.com/dgrauet/suzerain/commit/8342ddd6d98d505146979bcff6c824520bf3b985))
+* update CLAUDE.md design reference for archived specs/plans ([dfa0100](https://github.com/dgrauet/suzerain/commit/dfa0100be7f530d20af17e8727f0293a3c29348b))
+
 ## [0.1.7](https://github.com/dgrauet/suzerain/compare/v0.1.6...v0.1.7) (2026-05-02)
 
 
