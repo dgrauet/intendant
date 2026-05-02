@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from suzerain.checks.ci import CI001CIWorkflow, CI004CacheConfigured
+from suzerain.checks.ci import CI001CIWorkflow, CI002MinimumSteps, CI004CacheConfigured
 from suzerain.core.repo import Repo
 
 
@@ -123,3 +123,119 @@ def test_ci004_metadata() -> None:
     assert rule.id == "CI004"
     assert rule.severity == "recommended"
     assert "*" in rule.stacks
+
+
+# ---------------------------------------------------------------------------
+# CI002MinimumSteps
+# ---------------------------------------------------------------------------
+
+_FULL_WORKFLOW = """\
+name: CI
+on: [push]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uvx ty check
+      - run: uv run pytest
+"""
+
+_WORKFLOW_MISSING_LINT = """\
+name: CI
+on: [push]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run ruff format --check .
+      - run: uvx ty check
+      - run: uv run pytest
+"""
+
+_WORKFLOW_MISSING_FORMAT = """\
+name: CI
+on: [push]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run ruff check .
+      - run: uvx ty check
+      - run: uv run pytest
+"""
+
+_WORKFLOW_MISSING_TYPE = """\
+name: CI
+on: [push]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+"""
+
+_WORKFLOW_MISSING_TEST = """\
+name: CI
+on: [push]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uvx ty check
+"""
+
+
+def test_ci002_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is True
+    assert result.skipped is True
+
+
+def test_ci002_passes_when_all_steps_present(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_FULL_WORKFLOW)
+    repo = Repo(path=tmp_path, stack="python")
+    assert CI002MinimumSteps().check(repo).passing is True
+
+
+def test_ci002_fails_when_lint_missing(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_LINT)
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is False
+    assert "lint" in result.evidence
+
+
+def test_ci002_fails_when_format_missing(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_FORMAT)
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is False
+    assert "format" in result.evidence
+
+
+def test_ci002_fails_when_type_missing(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_TYPE)
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is False
+    assert "type" in result.evidence
+
+
+def test_ci002_fails_when_test_missing(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_TEST)
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is False
+    assert "test" in result.evidence

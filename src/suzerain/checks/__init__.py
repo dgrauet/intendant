@@ -1,6 +1,6 @@
 """Transverse rules — applied to all stacks."""
 
-from suzerain.checks.ci import CI001CIWorkflow, CI004CacheConfigured
+from suzerain.checks.ci import CI001CIWorkflow, CI002MinimumSteps, CI004CacheConfigured
 from suzerain.checks.dg import (
     DG001Readme,
     DG002CLAUDEmd,
@@ -29,6 +29,7 @@ RULES: list[Rule] = [
     RL002ConventionalCommits(),
     RL003ReleasePlease(),
     CI001CIWorkflow(),
+    CI002MinimumSteps(),
     CI004CacheConfigured(),
     SA001PreCommit(),
     SA002Gitleaks(),
