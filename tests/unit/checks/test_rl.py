@@ -3,7 +3,12 @@
 import subprocess
 from pathlib import Path
 
-from suzerain.checks.rl import RL001Changelog, RL002ConventionalCommits, RL003ReleasePlease
+from suzerain.checks.rl import (
+    RL001Changelog,
+    RL002ConventionalCommits,
+    RL003ReleasePlease,
+    RL004SemverStrict,
+)
 from suzerain.core.repo import Repo
 
 
@@ -204,3 +209,47 @@ def test_rl003_fix_returns_none_without_project_name(tmp_path: Path) -> None:
     assert result.passing is False
     patch = rule.fix(repo, result)
     assert patch is None
+
+
+# ---------------------------------------------------------------------------
+# RL004SemverStrict
+# ---------------------------------------------------------------------------
+
+
+def test_rl004_skipped_when_no_manifest(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL004SemverStrict().check(repo)
+    assert result.passing is True
+    assert result.skipped is True
+
+
+def test_rl004_passes_for_valid_semver_from_pyproject(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\nversion = "1.0.0"\n')
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL004SemverStrict().check(repo)
+    assert result.passing is True
+    assert "1.0.0" in result.evidence
+
+
+def test_rl004_passes_for_semver_with_prerelease_and_build(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\nversion = "1.2.3-beta.1+build.5"\n'
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    assert RL004SemverStrict().check(repo).passing is True
+
+
+def test_rl004_fails_for_partial_version(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\nversion = "1.0"\n')
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL004SemverStrict().check(repo)
+    assert result.passing is False
+    assert "1.0" in result.evidence
+
+
+def test_rl004_fails_for_v_prefixed_version(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\nversion = "v1.0.0"\n')
+    repo = Repo(path=tmp_path, stack="python")
+    result = RL004SemverStrict().check(repo)
+    assert result.passing is False
+    assert "v1.0.0" in result.evidence

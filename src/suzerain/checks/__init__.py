@@ -14,7 +14,12 @@ from suzerain.checks.dg import (
     DG005SpecsLocalOnly,
 )
 from suzerain.checks.lo import LO003DocsDirectory
-from suzerain.checks.rl import RL001Changelog, RL002ConventionalCommits, RL003ReleasePlease
+from suzerain.checks.rl import (
+    RL001Changelog,
+    RL002ConventionalCommits,
+    RL003ReleasePlease,
+    RL004SemverStrict,
+)
 from suzerain.checks.sa import (
     SA001PreCommit,
     SA002Gitleaks,
@@ -34,6 +39,7 @@ RULES: list[Rule] = [
     RL001Changelog(),
     RL002ConventionalCommits(),
     RL003ReleasePlease(),
+    RL004SemverStrict(),
     TS002RegressionTestsLayout(),
     CI001CIWorkflow(),
     CI002MinimumSteps(),

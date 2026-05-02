@@ -6,6 +6,7 @@ import json
 import re
 import subprocess
 import tomllib
+from pathlib import Path
 
 from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
@@ -178,3 +179,61 @@ class RL002ConventionalCommits(Rule):
                 evidence=f"non-conventional commit messages found: {violators[:3]}",
             )
         return CheckResult(passing=True)
+
+
+_SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?(?:\+[A-Za-z0-9.-]+)?$")
+
+
+def _read_project_version(repo_path: Path) -> str | None:
+    """Try to read the project version from common manifest files."""
+    pyproject = repo_path / "pyproject.toml"
+    if pyproject.is_file():
+        try:
+            data = tomllib.loads(pyproject.read_text())
+            v = data.get("project", {}).get("version")
+            if isinstance(v, str):
+                return v
+        except tomllib.TOMLDecodeError:
+            pass
+    package_json = repo_path / "package.json"
+    if package_json.is_file():
+        try:
+            data = json.loads(package_json.read_text())
+            v = data.get("version")
+            if isinstance(v, str):
+                return v
+        except json.JSONDecodeError:
+            pass
+    cargo = repo_path / "Cargo.toml"
+    if cargo.is_file():
+        try:
+            data = tomllib.loads(cargo.read_text())
+            v = data.get("package", {}).get("version")
+            if isinstance(v, str):
+                return v
+        except tomllib.TOMLDecodeError:
+            pass
+    return None
+
+
+class RL004SemverStrict(Rule):
+    id = "RL004"
+    title = "Project version follows SemVer 2.0.0"
+    severity = "required"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/07-releases.md#rl004"
+
+    def check(self, repo: Repo) -> CheckResult:
+        version = _read_project_version(repo.path)
+        if version is None:
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no version field found in pyproject.toml/package.json/Cargo.toml",
+            )
+        if _SEMVER_RE.match(version):
+            return CheckResult(passing=True, evidence=f"version {version!r} is valid SemVer 2.0.0")
+        return CheckResult(
+            passing=False,
+            evidence=f"version {version!r} does not match SemVer 2.0.0",
+        )
