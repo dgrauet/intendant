@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9](https://github.com/dgrauet/suzerain/compare/v0.1.8...v0.1.9) (2026-05-02)
+
+
+### Features
+
+* **adapters/python:** add QU003 strict type-checker config rule ([99b3864](https://github.com/dgrauet/suzerain/commit/99b38644a39236a793ad2f82acda5335254f6afb))
+* **checks:** add CI002 minimum CI steps rule ([92eff21](https://github.com/dgrauet/suzerain/commit/92eff217bd0d6f5880a24d3a63fea79c6bfc3cb4))
+* **checks:** add CI003 commit message validation rule ([d55345d](https://github.com/dgrauet/suzerain/commit/d55345df20a5003a7b737cb993ea8b4f8c02ff00))
+* **checks:** add LO003 docs/ directory rule (transverse) ([cc0e1b7](https://github.com/dgrauet/suzerain/commit/cc0e1b71e214f82697dcc87981494b64bfc6d7bc))
+* **checks:** add RL004 strict SemVer rule ([c90ca5d](https://github.com/dgrauet/suzerain/commit/c90ca5de4d1164a809a384bdf4765553b4668a97))
+* **checks:** add SA003 .env.example rule with safe auto-fix ([11be51e](https://github.com/dgrauet/suzerain/commit/11be51ed7f0f33286814627edb8ee770dbbb2cd6))
+* **checks:** add TS002 regression_tests/ layout rule ([94775e2](https://github.com/dgrauet/suzerain/commit/94775e2a0cb0c4f4c49490e301aa225e1b45bad5))
+
+
+### Bug Fixes
+
+* **fixtures:** update conformant fixture and templates for new rules ([7548cd0](https://github.com/dgrauet/suzerain/commit/7548cd0000e7db168dbcce6eb7822e9ba672ee57))
+
 ## [0.1.8](https://github.com/dgrauet/suzerain/compare/v0.1.7...v0.1.8) (2026-05-02)
 
 
