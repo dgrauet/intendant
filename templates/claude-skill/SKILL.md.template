@@ -1,0 +1,16 @@
+---
+name: {{ project_name }}
+description: "{{ description }}"
+---
+
+# {{ project_name }}
+
+A Claude skill that does [TODO: describe purpose].
+
+## When to use
+
+[Describe the trigger condition — when should Claude invoke this skill.]
+
+## Behavior
+
+[Describe what the skill does step by step.]

@@ -11,7 +11,7 @@ import tomli_w
 from suzerain.core.paths import templates_root
 from suzerain.scaffold.substitutions import SubstitutionContext, resolve_placeholders
 
-_KNOWN_STACKS = {"python"}
+_KNOWN_STACKS = {"python", "claude-skill"}
 
 
 def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> None:
@@ -71,11 +71,51 @@ def _copy_github(src: Path, dst: Path, context: SubstitutionContext) -> None:
 def _copy_stack(src: Path, dst: Path, context: SubstitutionContext) -> None:
     if not src.is_dir():
         return
-    for entry in sorted(src.iterdir()):
-        if not entry.is_file():
-            continue
-        target = dst / _strip_template_suffix(entry.name)
-        _copy_file_with_substitution(entry, target, context)
+    _copy_stack_recursive(src, src, dst, context)
+
+
+def _copy_stack_recursive(
+    stack_root: Path, src_dir: Path, dst_dir: Path, context: SubstitutionContext
+) -> None:
+    """Recursively copy a stack template directory, applying substitutions.
+
+    For the ``claude-skill`` stack, files inside the skill-content subdirs
+    (``SKILL.md``, ``evals/``) are remapped into ``<project_name>/`` so
+    the final layout satisfies SK001 and SK005.
+    """
+    for entry in sorted(src_dir.iterdir()):
+        rel = entry.relative_to(stack_root)
+        if entry.is_dir():
+            _copy_stack_recursive(stack_root, entry, dst_dir, context)
+        elif entry.is_file():
+            target = _remap_stack_path(rel, dst_dir, context)
+            _copy_file_with_substitution(entry, target, context)
+
+
+# Files (or directories) under these names are remapped into the skill
+# subdirectory (<project_name>/) for the claude-skill stack.
+_CLAUDE_SKILL_NESTED = {"SKILL.md.template", "evals"}
+
+
+def _remap_stack_path(rel: Path, dst: Path, context: SubstitutionContext) -> Path:
+    """Compute the destination path for a stack template file.
+
+    For ``claude-skill``, ``SKILL.md`` and anything inside ``evals/`` land
+    inside ``<project_name>/`` instead of at the repo root.
+    """
+    parts = rel.parts
+    # If the top-level component is one of the nested dirs/files, remap into
+    # the skill subdirectory.
+    if parts[0] in _CLAUDE_SKILL_NESTED:
+        skill_dir = dst / context.project_name
+        return skill_dir / Path(*[_strip_template_suffix(p) for p in parts])
+    # .github/workflows/ are handled by _copy_github normally; but if the
+    # stack ships its own ci.yml we route it correctly.
+    if parts[0] == ".github" and len(parts) >= 3 and parts[1] == "workflows":
+        workflows = dst / ".github" / "workflows"
+        return workflows / _strip_template_suffix(parts[-1])
+    # Default: flat placement at repo root (strip template suffix from last part).
+    return dst / Path(*[*parts[:-1], _strip_template_suffix(parts[-1])])
 
 
 def _strip_template_suffix(name: str) -> str:
@@ -98,24 +138,33 @@ def _copy_file_with_substitution(src: Path, dst: Path, context: SubstitutionCont
 
 
 def _create_programmatic_files(target: Path, stack: str, context: SubstitutionContext) -> None:
-    if stack != "python":
-        return
-    pkg_dir = target / "src" / context.package_name
-    pkg_dir.mkdir(parents=True, exist_ok=True)
-    (pkg_dir / "__init__.py").write_text("", encoding="utf-8")
-    tests_dir = target / "tests"
-    tests_dir.mkdir(parents=True, exist_ok=True)
-    (tests_dir / "__init__.py").write_text("", encoding="utf-8")
-    (tests_dir / "conftest.py").write_text("", encoding="utf-8")
-    (tests_dir / "test_placeholder.py").write_text(
-        '"""Placeholder test — replace with real tests."""\n'
-        "\n"
-        "\n"
-        "def test_placeholder() -> None:\n"
-        '    """This passes by default. Delete when real tests are added."""\n',
-        encoding="utf-8",
-    )
-    (target / ".python-version").write_text("3.13\n", encoding="utf-8")
+    if stack == "python":
+        pkg_dir = target / "src" / context.package_name
+        pkg_dir.mkdir(parents=True, exist_ok=True)
+        (pkg_dir / "__init__.py").write_text("", encoding="utf-8")
+        tests_dir = target / "tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        (tests_dir / "__init__.py").write_text("", encoding="utf-8")
+        (tests_dir / "conftest.py").write_text("", encoding="utf-8")
+        (tests_dir / "test_placeholder.py").write_text(
+            '"""Placeholder test — replace with real tests."""\n'
+            "\n"
+            "\n"
+            "def test_placeholder() -> None:\n"
+            '    """This passes by default. Delete when real tests are added."""\n',
+            encoding="utf-8",
+        )
+        (target / ".python-version").write_text("3.13\n", encoding="utf-8")
+    elif stack == "claude-skill":
+        # Skill subdirectory — same name as repo
+        skill_dir = target / context.project_name
+        skill_dir.mkdir(parents=True, exist_ok=True)
+        (skill_dir / "evals").mkdir(parents=True, exist_ok=True)
+        (skill_dir / "references").mkdir(parents=True, exist_ok=True)
+        (skill_dir / "scripts").mkdir(parents=True, exist_ok=True)
+        # .gitkeep so empty dirs persist in git
+        (skill_dir / "references" / ".gitkeep").write_text("", encoding="utf-8")
+        (skill_dir / "scripts" / ".gitkeep").write_text("", encoding="utf-8")
 
 
 def _strict_mode_in_suzerain_toml(target: Path, context: SubstitutionContext) -> None:
@@ -127,5 +176,6 @@ def _strict_mode_in_suzerain_toml(target: Path, context: SubstitutionContext) ->
     data["suzerain"]["mode"] = "strict"
     data["suzerain"]["stack"] = context.stack
     data.setdefault("exemptions", {})
-    data["exemptions"]["PK002"] = "fresh scaffold; run `uv lock` then remove this exemption"
+    if context.stack == "python":
+        data["exemptions"]["PK002"] = "fresh scaffold; run `uv lock` then remove this exemption"
     cfg.write_text(tomli_w.dumps(data), encoding="utf-8")

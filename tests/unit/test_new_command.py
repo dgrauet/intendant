@@ -4,6 +4,7 @@ import subprocess
 import tomllib
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from suzerain.cli import app
@@ -82,6 +83,112 @@ def test_new_with_git_inits_repo(tmp_path: Path) -> None:
         check=True,
     )
     assert "scaffold from suzerain" in log.stdout
+
+
+def test_new_claude_skill_creates_skill_md_at_nested_path(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app,
+        [
+            "new",
+            "test-skill",
+            "--stack",
+            "claude-skill",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    target = tmp_path / "test-skill"
+    assert (target / "test-skill" / "SKILL.md").is_file()
+    assert not (target / "SKILL.md").exists()
+
+
+def test_new_claude_skill_creates_evals_with_placeholder(tmp_path: Path) -> None:
+    runner.invoke(
+        app,
+        [
+            "new",
+            "test-skill",
+            "--stack",
+            "claude-skill",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    evals_dir = tmp_path / "test-skill" / "test-skill" / "evals"
+    assert evals_dir.is_dir()
+    files = [f for f in evals_dir.iterdir() if f.is_file()]
+    assert len(files) >= 1
+
+
+def test_new_claude_skill_readme_mentions_install_path(tmp_path: Path) -> None:
+    runner.invoke(
+        app,
+        [
+            "new",
+            "test-skill",
+            "--stack",
+            "claude-skill",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    readme = tmp_path / "test-skill" / "README.md"
+    assert readme.is_file()
+    assert "~/.claude/skills/" in readme.read_text()
+
+
+def test_new_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(tmp_path: Path) -> None:
+    runner.invoke(
+        app,
+        [
+            "new",
+            "test-skill",
+            "--stack",
+            "claude-skill",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    cfg = tmp_path / "test-skill" / ".suzerain.toml"
+    assert cfg.is_file()
+    data = tomllib.loads(cfg.read_text())
+    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["stack"] == "claude-skill"
+    assert "CI002" in data.get("exemptions", {})
+    assert "CI003" in data.get("exemptions", {})
+    assert "CI004" in data.get("exemptions", {})
+
+
+def test_new_claude_skill_default_description_is_non_empty(tmp_path: Path) -> None:
+    """Without --description, the skill should still get a placeholder description >= 10 chars."""
+    runner.invoke(
+        app,
+        [
+            "new",
+            "test-skill",
+            "--stack",
+            "claude-skill",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    skill_md = tmp_path / "test-skill" / "test-skill" / "SKILL.md"
+    assert skill_md.is_file()
+    text = skill_md.read_text()
+    # extract description line from frontmatter
+    for line in text.splitlines():
+        if line.startswith("description:"):
+            desc = line.removeprefix("description:").strip()
+            assert len(desc) >= 10, f"description too short: {desc!r}"
+            break
+    else:
+        pytest.fail("no description field found in SKILL.md frontmatter")
 
 
 def test_new_substitutes_placeholders(tmp_path: Path) -> None:

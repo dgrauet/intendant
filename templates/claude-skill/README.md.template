@@ -1,0 +1,19 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Installation
+
+Clone into your local Claude skills directory:
+
+```bash
+git clone <repo-url> ~/.claude/skills/{{ project_name }}
+```
+
+## Usage
+
+[Describe what the skill does and when Claude invokes it.]
+
+## Evals
+
+See `{{ project_name }}/evals/` for behavior eval cases.

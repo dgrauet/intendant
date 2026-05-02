@@ -22,7 +22,7 @@ def new(
     ],
     stack: Annotated[
         str,
-        typer.Option("--stack", help="Target stack. Currently supported: python."),
+        typer.Option("--stack", help="Target stack. Currently supported: python, claude-skill."),
     ] = "python",
     description: Annotated[
         str,
@@ -43,6 +43,10 @@ def new(
 ) -> None:
     """Scaffold a new conformant suzerain project."""
     target = (path / name).resolve()
+    # For claude-skill, a non-empty description is required by SK002/SK003.
+    # Default to a placeholder that passes validation (>= 10 chars).
+    if stack == "claude-skill" and not description:
+        description = "Use this skill when [TODO: describe trigger condition for the skill]"
     context = SubstitutionContext.from_minimal(
         project_name=name,
         stack=stack,
@@ -109,4 +113,9 @@ def _print_quickstart(target: Path, stack: str) -> None:
         console.print("  uv sync                      # install deps and create venv")
         console.print("  uv run pre-commit install    # activate hooks")
         console.print("  uv run pytest                # run the (empty) test suite")
+        console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")
+    elif stack == "claude-skill":
+        console.print(f"  cd {target}")
+        console.print("  # Edit <name>/SKILL.md to describe your skill")
+        console.print("  # Add real eval cases to <name>/evals/")
         console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")

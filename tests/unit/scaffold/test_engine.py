@@ -140,3 +140,104 @@ def test_scaffold_creates_placeholder_test(tmp_path: Path, context: Substitution
     placeholder = target / "tests" / "test_placeholder.py"
     assert placeholder.is_file()
     assert "test_placeholder" in placeholder.read_text()
+
+
+# ---------------------------------------------------------------------------
+# claude-skill stack tests
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def skill_context() -> SubstitutionContext:
+    return SubstitutionContext(
+        project_name="my-skill",
+        package_name="my_skill",
+        description="Use this skill when [TODO: describe trigger condition for the skill]",
+        author="Test Author",
+        year="2026",
+        stack="claude-skill",
+        release_type="simple",
+    )
+
+
+def test_scaffold_claude_skill_creates_target_dir(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    assert target.is_dir()
+
+
+def test_scaffold_claude_skill_creates_skill_md_at_nested_path(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    """SKILL.md must live at <name>/<name>/SKILL.md, not at <name>/SKILL.md."""
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    assert (target / "my-skill" / "SKILL.md").is_file()
+    assert not (target / "SKILL.md").exists()
+
+
+def test_scaffold_claude_skill_creates_evals_dir_with_placeholder(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    """evals/ must contain at least one file (satisfies SK005)."""
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    evals_dir = target / "my-skill" / "evals"
+    assert evals_dir.is_dir()
+    files = [f for f in evals_dir.iterdir() if f.is_file()]
+    assert len(files) >= 1
+
+
+def test_scaffold_claude_skill_creates_references_and_scripts_dirs(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    assert (target / "my-skill" / "references").is_dir()
+    assert (target / "my-skill" / "scripts").is_dir()
+    assert (target / "my-skill" / "references" / ".gitkeep").is_file()
+    assert (target / "my-skill" / "scripts" / ".gitkeep").is_file()
+
+
+def test_scaffold_claude_skill_readme_mentions_install_path(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    """README.md must mention ~/.claude/skills/ (satisfies SK007)."""
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    readme = target / "README.md"
+    assert readme.is_file()
+    assert "~/.claude/skills/" in readme.read_text()
+
+
+def test_scaffold_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    """`.suzerain.toml` must declare strict mode + claude-skill stack + CI exemptions."""
+    import tomllib
+
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    cfg = target / ".suzerain.toml"
+    assert cfg.is_file()
+    data = tomllib.loads(cfg.read_text())
+    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["stack"] == "claude-skill"
+    exemptions = data.get("exemptions", {})
+    assert "CI002" in exemptions
+    assert "CI003" in exemptions
+    assert "CI004" in exemptions
+
+
+def test_scaffold_claude_skill_skill_md_has_valid_frontmatter(
+    tmp_path: Path, skill_context: SubstitutionContext
+) -> None:
+    """SKILL.md frontmatter must have name + non-empty description."""
+    target = tmp_path / "my-skill"
+    scaffold_project(target, "claude-skill", skill_context)
+    skill_md = target / "my-skill" / "SKILL.md"
+    text = skill_md.read_text()
+    assert "name: my-skill" in text
+    assert "description:" in text

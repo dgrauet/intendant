@@ -1,5 +1,6 @@
 """End-to-end test: scaffold a new repo and verify it audits clean."""
 
+import subprocess
 import tomllib
 from pathlib import Path
 
@@ -73,3 +74,46 @@ def test_scaffold_creates_uv_lock_capable_project(tmp_path: Path) -> None:
     assert data["project"]["name"] == "lockable"
     assert data["project"]["requires-python"]
     assert "build-system" in data
+
+
+@pytest.mark.e2e()
+def test_scaffold_claude_skill_passes_required_audit(tmp_path: Path) -> None:
+    """Success criterion: fresh claude-skill scaffold passes suzerain audit --severity=required."""
+    target = tmp_path / "my-test-skill"
+    suzerain_repo = Path(__file__).resolve().parents[2]
+    proc = subprocess.run(
+        [
+            "uv",
+            "run",
+            "suzerain",
+            "new",
+            "my-test-skill",
+            "--stack",
+            "claude-skill",
+            "--path",
+            str(tmp_path),
+        ],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, f"scaffold failed: {proc.stderr}"
+    assert target.is_dir()
+    # SKILL.md must exist at the expected nested location
+    assert (target / "my-test-skill" / "SKILL.md").is_file()
+    # evals/ must have at least one file (SK005)
+    evals_files = list((target / "my-test-skill" / "evals").iterdir())
+    assert any(f.is_file() for f in evals_files)
+    # README must mention install path (SK007)
+    readme_text = (target / "README.md").read_text()
+    assert "~/.claude/skills/" in readme_text
+    # Audit must pass at required severity
+    audit_proc = subprocess.run(
+        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert audit_proc.returncode == 0, (
+        f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
+    )
