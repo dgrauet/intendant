@@ -43,12 +43,12 @@ def _render_summary(scan: DashboardScan, console: Console) -> None:
             rel = repo_path
         if isinstance(result, Exception):
             err_msg = f"[{type(result).__name__}] {str(result)[:80]}"
-            table.add_row(str(rel), "?", "-/-", f"[red]error[/red]\n  {escape(err_msg)}")
+            table.add_row(str(rel), "?", "-/-", f"[red]⚠ error[/red]\n  {escape(err_msg)}")
             continue
         score = f"{result.score}/100"
         failing = [f for f in result.findings if f.status == "fail"]
         if not failing:
-            status = "[green]all clean[/green]"
+            status = "[green]✓ all clean[/green]"
         else:
             fixable = sum(1 for f in failing if f.fix_available)
             ids = ", ".join(_format_rule_id(f.rule_id, f.fix_available) for f in failing)
