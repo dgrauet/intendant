@@ -39,6 +39,5 @@ uvx ty check                   # or: uv run ty check (depending on installation)
 
 ## Design reference
 
-Specs and plans are local-only artifacts archived outside the repo at
-`~/Work/.superpowers/suzerain/{specs,plans}/`. They are intentionally not
-tracked in this repo (per DG005).
+Specs and plans are local-only artifacts archived outside the repo. They
+are intentionally not tracked here (per DG005).

@@ -40,7 +40,7 @@ Thumbs.db
 # Suzerain runtime
 .suzerain/proposed/
 
-# Local-only design artifacts (specs/plans live at ~/Work/.superpowers/<project>/)
+# Local-only design artifacts (archived outside the repo per DG005)
 docs/superpowers/
 
 # Test-generated fixtures (built at test time, not committed)
