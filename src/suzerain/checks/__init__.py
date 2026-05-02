@@ -21,6 +21,7 @@ from suzerain.checks.sa import (
     SA003EnvExample,
     SA004GitignoreBaseline,
 )
+from suzerain.checks.ts import TS002RegressionTestsLayout
 from suzerain.core.rule import Rule
 
 RULES: list[Rule] = [
@@ -33,6 +34,7 @@ RULES: list[Rule] = [
     RL001Changelog(),
     RL002ConventionalCommits(),
     RL003ReleasePlease(),
+    TS002RegressionTestsLayout(),
     CI001CIWorkflow(),
     CI002MinimumSteps(),
     CI003CommitMessageValidation(),
