@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from suzerain.core.patch import Patch
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult, Rule
@@ -109,6 +111,19 @@ class DG004License(Rule):
 
 
 _GITATTRIBUTES_LINE = "docs/superpowers/ export-ignore\n"
+_GITIGNORE_BLOCK = (
+    "\n# Local-only design artifacts (archived outside the repo per DG005)\ndocs/superpowers/\n"
+)
+
+
+def _gitignore_protects(repo_path: Path) -> bool:
+    p = repo_path / ".gitignore"
+    return p.is_file() and "docs/superpowers/" in p.read_text()
+
+
+def _gitattributes_protects(repo_path: Path) -> bool:
+    p = repo_path / ".gitattributes"
+    return p.is_file() and "docs/superpowers/" in p.read_text()
 
 
 class DG005SpecsLocalOnly(Rule):
@@ -122,25 +137,49 @@ class DG005SpecsLocalOnly(Rule):
         sp_dir = repo.path / "docs" / "superpowers"
         if not sp_dir.exists():
             return CheckResult(passing=True, evidence="no docs/superpowers/ directory")
-        gitattrs = repo.path / ".gitattributes"
-        if gitattrs.is_file() and "docs/superpowers/" in gitattrs.read_text():
-            return CheckResult(passing=True, evidence=".gitattributes excludes docs/superpowers/")
+        missing = []
+        if not _gitignore_protects(repo.path):
+            missing.append(".gitignore")
+        if not _gitattributes_protects(repo.path):
+            missing.append(".gitattributes")
+        if not missing:
+            return CheckResult(
+                passing=True,
+                evidence="docs/superpowers/ excluded by .gitignore + .gitattributes",
+            )
         return CheckResult(
             passing=False,
-            evidence="docs/superpowers/ exists but is not protected by .gitattributes",
+            evidence=f"docs/superpowers/ exists but missing protection in: {missing}",
         )
 
     def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
-        target = repo.path / ".gitattributes"
-        existing = target.read_text() if target.is_file() else ""
-        new_content = existing
-        if not new_content.endswith("\n") and new_content:
-            new_content += "\n"
-        new_content += _GITATTRIBUTES_LINE
-        return Patch(
-            target_path=target,
-            kind="overwrite",
-            content=new_content,
-            diff=f"--- a/.gitattributes\n+++ b/.gitattributes\n@@ +1 @@\n+{_GITATTRIBUTES_LINE}",
-            safe=True,
-        )
+        # 2-pass: prioritize .gitignore (more critical for daily git add)
+        if not _gitignore_protects(repo.path):
+            target = repo.path / ".gitignore"
+            existing = target.read_text() if target.is_file() else ""
+            new_content = (
+                existing.rstrip() + _GITIGNORE_BLOCK if existing else _GITIGNORE_BLOCK.lstrip("\n")
+            )
+            return Patch(
+                target_path=target,
+                kind="overwrite",
+                content=new_content,
+                diff=f"--- a/.gitignore\n+++ b/.gitignore\n@@ +N @@\n{_GITIGNORE_BLOCK}",
+                safe=True,
+            )
+        if not _gitattributes_protects(repo.path):
+            target = repo.path / ".gitattributes"
+            existing = target.read_text() if target.is_file() else ""
+            new_content = existing
+            if existing and not existing.endswith("\n"):
+                new_content += "\n"
+            new_content += _GITATTRIBUTES_LINE
+            _diff = f"--- a/.gitattributes\n+++ b/.gitattributes\n@@ +1 @@\n+{_GITATTRIBUTES_LINE}"
+            return Patch(
+                target_path=target,
+                kind="overwrite",
+                content=new_content,
+                diff=_diff,
+                safe=True,
+            )
+        return None

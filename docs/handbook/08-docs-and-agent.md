@@ -37,8 +37,12 @@ field in `pyproject.toml` (or equivalent) must match.
 
 **Severity:** required · **Stacks:** *
 
-Files under `docs/superpowers/specs/` and `docs/superpowers/plans/`
-are never pushed to public remotes. A `pre-push` hook blocks pushes
-containing them to `origin/main`. Policy born of an explicit user
-preference: these artifacts contain brainstorming and internal plans
-that must not leak.
+Files under `docs/superpowers/` are never pushed to public remotes.
+When the directory exists, two complementary protections are required:
+a `docs/superpowers/` line in `.gitignore` (prevents accidental `git add`
+day-to-day) and a `docs/superpowers/ export-ignore` line in `.gitattributes`
+(excludes the directory from `git archive` release tarballs).
+
+The auto-fix (`suzerain fix`) applies the two protections in order via a
+2-pass approach: the first call patches `.gitignore`; the second call patches
+`.gitattributes`. Run `--fix` twice to fully resolve a fresh violation.

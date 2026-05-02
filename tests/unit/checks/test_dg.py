@@ -78,8 +78,9 @@ def test_dg005_pass_when_no_specs_dir(tmp_path: Path) -> None:
     assert DG005SpecsLocalOnly().check(repo).passing is True
 
 
-def test_dg005_pass_when_gitattributes_excludes(tmp_path: Path) -> None:
+def test_dg005_pass_when_both_protect(tmp_path: Path) -> None:
     (tmp_path / "docs" / "superpowers").mkdir(parents=True)
+    (tmp_path / ".gitignore").write_text("docs/superpowers/\n")
     (tmp_path / ".gitattributes").write_text("docs/superpowers/ export-ignore\n")
     repo = _setup_repo(tmp_path)
     assert DG005SpecsLocalOnly().check(repo).passing is True
@@ -90,15 +91,70 @@ def test_dg005_fail_when_specs_present_without_protection(tmp_path: Path) -> Non
     repo = _setup_repo(tmp_path)
     result = DG005SpecsLocalOnly().check(repo)
     assert result.passing is False
+    assert ".gitignore" in result.evidence
+    assert ".gitattributes" in result.evidence
 
 
-def test_dg005_fix_writes_gitattributes(tmp_path: Path) -> None:
+def test_dg005_fix_writes_gitignore_first(tmp_path: Path) -> None:
     (tmp_path / "docs" / "superpowers").mkdir(parents=True)
     repo = _setup_repo(tmp_path)
     rule = DG005SpecsLocalOnly()
     patch = rule.fix(repo, rule.check(repo))
     assert patch is not None
+    assert patch.target_path == tmp_path / ".gitignore"
+
+
+def test_dg005_fail_when_only_gitignore_protects(tmp_path: Path) -> None:
+    (tmp_path / "docs" / "superpowers").mkdir(parents=True)
+    (tmp_path / ".gitignore").write_text("docs/superpowers/\n")
+    repo = _setup_repo(tmp_path)
+    result = DG005SpecsLocalOnly().check(repo)
+    assert result.passing is False
+    assert ".gitattributes" in result.evidence
+    assert ".gitignore" not in result.evidence
+
+
+def test_dg005_fail_when_only_gitattributes_protects(tmp_path: Path) -> None:
+    (tmp_path / "docs" / "superpowers").mkdir(parents=True)
+    (tmp_path / ".gitattributes").write_text("docs/superpowers/ export-ignore\n")
+    repo = _setup_repo(tmp_path)
+    result = DG005SpecsLocalOnly().check(repo)
+    assert result.passing is False
+    assert ".gitignore" in result.evidence
+    assert ".gitattributes" not in result.evidence
+
+
+def test_dg005_fix_second_pass_writes_gitattributes(tmp_path: Path) -> None:
+    (tmp_path / "docs" / "superpowers").mkdir(parents=True)
+    # .gitignore already protects; second pass should fix .gitattributes
+    (tmp_path / ".gitignore").write_text("docs/superpowers/\n")
+    repo = _setup_repo(tmp_path)
+    rule = DG005SpecsLocalOnly()
+    patch = rule.fix(repo, rule.check(repo))
+    assert patch is not None
     assert patch.target_path == tmp_path / ".gitattributes"
+
+
+def test_dg005_fix_returns_none_when_both_protect(tmp_path: Path) -> None:
+    (tmp_path / "docs" / "superpowers").mkdir(parents=True)
+    (tmp_path / ".gitignore").write_text("docs/superpowers/\n")
+    (tmp_path / ".gitattributes").write_text("docs/superpowers/ export-ignore\n")
+    repo = _setup_repo(tmp_path)
+    rule = DG005SpecsLocalOnly()
+    patch = rule.fix(repo, rule.check(repo))
+    assert patch is None
+
+
+def test_dg005_fix_idempotent_when_gitignore_already_has_substring(tmp_path: Path) -> None:
+    (tmp_path / "docs" / "superpowers").mkdir(parents=True)
+    # .gitignore already contains docs/superpowers/ in some context
+    (tmp_path / ".gitignore").write_text("# already excluded\ndocs/superpowers/something-else\n")
+    (tmp_path / ".gitattributes").write_text("docs/superpowers/ export-ignore\n")
+    repo = _setup_repo(tmp_path)
+    rule = DG005SpecsLocalOnly()
+    # Both protect (substring match), so fix should return None
+    patch = rule.fix(repo, rule.check(repo))
+    assert patch is None
 
 
 # ---------------------------------------------------------------------------
