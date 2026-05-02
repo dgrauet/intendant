@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7](https://github.com/dgrauet/suzerain/compare/v0.1.6...v0.1.7) (2026-05-02)
+
+
+### Features
+
+* **audit:** register skill adapter in rule collector ([977fd15](https://github.com/dgrauet/suzerain/commit/977fd15ab9a4f9d9a41910341845d1fb6e163866))
+* **core:** add CheckResult.skipped field for runtime preconditions ([7746c73](https://github.com/dgrauet/suzerain/commit/7746c73a77ab34bcaa8d36d7372845f8dbc8b438))
+* **core:** detect skill stack with precedence over python ([f3066a8](https://github.com/dgrauet/suzerain/commit/f3066a887426954b390661dbafe0a0afb6b69d4b))
+* **skill:** add find_skill_md inspector (depth limit + exclusions) ([bb62492](https://github.com/dgrauet/suzerain/commit/bb62492547d59e4cfca5e62908cbc4ab0f52bf71))
+* **skill:** add parse_frontmatter inspector with BOM handling ([131788b](https://github.com/dgrauet/suzerain/commit/131788b181f75bca6d25b1e784d924ffb50e66b2))
+* **skill:** add SK001 SKILL.md presence rule ([b1f2926](https://github.com/dgrauet/suzerain/commit/b1f2926f38af72c94eca3466e3d453ad98e7a5bb))
+* **skill:** add SK002 frontmatter validity rule ([289decc](https://github.com/dgrauet/suzerain/commit/289deccc5ea1c21fa377b8a3c037a4c45b50f6d3))
+* **skill:** add SK003 description length bounds rule ([67a5101](https://github.com/dgrauet/suzerain/commit/67a5101898ee5d343ca6a19023682dfd0fa1785d))
+* **skill:** add SK004 name-matches-directory rule ([b3273cd](https://github.com/dgrauet/suzerain/commit/b3273cdccad9caa5f906db31a73c8aa3a4912b3c))
+* **skill:** add SK005 evals/ presence rule ([8b0a87d](https://github.com/dgrauet/suzerain/commit/8b0a87d2f2ed6924588f4815841938ed885eef96))
+* **skill:** add SK006 referenced dirs existence rule ([05cbb63](https://github.com/dgrauet/suzerain/commit/05cbb63dba79d7470372dcedb4033fb0dc4def8e))
+* **skill:** add SK007 README install-path rule with safe fix ([a519271](https://github.com/dgrauet/suzerain/commit/a519271160c939e4f0b455071e685ed51ff50f85))
+* **skill:** scaffold skill adapter package ([5933848](https://github.com/dgrauet/suzerain/commit/59338481f1378217b117686fcd5bf51133e9de28))
+
+
+### Bug Fixes
+
+* **skill:** tighten SK006 path regex + add missing SK003 skip test ([5f0a3c3](https://github.com/dgrauet/suzerain/commit/5f0a3c336aa6c424ac3921426df0942ed957424a))
+
+
+### Documentation
+
+* **core:** list "skill" in Repo.stack type comment ([fd63904](https://github.com/dgrauet/suzerain/commit/fd63904e6c61bd3a4297092b059fa998bece06a9))
+* **handbook:** add 09-skill.md with SK001-SK007 entries ([7c020a5](https://github.com/dgrauet/suzerain/commit/7c020a5c66d807e8721d7684156849420daeed4c))
+
 ## [0.1.6](https://github.com/dgrauet/suzerain/compare/v0.1.5...v0.1.6) (2026-05-01)
 
 
