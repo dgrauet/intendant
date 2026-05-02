@@ -2,7 +2,12 @@
 
 from pathlib import Path
 
-from suzerain.checks.ci import CI001CIWorkflow, CI002MinimumSteps, CI004CacheConfigured
+from suzerain.checks.ci import (
+    CI001CIWorkflow,
+    CI002MinimumSteps,
+    CI003CommitMessageValidation,
+    CI004CacheConfigured,
+)
 from suzerain.core.repo import Repo
 
 
@@ -239,3 +244,85 @@ def test_ci002_fails_when_test_missing(tmp_path: Path) -> None:
     result = CI002MinimumSteps().check(repo)
     assert result.passing is False
     assert "test" in result.evidence
+
+
+# ---------------------------------------------------------------------------
+# CI003CommitMessageValidation
+# ---------------------------------------------------------------------------
+
+_WORKFLOW_WITH_CZ_CHECK = """\
+name: commit-lint
+on: [pull_request]
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv tool run cz check --rev-range origin/${{ github.base_ref }}..HEAD
+"""
+
+_WORKFLOW_WITH_COMMITIZEN_ACTION = """\
+name: commit-lint
+on: [pull_request]
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: commitizen-tools/commitizen-action@master
+"""
+
+_WORKFLOW_WITH_COMMITLINT = """\
+name: commit-lint
+on: [pull_request]
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wagoid/commitlint-github-action@v5
+"""
+
+_WORKFLOW_WITHOUT_COMMIT_VALIDATION = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: uv run pytest
+"""
+
+
+def test_ci003_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI003CommitMessageValidation().check(repo)
+    assert result.passing is True
+    assert result.skipped is True
+
+
+def test_ci003_passes_with_cz_check(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_CZ_CHECK)
+    repo = Repo(path=tmp_path, stack="python")
+    assert CI003CommitMessageValidation().check(repo).passing is True
+
+
+def test_ci003_passes_with_commitizen_action(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_COMMITIZEN_ACTION)
+    repo = Repo(path=tmp_path, stack="python")
+    assert CI003CommitMessageValidation().check(repo).passing is True
+
+
+def test_ci003_passes_with_commitlint(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_COMMITLINT)
+    repo = Repo(path=tmp_path, stack="python")
+    assert CI003CommitMessageValidation().check(repo).passing is True
+
+
+def test_ci003_fails_when_no_commit_validation(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITHOUT_COMMIT_VALIDATION)
+    repo = Repo(path=tmp_path, stack="python")
+    result = CI003CommitMessageValidation().check(repo)
+    assert result.passing is False
+    assert "commit" in result.evidence.lower()

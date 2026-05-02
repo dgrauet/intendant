@@ -63,6 +63,33 @@ class CI002MinimumSteps(Rule):
         )
 
 
+class CI003CommitMessageValidation(Rule):
+    id = "CI003"
+    title = "CI validates commit messages (conventional commits)"
+    severity = "required"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/03-ci.md#ci003"
+    adr_ref = "0004-conventional-commits-strict"
+
+    def check(self, repo: Repo) -> CheckResult:
+        wf_dir = repo.path / ".github" / "workflows"
+        if not wf_dir.is_dir():
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no .github/workflows/ directory (covered by CI001)",
+            )
+        contents = "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yml"))
+        contents += "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yaml"))
+        markers = ("cz check", "commitizen-action", "commitlint", "wagoid/commitlint")
+        if any(m in contents for m in markers):
+            return CheckResult(passing=True, evidence="commit-message validation step found in CI")
+        return CheckResult(
+            passing=False,
+            evidence="no commit-message validation step found in any CI workflow",
+        )
+
+
 _CACHE_MARKERS = ("enable-cache", "actions/cache", "actions/setup-python")
 
 
