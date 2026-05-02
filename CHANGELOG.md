@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.11](https://github.com/dgrauet/suzerain/compare/v0.1.10...v0.1.11) (2026-05-02)
+
+
+### Features
+
+* **audit:** dashboard shows req/rec/fix breakdown per repo ([4beffc2](https://github.com/dgrauet/suzerain/commit/4beffc2437cb8169d1ad500edd81486fd0c73158))
+
 ## [0.1.10](https://github.com/dgrauet/suzerain/compare/v0.1.9...v0.1.10) (2026-05-02)
 
 
