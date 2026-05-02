@@ -70,6 +70,8 @@ branch = true
 show_missing = true
 skip_covered = false
 
+[tool.ty]
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 version_provider = "pep621"

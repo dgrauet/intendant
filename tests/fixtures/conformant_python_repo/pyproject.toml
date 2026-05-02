@@ -21,6 +21,8 @@ dev = ["pytest>=8.0", "ty>=0.0.1"]
 line-length = 100
 target-version = "py313"
 
+[tool.ty]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

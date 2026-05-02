@@ -50,6 +50,8 @@ pythonpath = ["src"]
 source = ["src/{{ package_name }}"]
 branch = true
 
+[tool.ty]
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 version_provider = "pep621"
