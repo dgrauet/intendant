@@ -2,7 +2,12 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.qu import QU001Ruff, QU002Ty, QU004TyCheck
+from suzerain.adapters.python.qu import (
+    QU001Ruff,
+    QU002Ty,
+    QU003StrictTypeAnnotations,
+    QU004TyCheck,
+)
 from suzerain.core.repo import Repo
 from suzerain.core.rule import CheckResult
 
@@ -97,3 +102,50 @@ def test_qu004_no_fix(tmp_path: Path) -> None:
     # Must NOT raise; just returns None.
     # We don't actually invoke check (subprocess) here — too slow + flaky.
     assert rule.fix(repo, CheckResult(passing=False, evidence="x")) is None
+
+
+# ---------------------------------------------------------------------------
+# QU003StrictTypeAnnotations
+# ---------------------------------------------------------------------------
+
+
+def test_qu003_skipped_when_no_pyproject(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    result = QU003StrictTypeAnnotations().check(repo)
+    assert result.passing is True
+    assert result.skipped is True
+
+
+def test_qu003_passes_with_pyrightconfig_json(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n')
+    (tmp_path / "pyrightconfig.json").write_text('{"typeCheckingMode": "strict"}\n')
+    repo = Repo(path=tmp_path, stack="python")
+    assert QU003StrictTypeAnnotations().check(repo).passing is True
+
+
+def test_qu003_passes_with_tool_ty_section(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n[tool.ty]\n')
+    repo = Repo(path=tmp_path, stack="python")
+    assert QU003StrictTypeAnnotations().check(repo).passing is True
+
+
+def test_qu003_passes_with_pyright_strict(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n[tool.pyright]\ntypeCheckingMode = "strict"\n'
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    assert QU003StrictTypeAnnotations().check(repo).passing is True
+
+
+def test_qu003_passes_with_mypy_strict(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n[tool.mypy]\nstrict = true\n')
+    repo = Repo(path=tmp_path, stack="python")
+    assert QU003StrictTypeAnnotations().check(repo).passing is True
+
+
+def test_qu003_fails_when_no_strict_config(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n[tool.ruff]\n')
+    repo = Repo(path=tmp_path, stack="python")
+    result = QU003StrictTypeAnnotations().check(repo)
+    assert result.passing is False
+    assert "strict" in result.evidence.lower()

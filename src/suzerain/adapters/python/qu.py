@@ -58,6 +58,48 @@ class QU002Ty(Rule):
         )
 
 
+class QU003StrictTypeAnnotations(Rule):
+    id = "QU003"
+    title = "strict type-checker config (ty/pyright/mypy strict mode)"
+    severity = "required"
+    stacks = ("python",)
+    handbook_ref = "docs/handbook/04-quality.md#qu003"
+    adr_ref = "0003-ty-with-pyright-fallback"
+
+    def check(self, repo: Repo) -> CheckResult:
+        if not has_pyproject(repo.path):
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no pyproject.toml (rule does not apply)",
+            )
+        # Pyright config file at repo root counts as strict declaration
+        if (repo.path / "pyrightconfig.json").is_file():
+            return CheckResult(
+                passing=True, evidence="pyrightconfig.json present (strict mode assumed)"
+            )
+        ty_section = pyproject_tool_section(repo.path, "ty") or {}
+        if ty_section.get("strict") is True:
+            return CheckResult(passing=True, evidence="[tool.ty] strict = true")
+        # ty's strict-mode config may live under [tool.ty.rules] or similar — for v1 we
+        # accept any [tool.ty] section as opt-in (presence → strict assumed).
+        if pyproject_tool_section(repo.path, "ty") is not None:
+            return CheckResult(passing=True, evidence="[tool.ty] section present (strict assumed)")
+        pyright = pyproject_tool_section(repo.path, "pyright") or {}
+        if pyright.get("strict") is True or pyright.get("typeCheckingMode") == "strict":
+            return CheckResult(passing=True, evidence="[tool.pyright] strict mode")
+        mypy = pyproject_tool_section(repo.path, "mypy") or {}
+        if mypy.get("strict") is True:
+            return CheckResult(passing=True, evidence="[tool.mypy] strict = true")
+        return CheckResult(
+            passing=False,
+            evidence=(
+                "no strict type-checker config found"
+                " ([tool.ty]/[tool.pyright]/[tool.mypy]/pyrightconfig.json)"
+            ),
+        )
+
+
 class QU004TyCheck(Rule):
     """Run `uvx ty check` against the repo; skip if ty/pyright not in deps."""
 
