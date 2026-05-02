@@ -20,9 +20,9 @@ The CLI is written in **Python**. Justifications:
 - Adapters (Python, Node, Go, Rust to come) live in Python sub-modules:
   adding a stack = creating a folder, not recompiling.
 - Simple distribution: `uv tool install suzerain`.
-- The user (Damien) already masters the Python ecosystem.
+- Python ecosystem mastery is a prerequisite for contribution.
 
-**Explicit exit hatch**: if `suzerain audit ~/Work/*` durably exceeds
+**Explicit exit hatch**: if a portfolio-wide `suzerain dashboard <root>` durably exceeds
 30 s cold (measured over 3 consecutive runs), profile with
 `py-spy` or `cProfile`. If an individual rule is responsible, rewrite it
 as a Rust extension via PyO3 (local integration, not a global rewrite).

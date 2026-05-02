@@ -30,7 +30,7 @@ def test_resolve_placeholders_basic() -> None:
         project_name="my-project",
         package_name="my_project",
         description="A test",
-        author="Damien",
+        author="Test Author",
         year="2026",
         stack="python",
         release_type="python",

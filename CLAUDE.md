@@ -5,7 +5,7 @@ Agent context for the suzerain repo.
 ## What
 
 Multi-stack governance framework. This repo defines, hosts, and enforces the standards
-that govern the other projects in `~/Work/`.
+that govern the projects it is configured to scan.
 
 ## House rules
 
