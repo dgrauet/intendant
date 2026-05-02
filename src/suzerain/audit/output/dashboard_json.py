@@ -30,6 +30,7 @@ def render_dashboard_json(scan: DashboardScan) -> str:
                     "score": None,
                     "status": "error",
                     "failing_rule_ids": [],
+                    "failing_by_severity": {"required": 0, "recommended": 0, "optional": 0},
                     "fixable_count": 0,
                     "error": f"{type(result).__name__}: {result}",
                 }
@@ -38,6 +39,11 @@ def render_dashboard_json(scan: DashboardScan) -> str:
         repo_failing = [f for f in result.findings if f.status == "fail"]
         repo_failing_ids = sorted(f.rule_id for f in repo_failing)
         repo_fixable = sum(1 for f in repo_failing if f.fix_available)
+        repo_by_sev = {
+            "required": sum(1 for f in repo_failing if f.severity == "required"),
+            "recommended": sum(1 for f in repo_failing if f.severity == "recommended"),
+            "optional": sum(1 for f in repo_failing if f.severity == "optional"),
+        }
         failing_ids.update(repo_failing_ids)
         fixable_ids.update(f.rule_id for f in repo_failing if f.fix_available)
         repos.append(
@@ -47,6 +53,7 @@ def render_dashboard_json(scan: DashboardScan) -> str:
                 "score": result.score,
                 "status": "ok",
                 "failing_rule_ids": repo_failing_ids,
+                "failing_by_severity": repo_by_sev,
                 "fixable_count": repo_fixable,
             }
         )

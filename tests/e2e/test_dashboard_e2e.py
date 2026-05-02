@@ -40,6 +40,9 @@ def test_dashboard_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir:
     assert len(repo_b["failing_rule_ids"]) >= 1
     repo_a = next(r for r in parsed["repos"] if r["path"] == "repo_a_clean")
     assert repo_a["status"] == "ok"
+    for repo in parsed["repos"]:
+        assert "failing_by_severity" in repo
+        assert set(repo["failing_by_severity"].keys()) == {"required", "recommended", "optional"}
 
 
 def test_dashboard_e2e_human_against_portfolio_mini(tmp_path: Path, fixtures_dir: Path) -> None:

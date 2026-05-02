@@ -110,6 +110,7 @@ def test_clean_repo_has_status_ok_no_failing_ids(tmp_path: Path) -> None:
     assert repo_obj["status"] == "ok"
     assert repo_obj["score"] == 100
     assert repo_obj["failing_rule_ids"] == []
+    assert repo_obj["failing_by_severity"] == {"required": 0, "recommended": 0, "optional": 0}
     assert repo_obj["fixable_count"] == 0
     assert "error" not in repo_obj
 
@@ -125,6 +126,7 @@ def test_failing_repo_lists_rule_ids_and_fixable_count(tmp_path: Path) -> None:
     repo_obj = parsed["repos"][0]
     assert repo_obj["status"] == "ok"
     assert sorted(repo_obj["failing_rule_ids"]) == ["RL001", "SA001"]
+    assert repo_obj["failing_by_severity"] == {"required": 2, "recommended": 0, "optional": 0}
     assert repo_obj["fixable_count"] == 1
 
 
@@ -141,6 +143,7 @@ def test_error_repo_has_status_error_and_message(tmp_path: Path) -> None:
     assert repo_obj["status"] == "error"
     assert repo_obj["score"] is None
     assert repo_obj["stack"] is None
+    assert repo_obj["failing_by_severity"] == {"required": 0, "recommended": 0, "optional": 0}
     assert "ValueError" in repo_obj["error"]
     assert "invalid TOML" in repo_obj["error"]
 

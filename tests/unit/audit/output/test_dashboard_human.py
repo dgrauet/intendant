@@ -94,8 +94,9 @@ def test_renders_failing_repo_with_rule_ids(tmp_path: Path) -> None:
         timestamp=datetime(2026, 5, 2, 15, 42),
     )
     out = _capture(scan)
-    assert "2 fail" in out
-    assert "1 fixable" in out
+    assert "2 req" in out  # both failing findings are required severity
+    assert "0 rec" in out  # none are recommended
+    assert "1 fix" in out  # one is fixable
     assert "RL001" in out
     assert "SA001*" in out  # asterisk marks fixable
 

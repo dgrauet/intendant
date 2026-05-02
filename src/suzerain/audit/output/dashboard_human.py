@@ -50,9 +50,16 @@ def _render_summary(scan: DashboardScan, console: Console) -> None:
         if not failing:
             status = "[green]✓ all clean[/green]"
         else:
-            fixable = sum(1 for f in failing if f.fix_available)
+            required_n = sum(1 for f in failing if f.severity == "required")
+            recommended_n = sum(1 for f in failing if f.severity == "recommended")
+            fixable_n = sum(1 for f in failing if f.fix_available)
             ids = ", ".join(_format_rule_id(f.rule_id, f.fix_available) for f in failing)
-            status = f"[red]{len(failing)} fail[/red] · {fixable} fixable\n  {ids}"
+            status = (
+                f"[red]{required_n} req[/red]"
+                f" · [yellow]{recommended_n} rec[/yellow]"
+                f" · [green]{fixable_n} fix[/green]"
+                f"\n  {ids}"
+            )
         table.add_row(str(rel), result.stack, score, status)
     console.print(table)
 
