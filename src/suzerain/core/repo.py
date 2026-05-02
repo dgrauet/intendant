@@ -42,7 +42,7 @@ class Repo:
     """A repository with its detected stack."""
 
     path: Path
-    stack: str  # "python" | "node" | "rust" | "auto"
+    stack: str  # "skill" | "python" | "node" | "rust" | "auto"
 
     @classmethod
     def from_path(cls, path: Path) -> Repo:
