@@ -149,3 +149,49 @@ def test_pk004_metadata() -> None:
     assert rule.id == "PK004"
     assert rule.severity == "recommended"
     assert "python" in rule.stacks
+
+
+# ---------------------------------------------------------------------------
+# PK002 fix() tests
+# ---------------------------------------------------------------------------
+
+
+def test_pk002_fix_returns_none_when_no_pyproject(tmp_path: Path) -> None:
+    """If pyproject.toml is missing, fix() returns None."""
+
+    repo = Repo(path=tmp_path, stack="python")
+    rule = PK002UvLock()
+    result = rule.check(repo)
+    patch = rule.fix(repo, result)
+    assert patch is None
+
+
+def test_pk002_fix_generates_uv_lock_via_sandbox(tmp_path: Path) -> None:
+    """fix() runs uv lock in a sandbox and returns a Patch with the produced content."""
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "test"\nversion = "0.1.0"\nrequires-python = ">=3.11"\n'
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    rule = PK002UvLock()
+    result = rule.check(repo)
+    patch = rule.fix(repo, result)
+    assert patch is not None
+    assert patch.safe is True
+    assert patch.kind == "create"
+    assert patch.target_path == tmp_path / "uv.lock"
+    # uv.lock content typically starts with `version = ` or similar
+    assert "version" in patch.content
+    # CRITICAL: real repo's uv.lock must NOT have been created by fix() (sandbox)
+    assert not (tmp_path / "uv.lock").exists()
+
+
+def test_pk002_fix_does_not_create_uv_lock_in_real_repo(tmp_path: Path) -> None:
+    """Sandbox guarantee: no side effect on the audited repo."""
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "test"\nversion = "0.1.0"\nrequires-python = ">=3.11"\n'
+    )
+    repo = Repo(path=tmp_path, stack="python")
+    rule = PK002UvLock()
+    result = rule.check(repo)
+    rule.fix(repo, result)
+    assert not (tmp_path / "uv.lock").exists()
