@@ -39,5 +39,6 @@ uvx ty check                   # or: uv run ty check (depending on installation)
 
 ## Design reference
 
-- Spec: `docs/superpowers/specs/2026-04-30-suzerain-design.md`
-- Tier 1 plan: `docs/superpowers/plans/2026-04-30-suzerain-palier1.md`
+Specs and plans are local-only artifacts archived outside the repo at
+`~/Work/.superpowers/suzerain/{specs,plans}/`. They are intentionally not
+tracked in this repo (per DG005).
