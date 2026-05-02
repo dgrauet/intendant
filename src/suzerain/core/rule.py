@@ -30,6 +30,11 @@ class Rule(ABC):
     adr_ref: ClassVar[str | None] = None
     template_ref: ClassVar[str | None] = None
 
+    @classmethod
+    def supports_fix(cls) -> bool:
+        """True if this Rule subclass overrides the no-op ``fix`` method."""
+        return cls.fix is not Rule.fix
+
     def applies(self, repo: Repo) -> bool:
         return "*" in self.stacks or repo.stack in self.stacks
 

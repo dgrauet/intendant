@@ -61,7 +61,7 @@ def audit(
         repo = Repo.from_path(path)
         config = load_config(path)
         applicable = filter_for_repo(rules, repo, config)
-        report = run_audit(repo, config, applicable)
+        report = run_audit(repo, config, applicable, compute_fix_preview=fix)
         _emit(report, output_format)
 
         if fix:

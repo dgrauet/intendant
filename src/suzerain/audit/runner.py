@@ -14,6 +14,8 @@ def run_audit(
     repo: Repo,
     config: SuzerainConfig,
     rules: Sequence[Rule],
+    *,
+    compute_fix_preview: bool = False,
 ) -> Report:
     """Execute every rule against the repo and return an aggregated Report.
 
@@ -23,16 +25,29 @@ def run_audit(
     - `check()` raises → `fail` with the exception message in evidence
     - `check()` returns skipped=True → `skip` with the evidence string
     - `check()` returns passing=True → `pass`
-    - `check()` returns passing=False → `fail` (fix preview computed if available)
+    - `check()` returns passing=False → `fail`
+
+    When ``compute_fix_preview=False`` (default), ``rule.fix()`` is never called;
+    ``Finding.fix_available`` is set via a cheap class-level check and
+    ``Finding.fix_preview`` is ``None``.
+
+    When ``compute_fix_preview=True``, ``rule.fix()`` is called for failing rules
+    to populate ``fix_available`` definitively and ``fix_preview`` with the diff.
     """
     findings: list[Finding] = []
     for rule in rules:
-        finding = _run_one(rule, repo, config)
+        finding = _run_one(rule, repo, config, compute_fix_preview=compute_fix_preview)
         findings.append(finding)
     return Report(repo_path=repo.path, stack=repo.stack, findings=findings)
 
 
-def _run_one(rule: Rule, repo: Repo, config: SuzerainConfig) -> Finding:
+def _run_one(
+    rule: Rule,
+    repo: Repo,
+    config: SuzerainConfig,
+    *,
+    compute_fix_preview: bool = False,
+) -> Finding:
     """Run a single rule and return a Finding.
 
     Status mapping:
@@ -41,7 +56,7 @@ def _run_one(rule: Rule, repo: Repo, config: SuzerainConfig) -> Finding:
     - check() raises → fail with the exception message in evidence
     - check() returns skipped=True → skip with the evidence string
     - check() returns passing=True → pass
-    - check() returns passing=False → fail (fix preview computed if available)
+    - check() returns passing=False → fail (fix preview computed only if requested)
     """
     if not rule.applies(repo):
         return Finding(
@@ -86,6 +101,17 @@ def _run_one(rule: Rule, repo: Repo, config: SuzerainConfig) -> Finding:
             evidence=result.evidence,
             fix_available=False,
         )
+    # Failing case — decide whether to compute fix preview
+    if not compute_fix_preview:
+        return Finding(
+            rule_id=rule.id,
+            severity=rule.severity,
+            status="fail",
+            evidence=result.evidence,
+            fix_available=type(rule).supports_fix(),  # cheap class-level check
+            fix_preview=None,
+        )
+    # compute_fix_preview=True path
     patch = rule.fix(repo, result)
     return Finding(
         rule_id=rule.id,

@@ -75,6 +75,18 @@ def test_run_audit_failing_rule_with_fix(tmp_path: Path) -> None:
     f = report.findings[0]
     assert f.status == "fail"
     assert f.fix_available is True
+    # Default mode: no fix preview (read-only audit)
+    assert f.fix_preview is None
+
+
+def test_run_audit_failing_rule_with_fix_preview_when_requested(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stack="python")
+    config = SuzerainConfig(version="1", stack="python", mode="strict")
+    report = run_audit(repo, config, rules=[_FailingRule()], compute_fix_preview=True)
+    assert len(report.findings) == 1
+    f = report.findings[0]
+    assert f.status == "fail"
+    assert f.fix_available is True
     assert f.fix_preview is not None
 
 
@@ -153,3 +165,63 @@ def test_run_audit_skipped_check_emits_skip_status(tmp_path: Path) -> None:
     finding = report.findings[0]
     assert finding.status == "skip"
     assert finding.evidence == "precondition not met"
+
+
+def test_runner_does_not_call_fix_in_default_mode(tmp_path: Path) -> None:
+    """Default run_audit must NOT invoke rule.fix() (read-only contract)."""
+    fix_call_count = {"n": 0}
+
+    class TrackingRule(Rule):
+        id = "ZZ900"
+        title = "tracking"
+        severity = "recommended"
+        stacks = ("*",)
+        handbook_ref = "n/a"
+
+        def check(self, repo: Repo) -> CheckResult:
+            return CheckResult(passing=False, evidence="always fails")
+
+        def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+            fix_call_count["n"] += 1
+            return None
+
+    repo = Repo(path=tmp_path, stack="auto")
+    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    report = run_audit(repo, cfg, [TrackingRule()])
+    # fix should NOT have been called
+    assert fix_call_count["n"] == 0
+    # but fix_available should be True (class supports fix + status==fail)
+    assert report.findings[0].fix_available is True
+    assert report.findings[0].fix_preview is None
+
+
+def test_runner_calls_fix_when_compute_fix_preview_true(tmp_path: Path) -> None:
+    """When compute_fix_preview=True, run_audit calls rule.fix()."""
+    fix_call_count = {"n": 0}
+
+    class TrackingRule(Rule):
+        id = "ZZ901"
+        title = "tracking2"
+        severity = "recommended"
+        stacks = ("*",)
+        handbook_ref = "n/a"
+
+        def check(self, repo: Repo) -> CheckResult:
+            return CheckResult(passing=False, evidence="always fails")
+
+        def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+            fix_call_count["n"] += 1
+            return Patch(
+                target_path=repo.path / "X",
+                kind="create",
+                content="X\n",
+                diff="diff",
+                safe=True,
+            )
+
+    repo = Repo(path=tmp_path, stack="auto")
+    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    report = run_audit(repo, cfg, [TrackingRule()], compute_fix_preview=True)
+    assert fix_call_count["n"] == 1
+    assert report.findings[0].fix_available is True
+    assert report.findings[0].fix_preview == "diff"
