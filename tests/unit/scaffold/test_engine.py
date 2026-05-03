@@ -226,7 +226,7 @@ def test_scaffold_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(
     assert data["suzerain"]["mode"] == "strict"
     assert data["suzerain"]["stack"] == "claude-skill"
     exemptions = data.get("exemptions", {})
-    assert "CI002" in exemptions
+    # CI002 exemption removed: claude-skill CI now runs suzerain audit (CI002 passes natively)
     assert "CI003" in exemptions
     assert "CI004" in exemptions
 

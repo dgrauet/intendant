@@ -159,7 +159,7 @@ def test_new_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(tmp_path:
     data = tomllib.loads(cfg.read_text())
     assert data["suzerain"]["mode"] == "strict"
     assert data["suzerain"]["stack"] == "claude-skill"
-    assert "CI002" in data.get("exemptions", {})
+    # CI002 exemption removed: claude-skill CI now runs suzerain audit (CI002 passes natively)
     assert "CI003" in data.get("exemptions", {})
     assert "CI004" in data.get("exemptions", {})
 
@@ -269,7 +269,7 @@ def test_new_node_suzerain_toml_has_strict_mode_and_exemptions(tmp_path: Path) -
     assert data["suzerain"]["stack"] == "node"
     exemptions = data.get("exemptions", {})
     assert "NODE_PK002" in exemptions
-    assert "CI002" in exemptions
+    # CI002 exemption removed: node CI now runs eslint/tsc/vitest (CI002 passes natively)
 
 
 def test_new_node_eslint_config_present(tmp_path: Path) -> None:
