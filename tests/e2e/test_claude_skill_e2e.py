@@ -17,7 +17,7 @@ def test_e2e_valid_skill_passes_all_sk_rules(fixtures_dir: Path) -> None:
 
     cfg = SuzerainConfig(version="1", stack="claude-skill", mode="strict")
     report = run_audit(repo, cfg, CLAUDE_SKILL_RULES)
-    sk_findings = [f for f in report.findings if f.rule_id.startswith("SK")]
+    sk_findings = [f for f in report.findings if f.rule_id.startswith("CLAUDE_SKILL_SK")]
     assert len(sk_findings) == 7
 
     failed = [f for f in sk_findings if f.status == "fail"]

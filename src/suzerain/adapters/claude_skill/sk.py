@@ -16,11 +16,11 @@ _FRONTMATTER_BLOCK_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 
 
 class SK001SkillMdExists(Rule):
-    id = "SK001"
+    id = "CLAUDE_SKILL_SK001"
     title = "SKILL.md exists at depth <= 2"
     severity = "required"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk001"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk001"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -37,11 +37,11 @@ class SK001SkillMdExists(Rule):
 
 
 class SK002FrontmatterValid(Rule):
-    id = "SK002"
+    id = "CLAUDE_SKILL_SK002"
     title = "SKILL.md frontmatter valid (name + description present and non-empty)"
     severity = "required"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk002"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk002"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -83,11 +83,11 @@ class SK002FrontmatterValid(Rule):
 
 
 class SK003DescriptionQuality(Rule):
-    id = "SK003"
+    id = "CLAUDE_SKILL_SK003"
     title = "SKILL.md description length within 10-1024 chars"
     severity = "recommended"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk003"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk003"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -120,11 +120,11 @@ class SK003DescriptionQuality(Rule):
 
 
 class SK004NameMatchesDir(Rule):
-    id = "SK004"
+    id = "CLAUDE_SKILL_SK004"
     title = "frontmatter name matches parent directory name"
     severity = "recommended"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk004"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk004"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -155,11 +155,11 @@ _EVAL_EXTENSIONS = frozenset({".md", ".json", ".yaml", ".yml", ".txt"})
 
 
 class SK005EvalsNonEmpty(Rule):
-    id = "SK005"
+    id = "CLAUDE_SKILL_SK005"
     title = "evals/ directory present and non-empty"
     severity = "recommended"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk005"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk005"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -193,11 +193,11 @@ def _strip_frontmatter_and_codeblocks(text: str) -> str:
 
 
 class SK006ReferencedDirsExist(Rule):
-    id = "SK006"
+    id = "CLAUDE_SKILL_SK006"
     title = "referenced top-level dirs (references/, scripts/) exist when mentioned"
     severity = "recommended"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk006"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk006"
 
     def check(self, repo: Repo) -> CheckResult:
         skill_md = find_skill_md(repo.path)
@@ -240,11 +240,11 @@ git clone <repo-url> ~/.claude/skills/{skill_name}
 
 
 class SK007ReadmeInstallPath(Rule):
-    id = "SK007"
+    id = "CLAUDE_SKILL_SK007"
     title = "README mentions skill install path (~/.claude/skills/ or claude/plugins/)"
     severity = "recommended"
     stacks = ("claude-skill",)
-    handbook_ref = "docs/handbook/09-claude-skill.md#sk007"
+    handbook_ref = "docs/handbook/09-claude-skill.md#claude_skill_sk007"
 
     def check(self, repo: Repo) -> CheckResult:
         readme = repo.path / "README.md"

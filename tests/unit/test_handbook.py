@@ -71,7 +71,7 @@ def test_handbook_regex_accepts_node_prefix(tmp_path: Path) -> None:
     # Legacy 2-letter prefix (backward compat)
     assert _RULE_HEADING_RE.match("### XX001 — Some rule")
     assert _RULE_HEADING_RE.match("### PYTHON_LO001 — Layout rule")
-    assert _RULE_HEADING_RE.match("### SK007 — Skill rule")
+    assert _RULE_HEADING_RE.match("### CLAUDE_SKILL_SK007 — Skill rule")
     # New NODE_ prefix
     assert _RULE_HEADING_RE.match("### NODE_PK001 — package.json present")
     assert _RULE_HEADING_RE.match("### NODE_QU002 — TypeScript present")
@@ -104,7 +104,15 @@ def test_handbook_indexes_all_sk_rules() -> None:
 
     handbook = Handbook(root=docs_root())
     rule_ids = handbook.list_rules()
-    for sk_id in ("SK001", "SK002", "SK003", "SK004", "SK005", "SK006", "SK007"):
+    for sk_id in (
+        "CLAUDE_SKILL_SK001",
+        "CLAUDE_SKILL_SK002",
+        "CLAUDE_SKILL_SK003",
+        "CLAUDE_SKILL_SK004",
+        "CLAUDE_SKILL_SK005",
+        "CLAUDE_SKILL_SK006",
+        "CLAUDE_SKILL_SK007",
+    ):
         assert sk_id in rule_ids, f"{sk_id} missing from handbook"
         section = handbook.get_rule(sk_id)
         assert section is not None
