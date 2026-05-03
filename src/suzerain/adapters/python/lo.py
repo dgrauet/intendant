@@ -8,16 +8,18 @@ from suzerain.core.rule import CheckResult, Rule
 
 
 class LO001SrcLayout(Rule):
-    id = "LO001"
+    id = "PYTHON_LO001"
     title = "Python project uses src/ layout"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/01-layout.md#lo001"
+    handbook_ref = "docs/handbook/01-layout.md#python_lo001"
     adr_ref = "0001-layout-src-vs-flat"
 
     def check(self, repo: Repo) -> CheckResult:
         if not has_pyproject(repo.path):
-            return CheckResult(passing=True, evidence="no pyproject.toml — LO001 inconclusive")
+            return CheckResult(
+                passing=True, evidence="no pyproject.toml — PYTHON_LO001 inconclusive"
+            )
         src_dir = repo.path / "src"
         if src_dir.is_dir():
             packages = [
@@ -32,11 +34,11 @@ class LO001SrcLayout(Rule):
 
 
 class LO002TestsAtRoot(Rule):
-    id = "LO002"
+    id = "PYTHON_LO002"
     title = "tests/ directory at repo root"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/01-layout.md#lo002"
+    handbook_ref = "docs/handbook/01-layout.md#python_lo002"
     adr_ref = "0001-layout-src-vs-flat"
 
     def check(self, repo: Repo) -> CheckResult:

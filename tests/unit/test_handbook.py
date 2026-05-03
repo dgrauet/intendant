@@ -70,7 +70,7 @@ def test_handbook_regex_accepts_node_prefix(tmp_path: Path) -> None:
 
     # Legacy 2-letter prefix (backward compat)
     assert _RULE_HEADING_RE.match("### XX001 — Some rule")
-    assert _RULE_HEADING_RE.match("### LO001 — Layout rule")
+    assert _RULE_HEADING_RE.match("### PYTHON_LO001 — Layout rule")
     assert _RULE_HEADING_RE.match("### SK007 — Skill rule")
     # New NODE_ prefix
     assert _RULE_HEADING_RE.match("### NODE_PK001 — package.json present")

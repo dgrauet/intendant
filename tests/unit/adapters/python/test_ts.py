@@ -73,6 +73,6 @@ def test_ts003_skip_no_pyproject(tmp_path: Path) -> None:
 
 def test_ts003_metadata() -> None:
     rule = TS003CoverageConfigured()
-    assert rule.id == "TS003"
+    assert rule.id == "PYTHON_TS003"
     assert rule.severity == "recommended"
     assert "python" in rule.stacks

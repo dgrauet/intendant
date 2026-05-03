@@ -10,11 +10,11 @@ from suzerain.core.rule import CheckResult, Rule
 class TS001Pytest(Rule):
     """Pytest is configured via pyproject.toml, pytest.ini, or tests/conftest.py."""
 
-    id = "TS001"
+    id = "PYTHON_TS001"
     title = "pytest configured ([tool.pytest.ini_options], pytest.ini, or tests/conftest.py)"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/05-testing.md#ts001"
+    handbook_ref = "docs/handbook/05-testing.md#python_ts001"
 
     def check(self, repo: Repo) -> CheckResult:
         # 1. [tool.pytest.ini_options] in pyproject.toml
@@ -50,11 +50,11 @@ class TS001Pytest(Rule):
 class TS003CoverageConfigured(Rule):
     """[tool.coverage] section (or sub-section) exists in pyproject.toml."""
 
-    id = "TS003"
+    id = "PYTHON_TS003"
     title = "[tool.coverage] configured in pyproject.toml"
     severity = "recommended"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/05-tests.md#ts003"
+    handbook_ref = "docs/handbook/05-tests.md#python_ts003"
 
     def check(self, repo: Repo) -> CheckResult:
         if not has_pyproject(repo.path):

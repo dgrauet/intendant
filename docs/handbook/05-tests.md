@@ -2,7 +2,7 @@
 
 ## Rules
 
-### TS001 — `pytest` as test runner
+### PYTHON_TS001 — `pytest` as test runner
 
 **Severity:** required · **Stacks:** python
 
@@ -19,7 +19,7 @@ Unit and integration tests live in `tests/`. Regression tests
 at the root. Allows running only `tests/` quickly in CI and
 reserving `regression_tests/` for nightly runs.
 
-### TS003 — Coverage measured
+### PYTHON_TS003 — Coverage measured
 
 **Severity:** recommended · **Stacks:** python
 

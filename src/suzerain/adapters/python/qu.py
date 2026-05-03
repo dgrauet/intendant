@@ -14,11 +14,11 @@ from suzerain.core.rule import CheckResult, Rule
 
 
 class QU001Ruff(Rule):
-    id = "QU001"
+    id = "PYTHON_QU001"
     title = "ruff configured (pyproject.toml [tool.ruff] or ruff.toml)"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/04-quality.md#qu001"
+    handbook_ref = "docs/handbook/04-quality.md#python_qu001"
 
     def check(self, repo: Repo) -> CheckResult:
         if pyproject_tool_section(repo.path, "ruff") is not None:
@@ -31,11 +31,11 @@ class QU001Ruff(Rule):
 class QU002Ty(Rule):
     """Type-checker present: ty (Astral, default) or pyright (fallback per ADR-0003)."""
 
-    id = "QU002"
+    id = "PYTHON_QU002"
     title = "type-checker declared in deps (ty default, pyright fallback)"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/04-quality.md#qu002"
+    handbook_ref = "docs/handbook/04-quality.md#python_qu002"
     adr_ref = "0003-ty-with-pyright-fallback"
 
     def check(self, repo: Repo) -> CheckResult:
@@ -59,11 +59,11 @@ class QU002Ty(Rule):
 
 
 class QU003StrictTypeAnnotations(Rule):
-    id = "QU003"
+    id = "PYTHON_QU003"
     title = "strict type-checker config (ty/pyright/mypy strict mode)"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/04-quality.md#qu003"
+    handbook_ref = "docs/handbook/04-quality.md#python_qu003"
     adr_ref = "0003-ty-with-pyright-fallback"
 
     def check(self, repo: Repo) -> CheckResult:
@@ -103,11 +103,11 @@ class QU003StrictTypeAnnotations(Rule):
 class QU004TyCheck(Rule):
     """Run `uvx ty check` against the repo; skip if ty/pyright not in deps."""
 
-    id = "QU004"
+    id = "PYTHON_QU004"
     title = "ty check passes (Python type-checker)"
     severity = "recommended"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/04-quality.md#qu004"
+    handbook_ref = "docs/handbook/04-quality.md#python_qu004"
     adr_ref = "0003-ty-with-pyright-fallback"
 
     def applies(self, repo: Repo) -> bool:

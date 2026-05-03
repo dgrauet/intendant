@@ -32,12 +32,12 @@ def test_load_with_string_exemption(tmp_path: Path) -> None:
     (tmp_path / ".suzerain.toml").write_text(
         '[suzerain]\nversion = "1"\nstack = "python"\nmode = "strict"\n'
         "[exemptions]\n"
-        'LO001 = "Fork upstream"\n'
+        'PYTHON_LO001 = "Fork upstream"\n'
     )
     config = load_config(tmp_path)
-    assert "LO001" in config.exemptions
-    assert config.exemptions["LO001"].reason == "Fork upstream"
-    assert config.exemptions["LO001"].until is None
+    assert "PYTHON_LO001" in config.exemptions
+    assert config.exemptions["PYTHON_LO001"].reason == "Fork upstream"
+    assert config.exemptions["PYTHON_LO001"].until is None
 
 
 def test_load_with_dict_exemption(tmp_path: Path) -> None:
@@ -56,10 +56,10 @@ def test_is_rule_exempt() -> None:
         version="1",
         stack="python",
         mode="strict",
-        exemptions={"LO001": Exemption(reason="Fork upstream", until=None)},
+        exemptions={"PYTHON_LO001": Exemption(reason="Fork upstream", until=None)},
     )
-    assert config.is_rule_exempt("LO001") is True
-    assert config.is_rule_exempt("PK001") is False
+    assert config.is_rule_exempt("PYTHON_LO001") is True
+    assert config.is_rule_exempt("PYTHON_PK001") is False
 
 
 def test_default_mode_constant() -> None:

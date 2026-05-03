@@ -15,11 +15,11 @@ from suzerain.core.rule import CheckResult, Rule
 
 
 class PK001PyprojectExists(Rule):
-    id = "PK001"
+    id = "PYTHON_PK001"
     title = "pyproject.toml exists with [project] section"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/02-packaging.md#pk001"
+    handbook_ref = "docs/handbook/02-packaging.md#python_pk001"
     adr_ref = "0002-uv-as-dependency-manager"
 
     def check(self, repo: Repo) -> CheckResult:
@@ -36,11 +36,11 @@ class PK001PyprojectExists(Rule):
 
 
 class PK002UvLock(Rule):
-    id = "PK002"
+    id = "PYTHON_PK002"
     title = "uv.lock present and committed"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/02-packaging.md#pk002"
+    handbook_ref = "docs/handbook/02-packaging.md#python_pk002"
     adr_ref = "0002-uv-as-dependency-manager"
 
     def check(self, repo: Repo) -> CheckResult:
@@ -96,11 +96,11 @@ class PK002UvLock(Rule):
 
 
 class PK003PythonVersion(Rule):
-    id = "PK003"
+    id = "PYTHON_PK003"
     title = ".python-version pinned"
     severity = "required"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/02-packaging.md#pk003"
+    handbook_ref = "docs/handbook/02-packaging.md#python_pk003"
 
     def check(self, repo: Repo) -> CheckResult:
         path = repo.path / ".python-version"
@@ -132,11 +132,11 @@ class PK003PythonVersion(Rule):
 
 
 class PK004NoRequirementsTxt(Rule):
-    id = "PK004"
+    id = "PYTHON_PK004"
     title = "requirements.txt absent (pyproject.toml + uv.lock is the source of truth)"
     severity = "recommended"
     stacks = ("python",)
-    handbook_ref = "docs/handbook/02-packaging.md#pk004"
+    handbook_ref = "docs/handbook/02-packaging.md#python_pk004"
     adr_ref = "0002-uv-as-dependency-manager"
 
     def check(self, repo: Repo) -> CheckResult:

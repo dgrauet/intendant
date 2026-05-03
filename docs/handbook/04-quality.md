@@ -2,7 +2,7 @@
 
 ## Rules
 
-### QU001 — `ruff` as linter and formatter
+### PYTHON_QU001 — `ruff` as linter and formatter
 
 **Severity:** required · **Stacks:** python
 
@@ -11,14 +11,14 @@
 `pyproject.toml`. Minimum enabled rules: `E`, `F`, `I`, `N`, `UP`,
 `B`, `SIM`, `RUF`.
 
-### QU002 — `ty` as type-checker
+### PYTHON_QU002 — `ty` as type-checker
 
 **Severity:** required · **Stacks:** python · **ADR:** [0003-ty-with-pyright-fallback](../adr/0003-ty-with-pyright-fallback.md)
 
 `ty` (Astral) is invoked via `uvx ty check`. `pyright` remains documented
 as a fallback (see ADR-0003).
 
-### QU003 — Strict type annotations
+### PYTHON_QU003 — Strict type annotations
 
 **Severity:** required · **Stacks:** python
 
@@ -26,7 +26,7 @@ All public function and method parameters are typed. All return types are
 annotated (except `__init__`). No implicit `Any`. The type-checker's
 strict mode is enabled.
 
-### QU004 — `ty check` passes (Python type-checker)
+### PYTHON_QU004 — `ty check` passes (Python type-checker)
 
 **Severity:** recommended · **Stacks:** python · **ADR:** [0003-ty-with-pyright-fallback](../adr/0003-ty-with-pyright-fallback.md)
 

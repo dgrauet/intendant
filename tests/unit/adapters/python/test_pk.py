@@ -146,7 +146,7 @@ def test_pk004_fail_requirements_txt_present(tmp_path: Path) -> None:
 
 def test_pk004_metadata() -> None:
     rule = PK004NoRequirementsTxt()
-    assert rule.id == "PK004"
+    assert rule.id == "PYTHON_PK004"
     assert rule.severity == "recommended"
     assert "python" in rule.stacks
 

@@ -34,7 +34,7 @@ def test_human_shows_score(tmp_path: Path) -> None:
 def test_human_lists_failing_rules(tmp_path: Path) -> None:
     findings = [
         Finding(
-            rule_id="LO001",
+            rule_id="PYTHON_LO001",
             severity="required",
             status="fail",
             evidence="missing src/",
@@ -43,7 +43,7 @@ def test_human_lists_failing_rules(tmp_path: Path) -> None:
     ]
     report = Report(repo_path=tmp_path, stack="python", findings=findings)
     text = _capture(report)
-    assert "LO001" in text
+    assert "PYTHON_LO001" in text
     assert "missing src/" in text
 
 

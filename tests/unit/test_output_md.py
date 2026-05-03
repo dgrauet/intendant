@@ -24,7 +24,7 @@ def test_md_contains_score_table(tmp_path: Path) -> None:
 def test_md_lists_failures(tmp_path: Path) -> None:
     findings = [
         Finding(
-            rule_id="LO001",
+            rule_id="PYTHON_LO001",
             severity="required",
             status="fail",
             evidence="missing src/",
@@ -33,7 +33,7 @@ def test_md_lists_failures(tmp_path: Path) -> None:
     ]
     report = Report(repo_path=tmp_path, stack="python", findings=findings)
     md = render_markdown(report)
-    assert "LO001" in md
+    assert "PYTHON_LO001" in md
     assert "missing src/" in md
 
 

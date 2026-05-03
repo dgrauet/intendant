@@ -195,5 +195,7 @@ def _strict_mode_in_suzerain_toml(target: Path, context: SubstitutionContext) ->
     data["suzerain"]["stack"] = context.stack
     data.setdefault("exemptions", {})
     if context.stack == "python":
-        data["exemptions"]["PK002"] = "fresh scaffold; run `uv lock` then remove this exemption"
+        data["exemptions"]["PYTHON_PK002"] = (
+            "fresh scaffold; run `uv lock` then remove this exemption"
+        )
     cfg.write_text(tomli_w.dumps(data), encoding="utf-8")

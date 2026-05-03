@@ -4,14 +4,14 @@ Folder structure convention for projects governed by suzerain.
 
 ## Rules
 
-### LO001 — `src/` layout required (Python)
+### PYTHON_LO001 — `src/` layout required (Python)
 
 **Severity:** required · **Stacks:** python · **ADR:** [0001-layout-src-vs-flat](../adr/0001-layout-src-vs-flat.md)
 
 Source code lives in `src/<package_name>/`, never at the root. Tests
 live in `tests/` at the root. See ADR-0001 for the rationale.
 
-### LO002 — Tests in `tests/` at the root
+### PYTHON_LO002 — Tests in `tests/` at the root
 
 **Severity:** required · **Stacks:** python · **ADR:** [0001-layout-src-vs-flat](../adr/0001-layout-src-vs-flat.md)
 

@@ -20,7 +20,7 @@ def test_finding_pass() -> None:
 
 def test_finding_fail_with_fix() -> None:
     f = Finding(
-        rule_id="PK002",
+        rule_id="PYTHON_PK002",
         severity="required",
         status="fail",
         evidence="missing file: uv.lock",
@@ -34,7 +34,7 @@ def test_finding_fail_with_fix() -> None:
 
 def test_finding_exempt() -> None:
     f = Finding(
-        rule_id="LO001",
+        rule_id="PYTHON_LO001",
         severity="required",
         status="exempt",
         evidence="exemption: Fork upstream layout",

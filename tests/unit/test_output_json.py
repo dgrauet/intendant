@@ -20,7 +20,7 @@ def test_json_basic_shape(tmp_path: Path) -> None:
 def test_json_finding_fields(tmp_path: Path) -> None:
     findings = [
         Finding(
-            rule_id="PK002",
+            rule_id="PYTHON_PK002",
             severity="required",
             status="fail",
             evidence="missing uv.lock",
@@ -32,7 +32,7 @@ def test_json_finding_fields(tmp_path: Path) -> None:
     parsed = json.loads(render_json(report))
     assert len(parsed["findings"]) == 1
     f = parsed["findings"][0]
-    assert f["rule_id"] == "PK002"
+    assert f["rule_id"] == "PYTHON_PK002"
     assert f["status"] == "fail"
     assert f["fix_available"] is True
     assert f["fix_preview"].startswith("---")
