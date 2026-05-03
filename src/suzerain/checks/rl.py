@@ -213,6 +213,18 @@ def _read_project_version(repo_path: Path) -> str | None:
                 return v
         except tomllib.TOMLDecodeError:
             pass
+    # release-please manifest as a last fallback (covers stacks without a primary manifest,
+    # e.g. claude-skill)
+    rp_manifest = repo_path / ".release-please-manifest.json"
+    if rp_manifest.is_file():
+        try:
+            data = json.loads(rp_manifest.read_text())
+            # Manifest format: {".": "0.1.0"} or {"path/to/sub": "1.2.3"}
+            for v in data.values():
+                if isinstance(v, str):
+                    return v
+        except json.JSONDecodeError:
+            pass
     return None
 
 
@@ -229,7 +241,10 @@ class RL004SemverStrict(Rule):
             return CheckResult(
                 passing=True,
                 skipped=True,
-                evidence="no version field found in pyproject.toml/package.json/Cargo.toml",
+                evidence=(
+                    "no version field found in pyproject.toml/package.json"
+                    "/Cargo.toml/.release-please-manifest.json"
+                ),
             )
         if _SEMVER_RE.match(version):
             return CheckResult(passing=True, evidence=f"version {version!r} is valid SemVer 2.0.0")

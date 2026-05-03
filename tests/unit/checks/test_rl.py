@@ -253,3 +253,19 @@ def test_rl004_fails_for_v_prefixed_version(tmp_path: Path) -> None:
     result = RL004SemverStrict().check(repo)
     assert result.passing is False
     assert "v1.0.0" in result.evidence
+
+
+def test_rl004_reads_version_from_release_please_manifest(tmp_path: Path) -> None:
+    (tmp_path / ".release-please-manifest.json").write_text('{".": "1.2.3"}\n')
+    repo = Repo(path=tmp_path, stack="claude-skill")
+    result = RL004SemverStrict().check(repo)
+    assert result.passing is True
+    assert "1.2.3" in result.evidence
+
+
+def test_rl004_release_please_manifest_invalid_semver_fails(tmp_path: Path) -> None:
+    (tmp_path / ".release-please-manifest.json").write_text('{".": "v1.0"}\n')
+    repo = Repo(path=tmp_path, stack="claude-skill")
+    result = RL004SemverStrict().check(repo)
+    assert result.passing is False
+    assert "v1.0" in result.evidence

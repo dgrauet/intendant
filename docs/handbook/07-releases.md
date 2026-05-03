@@ -35,3 +35,9 @@ CHANGELOG, and git tagging.
 [SemVer 2.0.0](https://semver.org). `release-please` interprets
 conventional commits: `fix:` → patch, `feat:` → minor, `feat!:` or
 `BREAKING CHANGE:` → major.
+
+The version is read from the first file found: `pyproject.toml`,
+`package.json`, `Cargo.toml`, or `.release-please-manifest.json`
+(`{".": "0.1.0"}` format). The manifest fallback enables RL004 to
+apply to stacks without a primary language manifest (e.g. `claude-skill`).
+If none of these files is present, the rule is skipped.
