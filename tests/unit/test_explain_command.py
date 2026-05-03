@@ -43,3 +43,37 @@ def test_explain_rule_without_adr(fake_root: Path, monkeypatch: pytest.MonkeyPat
     result = runner.invoke(app, ["explain", "XX002"])
     assert result.exit_code == 0
     assert "XX002" in result.stdout
+
+
+# --- D2: suzerain explain --all ---
+
+
+def test_explain_all_lists_every_registered_rule() -> None:
+    """--all prints a table that includes rule IDs from every adapter."""
+    result = runner.invoke(app, ["explain", "--all"])
+    assert result.exit_code == 0
+    # transverse rules
+    assert "DG001" in result.stdout
+    # python adapter
+    assert "PYTHON_LO001" in result.stdout
+    # claude-skill adapter
+    assert "CLAUDE_SKILL_SK001" in result.stdout
+    # node adapter
+    assert "NODE_PK001" in result.stdout
+
+
+def test_explain_with_neither_arg_nor_all_is_friendly() -> None:
+    """Invoking explain with no args should not crash and print something sensible."""
+    result = runner.invoke(app, ["explain"])
+    # must not raise an unhandled exception
+    assert result.exception is None
+    # should print something (help text or a guidance message)
+    assert len(result.stdout.strip()) > 0
+
+
+def test_explain_with_both_rule_id_and_all_errors() -> None:
+    """Passing both RULE_ID and --all is an error (exit 1)."""
+    result = runner.invoke(app, ["explain", "PYTHON_LO001", "--all"])
+    assert result.exit_code == 1
+    combined = (result.stdout + (result.stderr or "")).lower()
+    assert "both" in combined or "conflict" in combined or "either" in combined

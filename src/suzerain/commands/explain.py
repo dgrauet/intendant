@@ -2,19 +2,92 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
 import typer
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
+from rich.table import Table
 
+from suzerain.audit.registry import collect_rules
 from suzerain.core.handbook import Handbook
 from suzerain.core.paths import docs_root
 
 console = Console()
 
+_SEVERITY_ORDER = {"required": 0, "recommended": 1, "optional": 2}
 
-def explain(rule_id: str) -> None:
-    """Show the handbook section and linked ADR for ``RULE_ID``."""
+
+def explain(
+    rule_id: Annotated[
+        str | None,
+        typer.Argument(help="Rule ID to explain (e.g., PYTHON_LO001). Optional with --all."),
+    ] = None,
+    all_rules: Annotated[
+        bool,
+        typer.Option("--all", help="List all registered rules with title and severity."),
+    ] = False,
+) -> None:
+    """Show the handbook section and linked ADR for RULE_ID, or list all rules with --all."""
+    if rule_id is not None and all_rules:
+        console.print(
+            "[red]Error:[/red] use either RULE_ID or --all, not both.",
+        )
+        raise typer.Exit(code=1)
+
+    if all_rules:
+        _print_all_rules()
+        return
+
+    if rule_id is None:
+        # No argument and no --all: print friendly guidance.
+        console.print(
+            "Usage: suzerain explain RULE_ID\n"
+            "       suzerain explain --all\n\n"
+            "Provide a rule ID (e.g. PYTHON_LO001) to see its handbook entry,\n"
+            "or pass --all to list every registered rule."
+        )
+        return
+
+    _print_single_rule(rule_id)
+
+
+def _print_all_rules() -> None:
+    """Print a Rich table of all registered rules, grouped by severity."""
+    rules = collect_rules()
+    rules_sorted = sorted(
+        rules,
+        key=lambda r: (_SEVERITY_ORDER.get(r.severity, 99), r.id),
+    )
+
+    table = Table(title="All registered rules", show_header=True, header_style="bold cyan")
+    table.add_column("Rule ID", style="bold", no_wrap=True)
+    table.add_column("Severity", no_wrap=True)
+    table.add_column("Stacks", no_wrap=True)
+    table.add_column("Title")
+
+    severity_colors = {
+        "required": "red",
+        "recommended": "yellow",
+        "optional": "green",
+    }
+
+    for rule in rules_sorted:
+        stacks_text = ", ".join(rule.stacks) if rule.stacks else "*"
+        color = severity_colors.get(rule.severity, "white")
+        table.add_row(
+            rule.id,
+            f"[{color}]{rule.severity}[/{color}]",
+            stacks_text,
+            rule.title,
+        )
+
+    console.print(table)
+
+
+def _print_single_rule(rule_id: str) -> None:
+    """Print the handbook entry (and ADR if available) for a single rule."""
     handbook = Handbook(root=docs_root())
     rule = handbook.get_rule(rule_id)
     if rule is None:
