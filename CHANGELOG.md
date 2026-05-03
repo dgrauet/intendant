@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.13](https://github.com/dgrauet/suzerain/compare/v0.1.12...v0.1.13) (2026-05-03)
+
+
+### Features
+
+* **audit:** add snapshot persistence + diff computation modules ([0f69fdc](https://github.com/dgrauet/suzerain/commit/0f69fdc375612967920d5a06a58114fd1dbcfc2e))
+* **commands:** dashboard --save-snapshot, --diff, --against, --snapshot-dir ([fb52f6b](https://github.com/dgrauet/suzerain/commit/fb52f6ba1268765cb4312646052fc843dbbe9be0))
+
 ## [0.1.12](https://github.com/dgrauet/suzerain/compare/v0.1.11...v0.1.12) (2026-05-02)
 
 
