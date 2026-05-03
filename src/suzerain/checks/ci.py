@@ -90,12 +90,15 @@ class CI003CommitMessageValidation(Rule):
         )
 
 
-_CACHE_MARKERS = ("enable-cache", "actions/cache", "actions/setup-python")
+_CACHE_MARKERS = ("enable-cache", "actions/cache", "actions/setup-python", "actions/setup-node")
 
 
 class CI004CacheConfigured(Rule):
     id = "CI004"
-    title = "at least one workflow configures caching (enable-cache / actions/cache)"
+    title = (
+        "at least one workflow configures caching"
+        " (enable-cache / actions/cache / actions/setup-node)"
+    )
     severity = "recommended"
     stacks = ("*",)
     handbook_ref = "docs/handbook/03-ci.md#ci004"
@@ -112,7 +115,7 @@ class CI004CacheConfigured(Rule):
         return CheckResult(
             passing=False,
             evidence=(
-                "no workflow mentions enable-cache, actions/cache, or actions/setup-python"
-                " with cache config"
+                "no workflow mentions enable-cache, actions/cache, actions/setup-python,"
+                " or actions/setup-node with cache config"
             ),
         )

@@ -22,7 +22,10 @@ def new(
     ],
     stack: Annotated[
         str,
-        typer.Option("--stack", help="Target stack. Currently supported: python, claude-skill."),
+        typer.Option(
+            "--stack",
+            help="Target stack. Currently supported: python, claude-skill, node.",
+        ),
     ] = "python",
     description: Annotated[
         str,
@@ -118,4 +121,11 @@ def _print_quickstart(target: Path, stack: str) -> None:
         console.print(f"  cd {target}")
         console.print("  # Edit <name>/SKILL.md to describe your skill")
         console.print("  # Add real eval cases to <name>/evals/")
+        console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")
+    elif stack == "node":
+        console.print(f"  cd {target}")
+        console.print("  npm install                  # install deps and generate lockfile")
+        console.print("  npm test                     # run vitest")
+        console.print("  npm run lint                 # run eslint")
+        console.print("  npm run typecheck            # run tsc --noEmit")
         console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")

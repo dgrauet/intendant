@@ -1,0 +1,19 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+npm install   # or pnpm/yarn/bun
+```
+
+## Scripts
+
+- `npm test` — run vitest
+- `npm run lint` — run eslint
+- `npm run typecheck` — run tsc --noEmit
+
+## License
+
+MIT

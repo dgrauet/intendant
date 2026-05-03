@@ -1,0 +1,8 @@
+[suzerain]
+version = "1"
+stack = "node"
+mode = "strict"
+
+[exemptions]
+NODE_PK002 = "fresh scaffold; run `npm install` (or yarn/pnpm/bun) to generate the lockfile, then remove this exemption"
+CI002 = "Node project — CI uses eslint/tsc/vitest; CI002 substring-matches Python tooling (ruff/ty/pytest)"

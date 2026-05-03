@@ -117,3 +117,43 @@ def test_scaffold_claude_skill_passes_required_audit(tmp_path: Path) -> None:
     assert audit_proc.returncode == 0, (
         f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
     )
+
+
+@pytest.mark.e2e()
+def test_scaffold_node_passes_required_audit(tmp_path: Path) -> None:
+    """Success criterion: a fresh node scaffold passes suzerain audit --severity=required."""
+    target = tmp_path / "my-node-test"
+    suzerain_repo = Path(__file__).resolve().parents[2]
+    proc = subprocess.run(
+        [
+            "uv",
+            "run",
+            "suzerain",
+            "new",
+            "my-node-test",
+            "--stack",
+            "node",
+            "--path",
+            str(tmp_path),
+        ],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, f"scaffold failed: {proc.stderr}"
+    assert target.is_dir()
+    assert (target / "package.json").is_file()
+    assert (target / "tsconfig.json").is_file()
+    assert (target / "eslint.config.js").is_file()
+    assert (target / "src" / "index.ts").is_file()
+    assert (target / "tests" / "index.test.ts").is_file()
+    # Audit must pass at required severity
+    audit_proc = subprocess.run(
+        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert audit_proc.returncode == 0, (
+        f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
+    )

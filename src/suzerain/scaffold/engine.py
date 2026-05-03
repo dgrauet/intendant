@@ -11,7 +11,7 @@ import tomli_w
 from suzerain.core.paths import templates_root
 from suzerain.scaffold.substitutions import SubstitutionContext, resolve_placeholders
 
-_KNOWN_STACKS = {"python", "claude-skill"}
+_KNOWN_STACKS = {"python", "claude-skill", "node"}
 
 
 def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> None:
@@ -165,6 +165,24 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
         # .gitkeep so empty dirs persist in git
         (skill_dir / "references" / ".gitkeep").write_text("", encoding="utf-8")
         (skill_dir / "scripts" / ".gitkeep").write_text("", encoding="utf-8")
+    elif stack == "node":
+        # src/index.ts and tests/index.test.ts as starter files
+        src_dir = target / "src"
+        src_dir.mkdir(parents=True, exist_ok=True)
+        (src_dir / "index.ts").write_text(
+            "export const greet = (name: string): string => `Hello, ${name}!`;\n"
+        )
+        tests_dir = target / "tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        (tests_dir / "index.test.ts").write_text(
+            'import { describe, it, expect } from "vitest";\n'
+            'import { greet } from "../src/index.js";\n\n'
+            'describe("greet", () => {\n'
+            '  it("returns a greeting", () => {\n'
+            '    expect(greet("world")).toBe("Hello, world!");\n'
+            "  });\n"
+            "});\n"
+        )
 
 
 def _strict_mode_in_suzerain_toml(target: Path, context: SubstitutionContext) -> None:

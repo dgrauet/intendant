@@ -1,0 +1,11 @@
+# Python (kept for SA004 baseline compatibility)
+__pycache__/
+.DS_Store
+.venv/
+
+# Node
+node_modules/
+dist/
+.env
+*.log
+.npm/

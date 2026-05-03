@@ -214,3 +214,69 @@ def test_new_substitutes_placeholders(tmp_path: Path) -> None:
     assert pyproject["project"]["description"] == "Substitution test"
     license_text = (target / "LICENSE").read_text()
     assert "Tester" in license_text
+
+
+# ---------------------------------------------------------------------------
+# Node stack tests (palier 5.1)
+# ---------------------------------------------------------------------------
+
+
+def _invoke_node_scaffold(tmp_path: Path, name: str = "my-node-app") -> Path:
+    result = runner.invoke(
+        app,
+        [
+            "new",
+            name,
+            "--stack",
+            "node",
+            "--description",
+            "A Node test project",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    return tmp_path / name
+
+
+def test_new_node_creates_package_json(tmp_path: Path) -> None:
+    target = _invoke_node_scaffold(tmp_path)
+    pkg = target / "package.json"
+    assert pkg.is_file()
+    import json
+
+    data = json.loads(pkg.read_text())
+    assert data["name"] == "my-node-app"
+    assert data["type"] == "module"
+    assert "vitest" in data["devDependencies"]
+    assert "typescript" in data["devDependencies"]
+    assert "eslint" in data["devDependencies"]
+
+
+def test_new_node_creates_src_and_tests(tmp_path: Path) -> None:
+    target = _invoke_node_scaffold(tmp_path)
+    assert (target / "src" / "index.ts").is_file()
+    assert (target / "tests" / "index.test.ts").is_file()
+
+
+def test_new_node_suzerain_toml_has_strict_mode_and_exemptions(tmp_path: Path) -> None:
+    target = _invoke_node_scaffold(tmp_path)
+    cfg = target / ".suzerain.toml"
+    assert cfg.is_file()
+    data = tomllib.loads(cfg.read_text())
+    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["stack"] == "node"
+    exemptions = data.get("exemptions", {})
+    assert "NODE_PK002" in exemptions
+    assert "CI002" in exemptions
+
+
+def test_new_node_eslint_config_present(tmp_path: Path) -> None:
+    target = _invoke_node_scaffold(tmp_path)
+    assert (target / "eslint.config.js").is_file()
+
+
+def test_new_node_tsconfig_present(tmp_path: Path) -> None:
+    target = _invoke_node_scaffold(tmp_path)
+    assert (target / "tsconfig.json").is_file()
