@@ -39,6 +39,7 @@ Thumbs.db
 
 # Suzerain runtime
 .suzerain/proposed/
+.suzerain/snapshots/
 
 # Local-only design artifacts (archived outside the repo per DG005)
 docs/superpowers/
