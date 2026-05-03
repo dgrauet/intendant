@@ -5,6 +5,5 @@ stack = "claude-skill"
 mode = "advisory"            # "strict" | "recommended" | "advisory"
 
 [exemptions]
-CI002 = "skill repos have no Python tooling to lint/test by default; remove if you add code helpers"
 CI003 = "fresh skill scaffold uses suzerain audit alone in CI; add commitlint when ready"
 CI004 = "no deps to cache in pure skill repo; remove if you add a build step"

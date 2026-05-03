@@ -32,7 +32,7 @@ class CI001CIWorkflow(Rule):
 
 class CI002MinimumSteps(Rule):
     id = "CI002"
-    title = "CI workflow runs lint + format + type + test"
+    title = "CI workflow runs the minimum steps appropriate to the stack"
     severity = "required"
     stacks = ("*",)
     handbook_ref = "docs/handbook/03-ci.md#ci002"
@@ -47,6 +47,28 @@ class CI002MinimumSteps(Rule):
             )
         contents = "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yml"))
         contents += "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yaml"))
+        missing = self._missing_steps_for_stack(repo.stack, contents)
+        if missing:
+            return CheckResult(
+                passing=False,
+                evidence=f"CI workflow(s) missing steps for stack {repo.stack!r}: {missing}",
+            )
+        return CheckResult(
+            passing=True,
+            evidence=f"CI workflows include the minimum steps for stack {repo.stack!r}",
+        )
+
+    @staticmethod
+    def _missing_steps_for_stack(stack: str, contents: str) -> list[str]:
+        if stack == "node":
+            return CI002MinimumSteps._missing_node(contents)
+        if stack == "claude-skill":
+            return CI002MinimumSteps._missing_claude_skill(contents)
+        # python and any other (auto/generic) → python defaults
+        return CI002MinimumSteps._missing_python(contents)
+
+    @staticmethod
+    def _missing_python(contents: str) -> list[str]:
         missing: list[str] = []
         if "ruff check" not in contents:
             missing.append("lint (ruff check)")
@@ -56,11 +78,28 @@ class CI002MinimumSteps(Rule):
             missing.append("type (ty check or pyright)")
         if "pytest" not in contents and "unittest" not in contents:
             missing.append("test (pytest or unittest)")
-        if missing:
-            return CheckResult(passing=False, evidence=f"CI workflow(s) missing steps: {missing}")
-        return CheckResult(
-            passing=True, evidence="CI workflows include lint + format + type + test"
-        )
+        return missing
+
+    @staticmethod
+    def _missing_node(contents: str) -> list[str]:
+        missing: list[str] = []
+        lint_markers = ("eslint", "@biomejs/biome", "biome check", "biome lint", "npm run lint")
+        if not any(m in contents for m in lint_markers):
+            missing.append("lint (eslint or biome)")
+        type_markers = ("tsc", "typecheck", "pyright")
+        if not any(m in contents for m in type_markers):
+            missing.append("type (tsc / npm run typecheck / pyright)")
+        test_markers = ("vitest", "jest", "mocha", "ava", "bun test", "npm test", "npm run test")
+        if not any(m in contents for m in test_markers):
+            missing.append("test (vitest/jest/mocha/ava/bun test)")
+        return missing
+
+    @staticmethod
+    def _missing_claude_skill(contents: str) -> list[str]:
+        missing: list[str] = []
+        if "suzerain audit" not in contents:
+            missing.append("suzerain audit step")
+        return missing
 
 
 class CI003CommitMessageValidation(Rule):

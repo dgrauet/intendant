@@ -326,3 +326,104 @@ def test_ci003_fails_when_no_commit_validation(tmp_path: Path) -> None:
     result = CI003CommitMessageValidation().check(repo)
     assert result.passing is False
     assert "commit" in result.evidence.lower()
+
+
+# ---------------------------------------------------------------------------
+# CI002MinimumSteps — stack-aware (node + claude-skill)
+# ---------------------------------------------------------------------------
+
+_NODE_WORKFLOW_FULL = """\
+name: CI
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+      - run: npm ci
+      - run: npm run lint
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run typecheck
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm test
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wagoid/commitlint-github-action@v6
+"""
+
+_NODE_WORKFLOW_MISSING_TEST = """\
+name: CI
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run lint
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run typecheck
+"""
+
+_CLAUDE_SKILL_WORKFLOW_FULL = """\
+name: CI
+on: [push]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: uvx suzerain audit . --severity=required
+"""
+
+_CLAUDE_SKILL_WORKFLOW_NO_AUDIT = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "hello"
+"""
+
+
+def test_ci002_passes_for_node_with_eslint_tsc_vitest(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_NODE_WORKFLOW_FULL)
+    repo = Repo(path=tmp_path, stack="node")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is True
+    assert "node" in result.evidence
+
+
+def test_ci002_fails_for_node_missing_test_framework(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_NODE_WORKFLOW_MISSING_TEST)
+    repo = Repo(path=tmp_path, stack="node")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is False
+    assert "test" in result.evidence
+
+
+def test_ci002_passes_for_claude_skill_with_suzerain_audit(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_CLAUDE_SKILL_WORKFLOW_FULL)
+    repo = Repo(path=tmp_path, stack="claude-skill")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is True
+    assert "claude-skill" in result.evidence
+
+
+def test_ci002_fails_for_claude_skill_without_suzerain_audit(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_CLAUDE_SKILL_WORKFLOW_NO_AUDIT)
+    repo = Repo(path=tmp_path, stack="claude-skill")
+    result = CI002MinimumSteps().check(repo)
+    assert result.passing is False
+    assert "suzerain audit" in result.evidence
