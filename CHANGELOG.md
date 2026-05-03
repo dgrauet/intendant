@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2](https://github.com/dgrauet/suzerain/compare/v0.2.1...v0.2.2) (2026-05-03)
+
+
+### Features
+
+* **commands:** suzerain explain --all lists every registered rule ([42dbcd9](https://github.com/dgrauet/suzerain/commit/42dbcd91769f36ae97c0c81b39029976ff779885))
+
+
+### Documentation
+
+* **readme:** refresh for v0.2.1 (3 stacks, dashboard, 44 rules) ([e5aa241](https://github.com/dgrauet/suzerain/commit/e5aa241d685c29a6bada65047992e7d7f4cc8782))
+
 ## [0.2.1](https://github.com/dgrauet/suzerain/compare/v0.2.0...v0.2.1) (2026-05-03)
 
 
