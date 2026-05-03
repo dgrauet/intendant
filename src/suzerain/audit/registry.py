@@ -35,6 +35,12 @@ def collect_rules() -> list[Rule]:
         rules.extend(RULES)
     except ImportError:
         pass
+    try:
+        from suzerain.adapters.node import RULES
+
+        rules.extend(RULES)
+    except ImportError:
+        pass
     return rules
 
 

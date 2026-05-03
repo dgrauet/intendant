@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Matches: ### XX001 — Title text
-_RULE_HEADING_RE = re.compile(r"^###\s+([A-Z]{2}\d{3})\s+[—-]\s+(.+?)\s*$")
+_RULE_HEADING_RE = re.compile(r"^###\s+([A-Z][A-Z_]*\d{3})\s+[—-]\s+(.+?)\s*$")
 
 # Matches: **Severity:** required · **Stacks:** python · **ADR:** [slug](path)
 _META_LINE_RE = re.compile(r"^\*\*Severity:\*\*\s+(\w+)")
