@@ -29,9 +29,9 @@ dummy values. The real `.env` is in `.gitignore`.
 
 **Severity:** required · **Stacks:** *
 
-The root `.gitignore` ignores at minimum:
-- The venv (`.venv/`, `venv/`).
-- Caches (`__pycache__/`, `.pytest_cache/`, `.ruff_cache/`,
-  `.ty_cache/`, `.mypy_cache/`).
-- Build artifacts (`dist/`, `build/`, `*.egg-info/`).
-- OS files (`.DS_Store`, `Thumbs.db`).
+The root `.gitignore` must contain the baseline patterns appropriate for
+the stack:
+
+- **python**: `__pycache__/`, `.DS_Store`, `.venv/`.
+- **node**: `node_modules/`, `.DS_Store`, `dist/`.
+- **other** (claude-skill, auto, generic): `.DS_Store` only.

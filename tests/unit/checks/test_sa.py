@@ -151,6 +151,29 @@ def test_sa004_metadata() -> None:
     assert "*" in rule.stacks
 
 
+def test_sa004_node_baseline(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text("node_modules/\n.DS_Store\ndist/\n")
+    repo = Repo(path=tmp_path, stack="node")
+    result = SA004GitignoreBaseline().check(repo)
+    assert result.passing is True
+    assert "node" in result.evidence
+
+
+def test_sa004_node_fails_when_node_modules_missing(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text(".DS_Store\ndist/\n")
+    repo = Repo(path=tmp_path, stack="node")
+    result = SA004GitignoreBaseline().check(repo)
+    assert result.passing is False
+    assert "node_modules/" in result.evidence
+
+
+def test_sa004_claude_skill_only_needs_ds_store(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text(".DS_Store\n")
+    repo = Repo(path=tmp_path, stack="claude-skill")
+    result = SA004GitignoreBaseline().check(repo)
+    assert result.passing is True
+
+
 # ---------------------------------------------------------------------------
 # SA001 .fix() tests
 # ---------------------------------------------------------------------------

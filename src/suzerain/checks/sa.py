@@ -226,12 +226,14 @@ class SA003EnvExample(Rule):
         )
 
 
-_GITIGNORE_BASELINES = ("__pycache__/", ".DS_Store", ".venv/")
+_GITIGNORE_BASELINES_PYTHON = ("__pycache__/", ".DS_Store", ".venv/")
+_GITIGNORE_BASELINES_NODE = ("node_modules/", ".DS_Store", "dist/")
+_GITIGNORE_BASELINES_GENERIC = (".DS_Store",)
 
 
 class SA004GitignoreBaseline(Rule):
     id = "SA004"
-    title = ".gitignore exists with baseline patterns (__pycache__/, .DS_Store, .venv/)"
+    title = ".gitignore exists with baseline patterns appropriate for the stack"
     severity = "required"
     stacks = ("*",)
     handbook_ref = "docs/handbook/06-sanitizing.md#sa004"
@@ -241,10 +243,24 @@ class SA004GitignoreBaseline(Rule):
         if not path.is_file():
             return CheckResult(passing=False, evidence=".gitignore not found at repo root")
         text = path.read_text()
-        missing = [p for p in _GITIGNORE_BASELINES if p not in text]
+        baselines = self._baselines_for_stack(repo.stack)
+        missing = [p for p in baselines if p not in text]
         if missing:
             return CheckResult(
                 passing=False,
-                evidence=f"missing baseline patterns in .gitignore: {missing}",
+                evidence=(
+                    f"missing baseline patterns in .gitignore for stack {repo.stack!r}: {missing}"
+                ),
             )
-        return CheckResult(passing=True)
+        return CheckResult(
+            passing=True,
+            evidence=f"baseline patterns present for stack {repo.stack!r}",
+        )
+
+    @staticmethod
+    def _baselines_for_stack(stack: str) -> tuple[str, ...]:
+        if stack == "python":
+            return _GITIGNORE_BASELINES_PYTHON
+        if stack == "node":
+            return _GITIGNORE_BASELINES_NODE
+        return _GITIGNORE_BASELINES_GENERIC
