@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/dgrauet/suzerain/compare/v0.2.0...v0.2.1) (2026-05-03)
+
+
+### Features
+
+* **checks:** CI002 is stack-aware (python/node/claude-skill); drop scaffolder exemptions ([ef13006](https://github.com/dgrauet/suzerain/commit/ef130063226b2cde11574ef999aeaec2405f0418))
+* **checks:** RL004 reads version from .release-please-manifest.json fallback ([05dee83](https://github.com/dgrauet/suzerain/commit/05dee83e4618b3f1ea6ae114adc61d323fcec3c9))
+* **checks:** SA004 baseline patterns are stack-aware (python/node/generic) ([79d5a40](https://github.com/dgrauet/suzerain/commit/79d5a40aa0e0dbc8d6518ceac1771759b4997ec7))
+
 ## [0.2.0](https://github.com/dgrauet/suzerain/compare/v0.1.15...v0.2.0) (2026-05-03)
 
 
