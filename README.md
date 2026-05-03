@@ -1,77 +1,135 @@
 # Suzerain
 
-> Multi-stack project governance framework — handbook + auditor + scaffolder.
+> Multi-stack project governance framework — handbook + auditor + scaffolder + portfolio dashboard.
 
-Suzerain materializes project management standards (workflows, CI, releases, quality, sanitizing, architecture) in a form that is both human-readable (handbook + ADRs) and executable (CLI).
+Suzerain materializes project management standards (workflows, CI, releases, quality,
+security, architecture) in a form that is both human-readable (handbook + ADRs) and
+machine-executable (CLI). A single `.suzerain.toml` at a repo root tells the auditor
+which stack applies and which rules are exempted; the scaffolder bootstraps a fully
+compliant repo from scratch.
 
 ## Status
 
-✅ **Tiers 1, 2, 3 delivered** — Complete CLI: `init`, `explain`, `audit`, `doctor`, `new`. 16 rules (8 transverse + 8 Python adapter). The scaffolder produces a project that passes `audit --severity=required` at 100% (modulo `uv lock` post-scaffold, automatically exempted with a note).
+v0.2.1 — 44 rules across 3 stacks (python, claude-skill, node), self-audit 100/100,
+510 tests. The `suzerain` CLI ships `init`, `audit`, `explain`, `new`, `dashboard`, and
+`doctor`.
 
 ## Installation
 
 ```bash
-uv tool install --editable /path/to/suzerain
-```
+# PyPI / uv tool (recommended)
+uv tool install suzerain
 
-(Non-editable distribution: coming soon.)
+# Editable from source
+uv tool install --editable <path-to-clone>
+```
 
 ## Quickstart
 
+### Adopt suzerain on an existing repo
+
 ```bash
-# Adopt suzerain on a repo
-cd /path/to/your/repo
-suzerain init
-
-# Audit one or more repos
-suzerain audit .                              # human report (default)
-suzerain audit . --format=json                # for CI pipelines
-suzerain audit . --format=md                  # for PR comments
-suzerain audit . --severity=required          # exit 1 if a required rule fails
-
-# Apply auto-applicable fixes (governance artifacts only)
-suzerain audit . --fix --dry-run              # preview
-suzerain audit . --fix                        # apply
-
-# Understand a rule
-suzerain explain LO001
-
-# Check the install
-suzerain doctor
-
-# Scaffold a new compliant project
-suzerain new my-project --stack=python --description="..." --author="..."
-cd my-project
-uv sync && uv run pre-commit install
-suzerain audit . --severity=required   # exit 0 if all is well
+cd <your-repo>
+suzerain init           # writes .suzerain.toml and docs skeleton
+suzerain audit .        # human report
 ```
 
-## Domains covered (30 rules, 16 implemented)
+### Audit a single repo
 
-| Prefix | Domain | V1 Rules |
-|---|---|---|
-| `LO` | Layout | LO001 src/ layout, LO002 tests/ at root |
-| `PK` | Packaging & deps | PK001 pyproject, PK002 uv.lock, PK003 .python-version |
-| `CI` | CI | CI001 workflow present |
-| `QU` | Quality | QU001 ruff, QU002 ty (pyright fallback) |
-| `TS` | Tests | TS001 pytest configured |
-| `SA` | Sanitizing | SA001 pre-commit baseline |
-| `RL` | Releases | RL001 CHANGELOG, RL002 conv. commits |
-| `DG` | Docs & governance | DG001 README, DG003 ADRs, DG004 LICENSE, DG005 specs local-only |
+```bash
+suzerain audit .                          # full report, human-readable
+suzerain audit . --severity=required      # exit 1 on required failures
+suzerain audit . --format=json            # for CI or scripting
+suzerain audit . --format=md              # for PR comments
+suzerain audit . --fix --dry-run          # preview auto-fixes
+suzerain audit . --fix                    # apply auto-fixes
+```
 
-The remaining rules documented in the handbook will be added in tier 2.5.
+### Bootstrap a new project
+
+```bash
+# Python package
+suzerain new my-lib --stack=python --description="..." --author="..."
+
+# Claude Code skill
+suzerain new my-skill --stack=claude-skill --description="..."
+
+# Node package
+suzerain new my-pkg --stack=node --description="..."
+
+# After scaffolding
+cd my-lib
+uv sync && uv run pre-commit install
+suzerain audit . --severity=required      # should exit 0
+```
+
+### Cross-repo portfolio dashboard
+
+```bash
+suzerain dashboard <portfolio-root>               # human table
+suzerain dashboard <portfolio-root> --format=json # machine-readable
+suzerain dashboard <portfolio-root> --save-snapshot
+suzerain dashboard <portfolio-root> --diff        # compare to last snapshot
+suzerain dashboard <portfolio-root> --against snapshots/2026-04-01.json
+```
+
+### Inspect a rule
+
+```bash
+suzerain explain PYTHON_LO001       # handbook entry + linked ADR
+suzerain explain --all              # table of all 44 rules
+```
+
+### Health check
+
+```bash
+suzerain doctor     # verify install integrity
+```
+
+## Coverage
+
+44 rules total. Transverse rules apply to every stack; adapter rules apply only to
+the declared stack.
+
+### Transverse (19 rules)
+
+| Family | Prefix | Count | Examples |
+|---|---|---|---|
+| Docs & governance | `DG` | 5 | README, CLAUDE.md, ADRs, LICENSE, specs local-only |
+| Layout | `LO` | 1 | docs/ directory |
+| Releases | `RL` | 4 | CHANGELOG, conventional commits, release-please, SemVer |
+| CI | `CI` | 4 | workflow present, minimum steps, commit-msg check, caching |
+| Sanitizing | `SA` | 4 | pre-commit baseline, gitleaks, .env.example, .gitignore |
+| Tests | `TS` | 1 | regression_tests/ (when applicable) |
+
+### Python adapter (12 rules — prefix `PYTHON_`)
+
+Covers layout (`PYTHON_LO`), packaging (`PYTHON_PK`), quality (`PYTHON_QU`), and
+tests (`PYTHON_TS`).
+
+### Claude Skill adapter (7 rules — prefix `CLAUDE_SKILL_SK`)
+
+Covers SKILL.md presence and frontmatter, evals/, referenced directories, and README
+install path.
+
+### Node adapter (6 rules — prefix `NODE_`)
+
+Covers packaging (`NODE_PK`), quality (`NODE_QU`), and tests (`NODE_TS`).
+
+> Rule IDs were renamed in v0.2.0 (e.g. `LO001` → `PYTHON_LO001`).
+> See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
+> to update `.suzerain.toml` exemptions.
 
 ## Documentation
 
-- [Charter](docs/handbook/00-charter.md) — mission, scope, compliance levels.
-- [Handbook](docs/handbook/) — 8 domains × 30 rules.
+- [Handbook](docs/handbook/) — charter + all 44 rules with rationale.
 - [ADRs](docs/adr/) — justified architecture decisions.
+- [Migrations](docs/migrations/) — upgrade guides between major versions.
 
 ## Roadmap
 
-- ✅ **Tier 1** — handbook + ADRs + `init` / `explain` commands.
-- ✅ **Tier 2** — auditor (`audit`, `audit --fix`, `doctor`) with safe/proposed boundary.
-- ✅ **Tier 3** — scaffolder (`suzerain new <name> --stack=python`).
+Future paliers: MCP server for agent-driven governance queries, HTML dashboard
+export, multi-language adapters (Go, Rust).
 
 ## License
 
