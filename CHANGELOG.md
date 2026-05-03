@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/dgrauet/suzerain/compare/v0.1.15...v0.2.0) (2026-05-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* Stack-specific rule IDs in the python and claude-skill adapters were renamed with explicit stack prefixes (PYTHON_*, CLAUDE_SKILL_*). This is a hard break — the old IDs are no longer recognized. Update any .suzerain.toml exemption keys per the rename table in docs/migrations/0.2.0-rule-prefix-rename.md.
+
+### Documentation
+
+* document v0.2.0 rule prefix rename migration ([3cc8484](https://github.com/dgrauet/suzerain/commit/3cc84843d1979fb3ef9d2a4c3e2c74c37394f303))
+
 ## [0.1.15](https://github.com/dgrauet/suzerain/compare/v0.1.14...v0.1.15) (2026-05-03)
 
 
