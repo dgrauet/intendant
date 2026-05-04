@@ -1,5 +1,6 @@
 """Python adapter — language-specific rules."""
 
+from suzerain.adapters.python.ci import PYTHON_CI001MinimumSteps
 from suzerain.adapters.python.lo import LO001SrcLayout, LO002TestsAtRoot
 from suzerain.adapters.python.pk import (
     PK001PyprojectExists,
@@ -24,4 +25,5 @@ RULES: list[Rule] = [
     QU004TyCheck(),
     TS001Pytest(),
     TS003CoverageConfigured(),
+    PYTHON_CI001MinimumSteps(),
 ]

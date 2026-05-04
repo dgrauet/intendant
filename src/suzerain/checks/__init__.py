@@ -2,7 +2,6 @@
 
 from suzerain.checks.ci import (
     CI001CIWorkflow,
-    CI002MinimumSteps,
     CI003CommitMessageValidation,
     CI004CacheConfigured,
 )
@@ -42,7 +41,6 @@ RULES: list[Rule] = [
     RL004SemverStrict(),
     TS002RegressionTestsLayout(),
     CI001CIWorkflow(),
-    CI002MinimumSteps(),
     CI003CommitMessageValidation(),
     CI004CacheConfigured(),
     SA001PreCommit(),

@@ -2,13 +2,21 @@
 
 from pathlib import Path
 
+import suzerain.checks.ci as ci_module
 from suzerain.checks.ci import (
     CI001CIWorkflow,
-    CI002MinimumSteps,
     CI003CommitMessageValidation,
     CI004CacheConfigured,
 )
 from suzerain.core.repo import Repo
+
+
+def test_ci_module_no_longer_exports_ci002() -> None:
+    """CI002MinimumSteps must have been removed from the ci module."""
+    assert not hasattr(ci_module, "CI002MinimumSteps"), (
+        "CI002MinimumSteps is still present in suzerain.checks.ci — "
+        "it should have been deleted in Palier M0"
+    )
 
 
 def test_ci001_pass(tmp_path: Path) -> None:
@@ -131,122 +139,6 @@ def test_ci004_metadata() -> None:
 
 
 # ---------------------------------------------------------------------------
-# CI002MinimumSteps
-# ---------------------------------------------------------------------------
-
-_FULL_WORKFLOW = """\
-name: CI
-on: [push]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uvx ty check
-      - run: uv run pytest
-"""
-
-_WORKFLOW_MISSING_LINT = """\
-name: CI
-on: [push]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - run: uv run ruff format --check .
-      - run: uvx ty check
-      - run: uv run pytest
-"""
-
-_WORKFLOW_MISSING_FORMAT = """\
-name: CI
-on: [push]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - run: uv run ruff check .
-      - run: uvx ty check
-      - run: uv run pytest
-"""
-
-_WORKFLOW_MISSING_TYPE = """\
-name: CI
-on: [push]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run pytest
-"""
-
-_WORKFLOW_MISSING_TEST = """\
-name: CI
-on: [push]
-jobs:
-  quality:
-    runs-on: ubuntu-latest
-    steps:
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uvx ty check
-"""
-
-
-def test_ci002_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is True
-    assert result.skipped is True
-
-
-def test_ci002_passes_when_all_steps_present(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_FULL_WORKFLOW)
-    repo = Repo(path=tmp_path, stack="python")
-    assert CI002MinimumSteps().check(repo).passing is True
-
-
-def test_ci002_fails_when_lint_missing(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_LINT)
-    repo = Repo(path=tmp_path, stack="python")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is False
-    assert "lint" in result.evidence
-
-
-def test_ci002_fails_when_format_missing(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_FORMAT)
-    repo = Repo(path=tmp_path, stack="python")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is False
-    assert "format" in result.evidence
-
-
-def test_ci002_fails_when_type_missing(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_TYPE)
-    repo = Repo(path=tmp_path, stack="python")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is False
-    assert "type" in result.evidence
-
-
-def test_ci002_fails_when_test_missing(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_WORKFLOW_MISSING_TEST)
-    repo = Repo(path=tmp_path, stack="python")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is False
-    assert "test" in result.evidence
-
-
-# ---------------------------------------------------------------------------
 # CI003CommitMessageValidation
 # ---------------------------------------------------------------------------
 
@@ -326,104 +218,3 @@ def test_ci003_fails_when_no_commit_validation(tmp_path: Path) -> None:
     result = CI003CommitMessageValidation().check(repo)
     assert result.passing is False
     assert "commit" in result.evidence.lower()
-
-
-# ---------------------------------------------------------------------------
-# CI002MinimumSteps — stack-aware (node + claude-skill)
-# ---------------------------------------------------------------------------
-
-_NODE_WORKFLOW_FULL = """\
-name: CI
-on: [push]
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-node@v4
-      - run: npm ci
-      - run: npm run lint
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm run typecheck
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm test
-  commitlint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: wagoid/commitlint-github-action@v6
-"""
-
-_NODE_WORKFLOW_MISSING_TEST = """\
-name: CI
-on: [push]
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm run lint
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - run: npm run typecheck
-"""
-
-_CLAUDE_SKILL_WORKFLOW_FULL = """\
-name: CI
-on: [push]
-jobs:
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: uvx suzerain audit . --severity=required
-"""
-
-_CLAUDE_SKILL_WORKFLOW_NO_AUDIT = """\
-name: CI
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: echo "hello"
-"""
-
-
-def test_ci002_passes_for_node_with_eslint_tsc_vitest(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_NODE_WORKFLOW_FULL)
-    repo = Repo(path=tmp_path, stack="node")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is True
-    assert "node" in result.evidence
-
-
-def test_ci002_fails_for_node_missing_test_framework(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_NODE_WORKFLOW_MISSING_TEST)
-    repo = Repo(path=tmp_path, stack="node")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is False
-    assert "test" in result.evidence
-
-
-def test_ci002_passes_for_claude_skill_with_suzerain_audit(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_CLAUDE_SKILL_WORKFLOW_FULL)
-    repo = Repo(path=tmp_path, stack="claude-skill")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is True
-    assert "claude-skill" in result.evidence
-
-
-def test_ci002_fails_for_claude_skill_without_suzerain_audit(tmp_path: Path) -> None:
-    wf = _make_workflows_dir(tmp_path)
-    (wf / "ci.yml").write_text(_CLAUDE_SKILL_WORKFLOW_NO_AUDIT)
-    repo = Repo(path=tmp_path, stack="claude-skill")
-    result = CI002MinimumSteps().check(repo)
-    assert result.passing is False
-    assert "suzerain audit" in result.evidence
