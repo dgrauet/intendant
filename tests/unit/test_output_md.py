@@ -44,3 +44,37 @@ def test_md_omits_pass_section_when_no_failures(tmp_path: Path) -> None:
     report = Report(repo_path=tmp_path, stack="python", findings=findings)
     md = render_markdown(report)
     assert "All required checks passing" in md or "✅" in md
+
+
+def test_md_renders_subproject_sections_when_multi(tmp_path: Path) -> None:
+    """Multi-subproject markdown emits one ## section per subproject + ROOT."""
+    from suzerain.audit.output.md import render_markdown
+    from suzerain.core.report import Finding, Report
+
+    report = Report(
+        repo_path=tmp_path,
+        stack="multi",
+        findings=[
+            Finding(
+                rule_id="DG001",
+                severity="required",
+                status="pass",
+                evidence="",
+                fix_available=False,
+                subproject=None,
+            ),
+            Finding(
+                rule_id="PYTHON_LO001",
+                severity="required",
+                status="pass",
+                evidence="",
+                fix_available=False,
+                subproject="backend",
+            ),
+        ],
+    )
+    out = render_markdown(report)
+    assert "## ROOT" in out or "### ROOT" in out
+    assert "backend" in out
+    assert "DG001" in out
+    assert "PYTHON_LO001" in out

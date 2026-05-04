@@ -60,7 +60,9 @@ def audit(
             continue
         repo = Repo.from_path(path)
         config = load_config(path)
-        applicable = filter_for_repo(rules, repo, config)
+        # Multi-subproject mode: pass all rules so the runner can dispatch
+        # transverse rules at the root and stack-specific rules per subproject.
+        applicable = rules if config.subprojects else filter_for_repo(rules, repo, config)
         report = run_audit(repo, config, applicable, compute_fix_preview=fix)
         _emit(report, output_format)
 
