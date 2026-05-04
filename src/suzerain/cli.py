@@ -9,6 +9,7 @@ from suzerain.commands import audit as audit_cmd
 from suzerain.commands import doctor as doctor_cmd
 from suzerain.commands import explain as explain_cmd
 from suzerain.commands import init as init_cmd
+from suzerain.commands import mcp as mcp_cmd
 from suzerain.commands import new as new_cmd
 from suzerain.commands import report as report_cmd
 
@@ -50,6 +51,7 @@ app.command("audit")(audit_cmd.audit)
 app.command("doctor")(doctor_cmd.doctor)
 app.command("new")(new_cmd.new)
 app.command("report")(report_cmd.report)
+app.command("mcp")(mcp_cmd.mcp)
 
 
 def main() -> None:
