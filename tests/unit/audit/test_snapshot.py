@@ -228,3 +228,83 @@ def test_find_latest_snapshot_uses_root_name_as_prefix(tmp_path: Path) -> None:
     result = find_latest_snapshot(snap_dir, root)
     assert result is not None
     assert result.name == "portfolio-2026-05-03T140000.json"
+
+
+# ---------------------------------------------------------------------------
+# load_snapshot_as_portfolio_report
+# ---------------------------------------------------------------------------
+
+
+def test_load_snapshot_as_portfolio_report_reconstructs_scan(tmp_path: Path) -> None:
+    """load_snapshot_as_portfolio_report rebuilds a PortfolioReport from JSON."""
+    from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
+    from suzerain.core.report import Report
+
+    snapshot = {
+        "schema_version": "1",
+        "root": str(tmp_path),
+        "timestamp": "2026-05-04T120000",
+        "scan_count": 2,
+        "repos": [
+            {
+                "path": "repo_a",
+                "stack": "python",
+                "score": 75,
+                "status": "ok",
+                "failing_rule_ids": ["DG002", "RL001"],
+                "failing_by_severity": {"required": 1, "recommended": 1, "optional": 0},
+                "fixable_count": 1,
+            },
+            {
+                "path": "repo_b",
+                "stack": None,
+                "score": None,
+                "status": "error",
+                "failing_rule_ids": [],
+                "failing_by_severity": {"required": 0, "recommended": 0, "optional": 0},
+                "fixable_count": 0,
+                "error": "RuntimeError: boom",
+            },
+        ],
+    }
+    snap_path = tmp_path / "snap.json"
+    snap_path.write_text(json.dumps(snapshot))
+
+    portfolio = load_snapshot_as_portfolio_report(snap_path)
+
+    assert isinstance(portfolio, PortfolioReport)
+    assert portfolio.root == tmp_path
+    assert portfolio.timestamp.year == 2026 and portfolio.timestamp.month == 5
+    assert len(portfolio.reports) == 2
+
+    # repo_a → reconstructed Report with two failing findings
+    path_a, result_a = portfolio.reports[0]
+    assert path_a == tmp_path / "repo_a"
+    assert isinstance(result_a, Report)
+    assert result_a.stack == "python"
+    failing = [f for f in result_a.findings if f.status == "fail"]
+    assert sorted(f.rule_id for f in failing) == ["DG002", "RL001"]
+
+    # repo_b → reconstructed as exception
+    path_b, result_b = portfolio.reports[1]
+    assert path_b == tmp_path / "repo_b"
+    assert isinstance(result_b, Exception)
+    assert "boom" in str(result_b)
+
+
+def test_load_snapshot_as_portfolio_report_rejects_unknown_schema(tmp_path: Path) -> None:
+    """Unknown schema_version raises ValueError."""
+    from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
+
+    snapshot = {
+        "schema_version": "99",
+        "root": str(tmp_path),
+        "timestamp": "2026-05-04T120000",
+        "scan_count": 0,
+        "repos": [],
+    }
+    snap_path = tmp_path / "snap.json"
+    snap_path.write_text(json.dumps(snapshot))
+
+    with pytest.raises(ValueError, match="schema_version"):
+        load_snapshot_as_portfolio_report(snap_path)
