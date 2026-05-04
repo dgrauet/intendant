@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://github.com/dgrauet/suzerain/compare/v0.2.3...v0.3.0) (2026-05-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cli:** `suzerain dashboard` → `suzerain report`. The `DashboardScan` dataclass becomes `PortfolioReport`. Module paths `suzerain.commands.dashboard` → `suzerain.commands.report` and `suzerain.audit.output.dashboard_*` → `report_*`. Snapshot directory layout (`.suzerain/snapshots/`) is unchanged.
+
+### Code Refactoring
+
+* **cli:** rename dashboard command to report ([b65acf7](https://github.com/dgrauet/suzerain/commit/b65acf7a5036ea53e8f09478efb93e4d6f976907))
+
 ## [0.2.3](https://github.com/dgrauet/suzerain/compare/v0.2.2...v0.2.3) (2026-05-04)
 
 
