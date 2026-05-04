@@ -1,4 +1,4 @@
-"""`suzerain dashboard [PATH]` — aggregate audit across governed repos."""
+"""`suzerain report [PATH]` — aggregate audit across governed repos."""
 
 from __future__ import annotations
 
@@ -22,8 +22,8 @@ console = Console()
 
 
 @dataclass(frozen=True)
-class DashboardScan:
-    """Result of a multi-repo dashboard scan."""
+class PortfolioReport:
+    """Result of a multi-repo portfolio report scan."""
 
     root: Path
     reports: list[tuple[Path, Report | Exception]]
@@ -48,14 +48,14 @@ def _scan_one(repo_path: Path) -> tuple[Path, Report | Exception]:
         return (repo_path, exc)
 
 
-def _scan_all(root: Path, maxdepth: int = 2) -> DashboardScan:
+def _scan_all(root: Path, maxdepth: int = 2) -> PortfolioReport:
     """Discover all governed repos under ``root`` and audit each in turn."""
     repo_paths = find_suzerain_repos(root, maxdepth)
     results = [_scan_one(p) for p in repo_paths]
-    return DashboardScan(root=root, reports=results, timestamp=datetime.now())
+    return PortfolioReport(root=root, reports=results, timestamp=datetime.now())
 
 
-def dashboard(
+def report(
     path: Annotated[
         Path | None,
         typer.Argument(
@@ -97,9 +97,9 @@ def dashboard(
 ) -> None:
     """Aggregate audit across all suzerain-governed repos under PATH."""
     from suzerain.audit.diff import compute_diff
-    from suzerain.audit.output.dashboard_diff_human import render_diff
-    from suzerain.audit.output.dashboard_diff_json import render_diff_json
-    from suzerain.audit.output.dashboard_json import render_dashboard_json
+    from suzerain.audit.output.report_diff_human import render_diff
+    from suzerain.audit.output.report_diff_json import render_diff_json
+    from suzerain.audit.output.report_json import render_report_json
     from suzerain.audit.snapshot import (
         default_snapshot_dir,
         find_latest_snapshot,
@@ -147,7 +147,7 @@ def dashboard(
                 raise typer.Exit(code=2)
 
         previous_dict = load_snapshot(previous_snapshot_path)
-        current_dict = _json.loads(render_dashboard_json(scan))
+        current_dict = _json.loads(render_report_json(scan))
         portfolio_diff = compute_diff(current_dict, previous_dict, str(previous_snapshot_path))
 
         if format == "json":
@@ -162,13 +162,13 @@ def dashboard(
         exit_code = 1 if portfolio_diff.has_new_required_failure else 0
         raise typer.Exit(code=exit_code)
 
-    # No diff — emit normal dashboard output
+    # No diff — emit normal report output
     if format == "json":
-        typer.echo(render_dashboard_json(scan))
+        typer.echo(render_report_json(scan))
     else:
-        from suzerain.audit.output.dashboard_human import render_dashboard
+        from suzerain.audit.output.report_human import render_report
 
-        render_dashboard(scan, console=console)
+        render_report(scan, console=console)
 
     if save_snapshot:
         saved = _save_snapshot(scan, effective_snapshot_dir)
@@ -177,7 +177,7 @@ def dashboard(
     raise typer.Exit(code=_exit_code(scan))
 
 
-def _exit_code(scan: DashboardScan) -> int:
+def _exit_code(scan: PortfolioReport) -> int:
     """Return 1 if any repo has at least one required-severity fail, else 0."""
     for _, result in scan.reports:
         if isinstance(result, Report):

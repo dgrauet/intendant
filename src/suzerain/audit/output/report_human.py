@@ -1,4 +1,4 @@
-"""Render a DashboardScan to a Rich-formatted terminal output."""
+"""Render a PortfolioReport to a Rich-formatted terminal output."""
 
 from __future__ import annotations
 
@@ -7,22 +7,22 @@ from rich.markup import escape
 from rich.table import Table
 
 from suzerain.audit.registry import collect_rules
-from suzerain.commands.dashboard import DashboardScan
+from suzerain.commands.report import PortfolioReport
 from suzerain.core.report import Report
 from suzerain.core.rule import Rule
 
 
-def render_dashboard(scan: DashboardScan, console: Console | None = None) -> None:
-    """Print the dashboard scan to the given (or default) Console."""
+def render_report(scan: PortfolioReport, console: Console | None = None) -> None:
+    """Print the portfolio report scan to the given (or default) Console."""
     console = console or Console()
     _render_header(scan, console)
     _render_summary(scan, console)
     _render_legend(scan, console)
 
 
-def _render_header(scan: DashboardScan, console: Console) -> None:
+def _render_header(scan: PortfolioReport, console: Console) -> None:
     ts = scan.timestamp.strftime("%Y-%m-%d %H:%M")
-    console.print(f"[bold]PORTFOLIO DASHBOARD[/bold]  {ts}")
+    console.print(f"[bold]PORTFOLIO REPORT[/bold]  {ts}")
     console.print(
         f"Root: [cyan]{escape(str(scan.root))}[/cyan]  ·  "
         f"Repos audited: [bold]{len(scan.reports)}[/bold]"
@@ -30,7 +30,7 @@ def _render_header(scan: DashboardScan, console: Console) -> None:
     console.print("")
 
 
-def _render_summary(scan: DashboardScan, console: Console) -> None:
+def _render_summary(scan: PortfolioReport, console: Console) -> None:
     table = Table(show_header=True, header_style="bold", box=None, pad_edge=False)
     table.add_column("repo")
     table.add_column("stack")
@@ -64,7 +64,7 @@ def _render_summary(scan: DashboardScan, console: Console) -> None:
     console.print(table)
 
 
-def _render_legend(scan: DashboardScan, console: Console) -> None:
+def _render_legend(scan: PortfolioReport, console: Console) -> None:
     failing_ids = _collect_failing_ids(scan)
     if not failing_ids:
         return
@@ -89,7 +89,7 @@ def _render_legend(scan: DashboardScan, console: Console) -> None:
             console.print(f"    {rule.id}{mark} - {escape(rule.title)}")
 
 
-def _collect_failing_ids(scan: DashboardScan) -> set[str]:
+def _collect_failing_ids(scan: PortfolioReport) -> set[str]:
     ids: set[str] = set()
     for _, result in scan.reports:
         if isinstance(result, Report):
@@ -97,7 +97,7 @@ def _collect_failing_ids(scan: DashboardScan) -> set[str]:
     return ids
 
 
-def _collect_fixable_ids(scan: DashboardScan) -> set[str]:
+def _collect_fixable_ids(scan: PortfolioReport) -> set[str]:
     ids: set[str] = set()
     for _, result in scan.reports:
         if isinstance(result, Report):

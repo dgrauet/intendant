@@ -1,4 +1,4 @@
-"""Unit tests for the dashboard human (Rich) formatter."""
+"""Unit tests for the report human (Rich) formatter."""
 
 from __future__ import annotations
 
@@ -8,15 +8,15 @@ from pathlib import Path
 
 from rich.console import Console
 
-from suzerain.audit.output.dashboard_human import render_dashboard
-from suzerain.commands.dashboard import DashboardScan
+from suzerain.audit.output.report_human import render_report
+from suzerain.commands.report import PortfolioReport
 from suzerain.core.report import Finding, Report
 
 
-def _capture(scan: DashboardScan) -> str:
+def _capture(scan: PortfolioReport) -> str:
     out = StringIO()
     console = Console(file=out, width=120, no_color=True)
-    render_dashboard(scan, console=console)
+    render_report(scan, console=console)
     return out.getvalue()
 
 
@@ -67,16 +67,16 @@ def _make_failing_report(repo_path: Path, stack: str = "python") -> Report:
 
 
 def test_renders_header_with_root_and_count(tmp_path: Path) -> None:
-    scan = DashboardScan(root=tmp_path, reports=[], timestamp=datetime(2026, 5, 2, 15, 42))
+    scan = PortfolioReport(root=tmp_path, reports=[], timestamp=datetime(2026, 5, 2, 15, 42))
     out = _capture(scan)
-    assert "PORTFOLIO DASHBOARD" in out
+    assert "PORTFOLIO REPORT" in out
     assert str(tmp_path) in out
     assert "Repos audited: 0" in out
 
 
 def test_renders_clean_repo_as_all_clean(tmp_path: Path) -> None:
     repo_a = tmp_path / "alpha"
-    scan = DashboardScan(
+    scan = PortfolioReport(
         root=tmp_path,
         reports=[(repo_a, _make_clean_report(repo_a))],
         timestamp=datetime(2026, 5, 2, 15, 42),
@@ -88,7 +88,7 @@ def test_renders_clean_repo_as_all_clean(tmp_path: Path) -> None:
 
 def test_renders_failing_repo_with_rule_ids(tmp_path: Path) -> None:
     repo_b = tmp_path / "bravo"
-    scan = DashboardScan(
+    scan = PortfolioReport(
         root=tmp_path,
         reports=[(repo_b, _make_failing_report(repo_b))],
         timestamp=datetime(2026, 5, 2, 15, 42),
@@ -103,7 +103,7 @@ def test_renders_failing_repo_with_rule_ids(tmp_path: Path) -> None:
 
 def test_omits_legend_when_no_failing_rules(tmp_path: Path) -> None:
     repo_a = tmp_path / "alpha"
-    scan = DashboardScan(
+    scan = PortfolioReport(
         root=tmp_path,
         reports=[(repo_a, _make_clean_report(repo_a))],
         timestamp=datetime(2026, 5, 2, 15, 42),
@@ -114,7 +114,7 @@ def test_omits_legend_when_no_failing_rules(tmp_path: Path) -> None:
 
 def test_renders_legend_when_at_least_one_failure(tmp_path: Path) -> None:
     repo_b = tmp_path / "bravo"
-    scan = DashboardScan(
+    scan = PortfolioReport(
         root=tmp_path,
         reports=[(repo_b, _make_failing_report(repo_b))],
         timestamp=datetime(2026, 5, 2, 15, 42),
@@ -127,7 +127,7 @@ def test_renders_legend_when_at_least_one_failure(tmp_path: Path) -> None:
 def test_renders_error_status_for_exception(tmp_path: Path) -> None:
     err = ValueError("invalid TOML at line 3")
     repo_c = tmp_path / "broken"
-    scan = DashboardScan(
+    scan = PortfolioReport(
         root=tmp_path,
         reports=[(repo_c, err)],
         timestamp=datetime(2026, 5, 2, 15, 42),

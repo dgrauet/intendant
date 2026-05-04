@@ -16,16 +16,16 @@ from suzerain.audit.snapshot import (
     save_snapshot,
     snapshot_filename,
 )
-from suzerain.commands.dashboard import DashboardScan
+from suzerain.commands.report import PortfolioReport
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 
-def _make_minimal_scan(root: Path) -> DashboardScan:
-    """Return a DashboardScan with no repos for snapshot tests."""
-    return DashboardScan(root=root, reports=[], timestamp=datetime(2026, 5, 3, 14, 22, 0))
+def _make_minimal_scan(root: Path) -> PortfolioReport:
+    """Return a PortfolioReport with no repos for snapshot tests."""
+    return PortfolioReport(root=root, reports=[], timestamp=datetime(2026, 5, 3, 14, 22, 0))
 
 
 # ---------------------------------------------------------------------------
@@ -106,7 +106,7 @@ def test_save_snapshot_filename_matches_convention(tmp_path: Path) -> None:
     snap_dir = tmp_path / "snapshots"
     root = tmp_path / "myroot"
     ts = datetime(2026, 5, 3, 14, 22, 0)
-    scan = DashboardScan(root=root, reports=[], timestamp=ts)
+    scan = PortfolioReport(root=root, reports=[], timestamp=ts)
     saved_path = save_snapshot(scan, snap_dir)
     assert saved_path.name == "myroot-2026-05-03T142200.json"
 
@@ -116,8 +116,8 @@ def test_save_snapshot_is_idempotent_for_different_timestamps(tmp_path: Path) ->
     root = tmp_path / "myroot"
     ts1 = datetime(2026, 5, 3, 14, 22, 0)
     ts2 = datetime(2026, 5, 3, 15, 0, 0)
-    scan1 = DashboardScan(root=root, reports=[], timestamp=ts1)
-    scan2 = DashboardScan(root=root, reports=[], timestamp=ts2)
+    scan1 = PortfolioReport(root=root, reports=[], timestamp=ts1)
+    scan2 = PortfolioReport(root=root, reports=[], timestamp=ts2)
     path1 = save_snapshot(scan1, snap_dir)
     path2 = save_snapshot(scan2, snap_dir)
     assert path1 != path2
@@ -143,7 +143,7 @@ def test_load_snapshot_roundtrip_preserves_timestamp(tmp_path: Path) -> None:
     snap_dir = tmp_path / "snapshots"
     root = tmp_path / "myroot"
     ts = datetime(2026, 5, 3, 14, 22, 0)
-    scan = DashboardScan(root=root, reports=[], timestamp=ts)
+    scan = PortfolioReport(root=root, reports=[], timestamp=ts)
     saved_path = save_snapshot(scan, snap_dir)
     loaded = load_snapshot(saved_path)
     assert loaded["timestamp"] == "2026-05-03T14:22:00"

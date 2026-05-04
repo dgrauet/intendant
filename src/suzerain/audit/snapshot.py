@@ -1,4 +1,4 @@
-"""Snapshot persistence for dashboard scans."""
+"""Snapshot persistence for report scans."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from suzerain.audit.output.dashboard_json import render_dashboard_json
-from suzerain.commands.dashboard import DashboardScan
+from suzerain.audit.output.report_json import render_report_json
+from suzerain.commands.report import PortfolioReport
 
 DEFAULT_SNAPSHOT_DIRNAME = ".suzerain/snapshots"
 
@@ -23,7 +23,7 @@ def snapshot_filename(root: Path, timestamp: datetime) -> str:
     return f"{root.name}-{ts}.json"
 
 
-def save_snapshot(scan: DashboardScan, snapshot_dir: Path) -> Path:
+def save_snapshot(scan: PortfolioReport, snapshot_dir: Path) -> Path:
     """Serialize the scan as JSON and write it to the snapshot directory.
 
     Creates the directory if missing. Returns the path of the written file.
@@ -31,7 +31,7 @@ def save_snapshot(scan: DashboardScan, snapshot_dir: Path) -> Path:
     snapshot_dir.mkdir(parents=True, exist_ok=True)
     fname = snapshot_filename(scan.root, scan.timestamp)
     target = snapshot_dir / fname
-    target.write_text(render_dashboard_json(scan))
+    target.write_text(render_report_json(scan))
     return target
 
 

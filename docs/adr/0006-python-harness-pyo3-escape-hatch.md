@@ -22,7 +22,7 @@ The CLI is written in **Python**. Justifications:
 - Simple distribution: `uv tool install suzerain`.
 - Python ecosystem mastery is a prerequisite for contribution.
 
-**Explicit exit hatch**: if a portfolio-wide `suzerain dashboard <root>` durably exceeds
+**Explicit exit hatch**: if a portfolio-wide `suzerain report <root>` durably exceeds
 30 s cold (measured over 3 consecutive runs), profile with
 `py-spy` or `cProfile`. If an individual rule is responsible, rewrite it
 as a Rust extension via PyO3 (local integration, not a global rewrite).

@@ -1,4 +1,4 @@
-"""Render a DashboardScan to a JSON string."""
+"""Render a PortfolioReport to a JSON string."""
 
 from __future__ import annotations
 
@@ -6,13 +6,13 @@ import json
 from typing import Any
 
 from suzerain.audit.registry import collect_rules
-from suzerain.commands.dashboard import DashboardScan
+from suzerain.commands.report import PortfolioReport
 
 _SCHEMA_VERSION = "1"
 
 
-def render_dashboard_json(scan: DashboardScan) -> str:
-    """Return the JSON-serialized representation of a dashboard scan."""
+def render_report_json(scan: PortfolioReport) -> str:
+    """Return the JSON-serialized representation of a portfolio report scan."""
     rules_by_id = {r.id: r for r in collect_rules()}
     repos: list[dict[str, Any]] = []
     failing_ids: set[str] = set()

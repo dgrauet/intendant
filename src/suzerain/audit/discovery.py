@@ -1,4 +1,4 @@
-"""Repository discovery for multi-repo dashboard scans."""
+"""Repository discovery for multi-repo report scans."""
 
 from __future__ import annotations
 

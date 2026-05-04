@@ -1,4 +1,4 @@
-"""Compute and render the diff between two dashboard scans."""
+"""Compute and render the diff between two report scans."""
 
 from __future__ import annotations
 
@@ -8,10 +8,10 @@ from typing import Any
 
 @dataclass(frozen=True)
 class PortfolioDiff:
-    """Result of comparing two dashboard scans (current vs previous)."""
+    """Result of comparing two report scans (current vs previous)."""
 
-    current: dict[str, Any]  # the current dashboard JSON dict
-    previous: dict[str, Any]  # the previous dashboard JSON dict
+    current: dict[str, Any]  # the current report JSON dict
+    previous: dict[str, Any]  # the previous report JSON dict
     previous_path: str  # absolute path of the previous snapshot file
 
     @property
@@ -111,5 +111,5 @@ class PortfolioDiff:
 def compute_diff(
     current: dict[str, Any], previous: dict[str, Any], previous_path: str
 ) -> PortfolioDiff:
-    """Build a PortfolioDiff from two parsed dashboard JSON dicts."""
+    """Build a PortfolioDiff from two parsed report JSON dicts."""
     return PortfolioDiff(current=current, previous=previous, previous_path=previous_path)

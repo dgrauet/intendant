@@ -1,4 +1,4 @@
-"""End-to-end test for `suzerain dashboard` against the portfolio_mini fixture."""
+"""End-to-end test for `suzerain report` against the portfolio_mini fixture."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def _git_init(repo: Path) -> None:
     subprocess.run(["git", "commit", "-q", "-m", "feat: initial scaffold"], cwd=repo, check=True)
 
 
-def test_dashboard_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir: Path) -> None:
+def test_report_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir: Path) -> None:
     portfolio = tmp_path / "portfolio_mini"
     shutil.copytree(fixtures_dir / "portfolio_mini", portfolio)
     # Each governed repo needs git init for RL002 to pass and audit to run.
@@ -24,7 +24,7 @@ def test_dashboard_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir:
         _git_init(portfolio / repo_name)
     suzerain_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
-        ["uv", "run", "suzerain", "dashboard", str(portfolio), "--format", "json"],
+        ["uv", "run", "suzerain", "report", str(portfolio), "--format", "json"],
         cwd=suzerain_repo,
         capture_output=True,
         text=True,
@@ -45,7 +45,7 @@ def test_dashboard_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir:
         assert set(repo["failing_by_severity"].keys()) == {"required", "recommended", "optional"}
 
 
-def test_dashboard_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path) -> None:
+def test_report_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path) -> None:
     """Save a snapshot, then run --diff to compare current scan against it."""
     portfolio = tmp_path / "portfolio_mini"
     shutil.copytree(fixtures_dir / "portfolio_mini", portfolio)
@@ -55,7 +55,7 @@ def test_dashboard_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path
 
     # 1. First run: save snapshot
     proc1 = subprocess.run(
-        ["uv", "run", "suzerain", "dashboard", str(portfolio), "--save-snapshot", "--format=json"],
+        ["uv", "run", "suzerain", "report", str(portfolio), "--save-snapshot", "--format=json"],
         cwd=suzerain_repo,
         capture_output=True,
         text=True,
@@ -74,7 +74,7 @@ def test_dashboard_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path
             "uv",
             "run",
             "suzerain",
-            "dashboard",
+            "report",
             str(portfolio),
             "--diff",
             f"--against={saved_snap}",
@@ -92,7 +92,7 @@ def test_dashboard_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path
             "uv",
             "run",
             "suzerain",
-            "dashboard",
+            "report",
             str(portfolio),
             "--diff",
             f"--against={saved_snap}",
@@ -115,20 +115,20 @@ def test_dashboard_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path
     assert parsed["removed_repos"] == []
 
 
-def test_dashboard_e2e_human_against_portfolio_mini(tmp_path: Path, fixtures_dir: Path) -> None:
+def test_report_e2e_human_against_portfolio_mini(tmp_path: Path, fixtures_dir: Path) -> None:
     portfolio = tmp_path / "portfolio_mini"
     shutil.copytree(fixtures_dir / "portfolio_mini", portfolio)
     for repo_name in ("repo_a_clean", "repo_b_partial"):
         _git_init(portfolio / repo_name)
     suzerain_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
-        ["uv", "run", "suzerain", "dashboard", str(portfolio)],
+        ["uv", "run", "suzerain", "report", str(portfolio)],
         cwd=suzerain_repo,
         capture_output=True,
         text=True,
     )
     assert proc.returncode in (0, 1), proc.stderr
-    assert "PORTFOLIO DASHBOARD" in proc.stdout
+    assert "PORTFOLIO REPORT" in proc.stdout
     assert "repo_a_clean" in proc.stdout
     assert "repo_b_partial" in proc.stdout
     # repo_c_no_marker is NOT governed: must not appear in the table

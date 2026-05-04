@@ -1,4 +1,4 @@
-"""Unit tests for the dashboard command (dataclass + scan helpers)."""
+"""Unit tests for the report command (dataclass + scan helpers)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from suzerain.cli import app
-from suzerain.commands.dashboard import DashboardScan, _scan_all, _scan_one
+from suzerain.commands.report import PortfolioReport, _scan_all, _scan_one
 from suzerain.core.report import Report
 
 cli_runner = CliRunner()
@@ -23,13 +23,13 @@ def _make_marker(parent: Path, body: str = "") -> None:
     (parent / ".suzerain.toml").write_text(body or default)
 
 
-def test_dashboard_scan_dataclass_is_frozen(tmp_path: Path) -> None:
-    scan = DashboardScan(root=tmp_path, reports=[], timestamp=datetime.now())
+def test_portfolio_report_dataclass_is_frozen(tmp_path: Path) -> None:
+    scan = PortfolioReport(root=tmp_path, reports=[], timestamp=datetime.now())
     try:
         scan.root = tmp_path / "other"  # ty: ignore[invalid-assignment]
     except (AttributeError, TypeError):
         return
-    raise AssertionError("DashboardScan must be frozen")
+    raise AssertionError("PortfolioReport must be frozen")
 
 
 def test_scan_one_returns_report_for_valid_repo(tmp_path: Path) -> None:
@@ -81,13 +81,13 @@ def _seed_governed(target: Path) -> None:
 
 
 def test_cli_exit_2_when_path_does_not_exist(tmp_path: Path) -> None:
-    result = cli_runner.invoke(app, ["dashboard", str(tmp_path / "nope")])
+    result = cli_runner.invoke(app, ["report", str(tmp_path / "nope")])
     assert result.exit_code == 2
 
 
 def test_cli_exit_2_when_no_governed_repos(tmp_path: Path) -> None:
     (tmp_path / "ungoverned").mkdir()
-    result = cli_runner.invoke(app, ["dashboard", str(tmp_path)])
+    result = cli_runner.invoke(app, ["report", str(tmp_path)])
     assert result.exit_code == 2
 
 
@@ -101,7 +101,7 @@ def test_cli_exit_0_when_all_clean(tmp_path: Path, fixtures_dir: Path) -> None:
     subprocess.run(["git", "config", "user.name", "T"], cwd=target, check=True)
     subprocess.run(["git", "add", "-A"], cwd=target, check=True)
     subprocess.run(["git", "commit", "-q", "-m", "feat: initial scaffold"], cwd=target, check=True)
-    result = cli_runner.invoke(app, ["dashboard", str(portfolio)])
+    result = cli_runner.invoke(app, ["report", str(portfolio)])
     assert result.exit_code == 0, result.stdout
 
 
@@ -110,13 +110,13 @@ def test_cli_exit_1_when_required_fail(tmp_path: Path, fixtures_dir: Path) -> No
     portfolio.mkdir()
     target = portfolio / "nonconformant"
     shutil.copytree(fixtures_dir / "nonconformant_python_repo", target)
-    result = cli_runner.invoke(app, ["dashboard", str(portfolio)])
+    result = cli_runner.invoke(app, ["report", str(portfolio)])
     assert result.exit_code == 1, result.stdout
 
 
 def test_cli_json_format_emits_valid_json(tmp_path: Path) -> None:
     _seed_governed(tmp_path / "alpha")
-    result = cli_runner.invoke(app, ["dashboard", str(tmp_path), "--format", "json"])
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--format", "json"])
     # Either exit 0 (clean) or exit 1 (required fails); both produce JSON.
     assert result.exit_code in (0, 1)
     parsed = _json.loads(result.stdout)
@@ -131,7 +131,7 @@ def test_cli_json_format_emits_valid_json(tmp_path: Path) -> None:
 
 def test_cli_save_snapshot_writes_to_default_dir(tmp_path: Path) -> None:
     _seed_governed(tmp_path / "repo_a")
-    result = cli_runner.invoke(app, ["dashboard", str(tmp_path), "--save-snapshot"])
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--save-snapshot"])
     assert result.exit_code in (0, 1), result.output
     # Default dir: <root>/.suzerain/snapshots/
     snap_dir = tmp_path / ".suzerain" / "snapshots"
@@ -148,7 +148,7 @@ def test_cli_save_snapshot_with_custom_dir(tmp_path: Path) -> None:
     custom_dir = tmp_path / "my_snaps"
     result = cli_runner.invoke(
         app,
-        ["dashboard", str(tmp_path), "--save-snapshot", f"--snapshot-dir={custom_dir}"],
+        ["report", str(tmp_path), "--save-snapshot", f"--snapshot-dir={custom_dir}"],
     )
     assert result.exit_code in (0, 1), result.output
     assert custom_dir.is_dir()
@@ -158,7 +158,7 @@ def test_cli_save_snapshot_with_custom_dir(tmp_path: Path) -> None:
 
 def test_cli_save_snapshot_message_on_stderr(tmp_path: Path) -> None:
     _seed_governed(tmp_path / "repo_a")
-    result = cli_runner.invoke(app, ["dashboard", str(tmp_path), "--save-snapshot"])
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--save-snapshot"])
     assert result.exit_code in (0, 1)
     # typer.echo(..., err=True) goes to stdout in the CliRunner (mixed) by default
     assert "Snapshot saved:" in result.output
@@ -182,7 +182,7 @@ def _make_snapshot_file(snap_dir: Path, root: Path, content: dict) -> Path:
 
 def test_cli_diff_fails_when_no_previous_snapshot(tmp_path: Path) -> None:
     _seed_governed(tmp_path / "repo_a")
-    result = cli_runner.invoke(app, ["dashboard", str(tmp_path), "--diff"])
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--diff"])
     assert result.exit_code == 2
 
 
@@ -211,7 +211,7 @@ def test_cli_diff_against_specific_snapshot(tmp_path: Path) -> None:
     snap_file = _make_snapshot_file(snap_dir, tmp_path, prev_content)
     result = cli_runner.invoke(
         app,
-        ["dashboard", str(tmp_path), "--diff", f"--against={snap_file}"],
+        ["report", str(tmp_path), "--diff", f"--against={snap_file}"],
     )
     # Diff renders without crashing; exit code 0 or 1 depending on failures
     assert result.exit_code in (0, 1), result.output
@@ -247,7 +247,7 @@ def test_cli_diff_exit_1_on_new_required_failure(tmp_path: Path, fixtures_dir: P
     snap_file = _make_snapshot_file(snap_dir, portfolio, prev_content)
     result = cli_runner.invoke(
         app,
-        ["dashboard", str(portfolio), "--diff", f"--against={snap_file}"],
+        ["report", str(portfolio), "--diff", f"--against={snap_file}"],
     )
     # New required failures → exit code 1
     assert result.exit_code == 1, result.output
@@ -265,7 +265,7 @@ def test_cli_diff_exit_0_when_no_new_required_failure(tmp_path: Path) -> None:
     # Run once to capture the actual current state as a snapshot
     save_result = cli_runner.invoke(
         app,
-        ["dashboard", str(tmp_path), "--save-snapshot", f"--snapshot-dir={snap_dir}"],
+        ["report", str(tmp_path), "--save-snapshot", f"--snapshot-dir={snap_dir}"],
     )
     assert save_result.exit_code in (0, 1), save_result.output
     snaps = list(snap_dir.glob("*.json"))
@@ -274,7 +274,7 @@ def test_cli_diff_exit_0_when_no_new_required_failure(tmp_path: Path) -> None:
     # Now diff against that snapshot — same codebase → no new required failures → exit 0
     result = cli_runner.invoke(
         app,
-        ["dashboard", str(tmp_path), "--diff", f"--against={snap_file}"],
+        ["report", str(tmp_path), "--diff", f"--against={snap_file}"],
     )
     assert result.exit_code == 0, result.output
 
@@ -284,7 +284,7 @@ def test_cli_save_and_diff_combined_handles_first_run_gracefully(tmp_path: Path)
     _seed_governed(tmp_path / "repo_a")
     result = cli_runner.invoke(
         app,
-        ["dashboard", str(tmp_path), "--save-snapshot", "--diff"],
+        ["report", str(tmp_path), "--save-snapshot", "--diff"],
     )
     # First run: no previous snapshot → save + exit 0
     assert result.exit_code == 0, result.output
@@ -321,7 +321,7 @@ def test_cli_diff_json_format_emits_valid_json(tmp_path: Path) -> None:
     result = cli_runner.invoke(
         app,
         [
-            "dashboard",
+            "report",
             str(tmp_path),
             "--diff",
             f"--against={snap_file}",

@@ -1,6 +1,6 @@
 # Suzerain
 
-> Multi-stack project governance framework — handbook + auditor + scaffolder + portfolio dashboard.
+> Multi-stack project governance framework — handbook + auditor + scaffolder + portfolio report.
 
 Suzerain materializes project management standards (workflows, CI, releases, quality,
 security, architecture) in a form that is both human-readable (handbook + ADRs) and
@@ -10,9 +10,9 @@ compliant repo from scratch.
 
 ## Status
 
-v0.2.1 — 44 rules across 3 stacks (python, claude-skill, node), self-audit 100/100,
-510 tests. The `suzerain` CLI ships `init`, `audit`, `explain`, `new`, `dashboard`, and
-`doctor`.
+v0.2.3 — 48 rules across 3 stacks (python, claude-skill, node), self-audit 100/100,
+567 tests. Multi-language sub-projects supported via `[[subprojects]]` in `.suzerain.toml`.
+The `suzerain` CLI ships `init`, `audit`, `explain`, `new`, `report`, and `doctor`.
 
 ## Installation
 
@@ -63,14 +63,14 @@ uv sync && uv run pre-commit install
 suzerain audit . --severity=required      # should exit 0
 ```
 
-### Cross-repo portfolio dashboard
+### Cross-repo portfolio report
 
 ```bash
-suzerain dashboard <portfolio-root>               # human table
-suzerain dashboard <portfolio-root> --format=json # machine-readable
-suzerain dashboard <portfolio-root> --save-snapshot
-suzerain dashboard <portfolio-root> --diff        # compare to last snapshot
-suzerain dashboard <portfolio-root> --against snapshots/2026-04-01.json
+suzerain report <portfolio-root>               # human table
+suzerain report <portfolio-root> --format=json # machine-readable
+suzerain report <portfolio-root> --save-snapshot
+suzerain report <portfolio-root> --diff        # compare to last snapshot
+suzerain report <portfolio-root> --against snapshots/2026-04-01.json
 ```
 
 ### Inspect a rule
@@ -128,7 +128,7 @@ Covers packaging (`NODE_PK`), quality (`NODE_QU`), and tests (`NODE_TS`).
 
 ## Roadmap
 
-Future paliers: MCP server for agent-driven governance queries, HTML dashboard
+Future paliers: MCP server for agent-driven governance queries, HTML report
 export, multi-language adapters (Go, Rust).
 
 ## License
