@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3](https://github.com/dgrauet/suzerain/compare/v0.4.2...v0.4.3) (2026-05-04)
+
+
+### Features
+
+* **scaffold:** add Rust scaffolder (suzerain new --stack=rust) ([#26](https://github.com/dgrauet/suzerain/issues/26)) ([df2d397](https://github.com/dgrauet/suzerain/commit/df2d3971c63e86baf581dd1632e5f5f9ddac1d52))
+
 ## [0.4.2](https://github.com/dgrauet/suzerain/compare/v0.4.1...v0.4.2) (2026-05-04)
 
 
