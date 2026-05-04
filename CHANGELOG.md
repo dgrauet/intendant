@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/dgrauet/suzerain/compare/v0.3.0...v0.4.0) (2026-05-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **commands:** add --output and --from-snapshot flags + validation
+
+### Features
+
+* **audit/output:** add render_diff_html for portfolio diffs ([c8cfa50](https://github.com/dgrauet/suzerain/commit/c8cfa505380ceb2ca29347e9791a16ae360a0c0a))
+* **audit/output:** add render_html for portfolio snapshot view ([4e6d8f3](https://github.com/dgrauet/suzerain/commit/4e6d8f303e103969482798baecbd3772d5f38f17))
+* **audit/output:** add shared HTML assets module ([6c9c6d5](https://github.com/dgrauet/suzerain/commit/6c9c6d5e1ed79b0661a74d2f7ba82ab1950df067))
+* **audit/snapshot:** add load_snapshot_as_portfolio_report helper ([6b79830](https://github.com/dgrauet/suzerain/commit/6b79830a5fb28b27f89bde4bbe3463b760327e27))
+* **commands:** add --output and --from-snapshot flags + validation ([d84a7e4](https://github.com/dgrauet/suzerain/commit/d84a7e41c4c1f10c08f2c27ec7b5b99ddd0f7a00))
+* **commands:** wire --format=html for snapshot, diff, and --from-snapshot ([65a25ac](https://github.com/dgrauet/suzerain/commit/65a25acce843de8cf802a7fcdaa91ddfe9a91532))
+* **html:** render bold and links in handbook bodies ([01dce08](https://github.com/dgrauet/suzerain/commit/01dce084a2e2f13dcdddcab7a763f0f1706f0fc5))
+
+
+### Bug Fixes
+
+* **audit:** preserve original score when rendering --from-snapshot ([aad0df4](https://github.com/dgrauet/suzerain/commit/aad0df4a15ebccbf713d01b14437fe51ecc5feb6))
+
 ## [0.3.0](https://github.com/dgrauet/suzerain/compare/v0.2.3...v0.3.0) (2026-05-04)
 
 
