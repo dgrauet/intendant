@@ -195,3 +195,42 @@ def test_scaffold_rust_passes_required_audit(tmp_path: Path) -> None:
     assert audit_proc.returncode == 0, (
         f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
     )
+
+
+@pytest.mark.e2e()
+def test_scaffold_go_passes_required_audit(tmp_path: Path) -> None:
+    """Success criterion: a fresh go scaffold passes suzerain audit --severity=required."""
+    target = tmp_path / "my-go-test"
+    suzerain_repo = Path(__file__).resolve().parents[2]
+    proc = subprocess.run(
+        [
+            "uv",
+            "run",
+            "suzerain",
+            "new",
+            "my-go-test",
+            "--stack",
+            "go",
+            "--path",
+            str(tmp_path),
+        ],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, f"scaffold failed: {proc.stderr}"
+    assert target.is_dir()
+    assert (target / "go.mod").is_file()
+    assert (target / "main.go").is_file()
+    assert (target / "main_test.go").is_file()
+    assert (target / ".golangci.yml").is_file()
+    assert (target / ".github" / "workflows" / "ci.yml").is_file()
+    audit_proc = subprocess.run(
+        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert audit_proc.returncode == 0, (
+        f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
+    )

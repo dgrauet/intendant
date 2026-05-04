@@ -60,6 +60,9 @@ suzerain new my-pkg --stack=node --description="..."
 # Rust crate
 suzerain new my-crate --stack=rust --description="..."
 
+# Go module
+suzerain new my-svc --stack=go --description="..."
+
 # After scaffolding
 cd my-lib
 uv sync && uv run pre-commit install
@@ -174,7 +177,7 @@ matching the schemas of the corresponding CLI commands.
 
 ## Roadmap
 
-Future paliers: Go scaffolder (`suzerain new --stack=go`).
+Future paliers: portfolio polish, additional adapters as needed.
 
 ## License
 

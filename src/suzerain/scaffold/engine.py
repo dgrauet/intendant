@@ -11,7 +11,7 @@ import tomli_w
 from suzerain.core.paths import templates_root
 from suzerain.scaffold.substitutions import SubstitutionContext, resolve_placeholders
 
-_KNOWN_STACKS = {"python", "claude-skill", "node", "rust"}
+_KNOWN_STACKS = {"python", "claude-skill", "node", "rust", "go"}
 
 
 def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> None:
@@ -182,6 +182,32 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
             '    expect(greet("world")).toBe("Hello, world!");\n'
             "  });\n"
             "});\n"
+        )
+    elif stack == "go":
+        # main.go + main_test.go satisfy GO_TS001 out of the box.
+        (target / "main.go").write_text(
+            "package main\n"
+            "\n"
+            'import "fmt"\n'
+            "\n"
+            "func Add(a, b int) int {\n"
+            "\treturn a + b\n"
+            "}\n"
+            "\n"
+            "func main() {\n"
+            "\tfmt.Println(Add(2, 3))\n"
+            "}\n"
+        )
+        (target / "main_test.go").write_text(
+            "package main\n"
+            "\n"
+            'import "testing"\n'
+            "\n"
+            "func TestAdd(t *testing.T) {\n"
+            "\tif got := Add(2, 3); got != 5 {\n"
+            '\t\tt.Fatalf("Add(2,3) = %d, want 5", got)\n'
+            "\t}\n"
+            "}\n"
         )
     elif stack == "rust":
         # src/lib.rs with one #[test] satisfies RUST_TS001 out of the box.

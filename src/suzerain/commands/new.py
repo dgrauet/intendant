@@ -24,7 +24,7 @@ def new(
         str,
         typer.Option(
             "--stack",
-            help="Target stack. Currently supported: python, claude-skill, node, rust.",
+            help="Target stack. Currently supported: python, claude-skill, node, rust, go.",
         ),
     ] = "python",
     description: Annotated[
@@ -135,4 +135,11 @@ def _print_quickstart(target: Path, stack: str) -> None:
         console.print("  cargo test                   # run tests")
         console.print("  cargo clippy -- -D warnings  # lint")
         console.print("  cargo fmt                    # format")
+        console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")
+    elif stack == "go":
+        console.print(f"  cd {target}")
+        console.print("  go mod tidy                  # generates go.sum")
+        console.print("  go test ./...                # run tests")
+        console.print("  go vet ./...                 # vet")
+        console.print("  golangci-lint run            # lint")
         console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")

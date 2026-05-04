@@ -50,10 +50,10 @@ def test_new_refuses_existing_target(tmp_path: Path) -> None:
 def test_new_unknown_stack(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["new", "x", "--stack", "go", "--path", str(tmp_path), "--no-git"],
+        ["new", "x", "--stack", "haskell", "--path", str(tmp_path), "--no-git"],
     )
     assert result.exit_code == 1
-    assert "go" in result.stdout.lower() or "stack" in result.stdout.lower()
+    assert "haskell" in result.stdout.lower() or "stack" in result.stdout.lower()
 
 
 def test_new_with_git_inits_repo(tmp_path: Path) -> None:
@@ -351,3 +351,75 @@ def test_new_rust_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) ->
     assert data["suzerain"]["mode"] == "strict"
     assert data["suzerain"]["stack"] == "rust"
     assert "RUST_PK002" in data.get("exemptions", {})
+
+
+# ---------------------------------------------------------------------------
+# Go scaffolder
+# ---------------------------------------------------------------------------
+
+
+def _invoke_go_scaffold(tmp_path: Path, name: str = "my-go-app") -> Path:
+    result = runner.invoke(
+        app,
+        [
+            "new",
+            name,
+            "--stack",
+            "go",
+            "--description",
+            "A Go test project",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    return tmp_path / name
+
+
+def test_new_go_creates_go_mod_with_module(tmp_path: Path) -> None:
+    target = _invoke_go_scaffold(tmp_path)
+    gomod = target / "go.mod"
+    assert gomod.is_file()
+    text = gomod.read_text()
+    assert "module example.com/my-go-app" in text
+    assert "go 1.22" in text
+
+
+def test_new_go_creates_main_and_test(tmp_path: Path) -> None:
+    target = _invoke_go_scaffold(tmp_path)
+    assert (target / "main.go").is_file()
+    test_file = target / "main_test.go"
+    assert test_file.is_file()
+    assert "func TestAdd" in test_file.read_text()
+
+
+def test_new_go_ships_golangci_config(tmp_path: Path) -> None:
+    target = _invoke_go_scaffold(tmp_path)
+    assert (target / ".golangci.yml").is_file()
+
+
+def test_new_go_ci_workflow_runs_vet_test_lint(tmp_path: Path) -> None:
+    target = _invoke_go_scaffold(tmp_path)
+    ci = target / ".github" / "workflows" / "ci.yml"
+    assert ci.is_file()
+    content = ci.read_text()
+    assert "go vet" in content
+    assert "go test" in content
+    assert "golangci-lint" in content
+
+
+def test_new_go_gitignore_has_test_pattern(tmp_path: Path) -> None:
+    target = _invoke_go_scaffold(tmp_path)
+    text = (target / ".gitignore").read_text()
+    assert "*.test" in text
+
+
+def test_new_go_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) -> None:
+    target = _invoke_go_scaffold(tmp_path)
+    cfg = target / ".suzerain.toml"
+    assert cfg.is_file()
+    data = tomllib.loads(cfg.read_text())
+    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["stack"] == "go"
+    assert "GO_PK002" in data.get("exemptions", {})
