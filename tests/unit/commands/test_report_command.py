@@ -120,7 +120,7 @@ def test_cli_json_format_emits_valid_json(tmp_path: Path) -> None:
     # Either exit 0 (clean) or exit 1 (required fails); both produce JSON.
     assert result.exit_code in (0, 1)
     parsed = _json.loads(result.stdout)
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
     assert parsed["scan_count"] == 1
 
 
@@ -140,7 +140,7 @@ def test_cli_save_snapshot_writes_to_default_dir(tmp_path: Path) -> None:
     assert len(snaps) == 1, f"Expected 1 snapshot, found: {snaps}"
     # Snapshot must be valid JSON
     parsed = _json.loads(snaps[0].read_text())
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
 
 
 def test_cli_save_snapshot_with_custom_dir(tmp_path: Path) -> None:
@@ -191,7 +191,7 @@ def test_cli_diff_against_specific_snapshot(tmp_path: Path) -> None:
     # Create a snapshot that looks identical to what the current scan will produce
     snap_dir = tmp_path / "snaps"
     prev_content = {
-        "schema_version": "1",
+        "schema_version": "2",
         "root": str(tmp_path),
         "timestamp": "2026-01-01T00:00:00",
         "scan_count": 1,
@@ -227,7 +227,7 @@ def test_cli_diff_exit_1_on_new_required_failure(tmp_path: Path, fixtures_dir: P
     snap_dir = tmp_path / "snaps"
     # Previous snapshot: repo was passing all required rules
     prev_content = {
-        "schema_version": "1",
+        "schema_version": "2",
         "root": str(portfolio),
         "timestamp": "2026-01-01T00:00:00",
         "scan_count": 1,
@@ -300,7 +300,7 @@ def test_cli_diff_json_format_emits_valid_json(tmp_path: Path) -> None:
     _seed_governed(tmp_path / "repo_a")
     snap_dir = tmp_path / "snaps"
     prev_content = {
-        "schema_version": "1",
+        "schema_version": "2",
         "root": str(tmp_path),
         "timestamp": "2026-01-01T00:00:00",
         "scan_count": 1,
@@ -330,7 +330,7 @@ def test_cli_diff_json_format_emits_valid_json(tmp_path: Path) -> None:
     )
     assert result.exit_code in (0, 1), result.output
     parsed = _json.loads(result.stdout)
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
     assert "score_changes" in parsed
     assert "new_failures" in parsed
     assert "resolved_failures" in parsed

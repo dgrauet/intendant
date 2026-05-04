@@ -8,11 +8,12 @@ from suzerain.core.report import Finding, Report
 
 
 def test_json_basic_shape(tmp_path: Path) -> None:
-    report = Report(repo_path=tmp_path, stack="python", findings=[])
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=[])
     out = render_json(report)
     parsed = json.loads(out)
     assert parsed["repo_path"] == str(tmp_path)
-    assert parsed["stack"] == "python"
+    assert parsed["stacks"] == ["python"]
+    assert parsed["mode"] == "auto"
     assert parsed["score"] == 100
     assert parsed["findings"] == []
 
@@ -28,7 +29,7 @@ def test_json_finding_fields(tmp_path: Path) -> None:
             fix_preview="--- /dev/null\n+++ uv.lock\n",
         )
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     parsed = json.loads(render_json(report))
     assert len(parsed["findings"]) == 1
     f = parsed["findings"][0]
@@ -43,7 +44,7 @@ def test_json_summary_counts(tmp_path: Path) -> None:
         Finding(rule_id="A", severity="required", status="pass", evidence="", fix_available=False),
         Finding(rule_id="B", severity="required", status="fail", evidence="x", fix_available=True),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     parsed = json.loads(render_json(report))
     assert parsed["summary"]["passing"] == 1
     assert parsed["summary"]["failing"] == 1

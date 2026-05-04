@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import html as html_lib
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from suzerain.audit.output._html_assets import CSS_INLINE, JS_INLINE
-from suzerain.core.config import load_config
 from suzerain.core.report import Report
 
 if TYPE_CHECKING:
@@ -59,11 +57,13 @@ def _render_header(scan: PortfolioReport) -> str:
 
 
 def _render_filter_bar(scan: PortfolioReport) -> str:
-    stacks = sorted(
-        {_stack_for(result) for _, result in scan.reports if isinstance(result, Report)}
-    )
+    stacks: set[str] = set()
+    for _, result in scan.reports:
+        if isinstance(result, Report):
+            stacks.update(result.stacks)
+    stacks_sorted = sorted(stacks)
     options = "\n".join(
-        f'<option value="{html_lib.escape(s)}">{html_lib.escape(s)}</option>' for s in stacks
+        f'<option value="{html_lib.escape(s)}">{html_lib.escape(s)}</option>' for s in stacks_sorted
     )
     text_input = '<input id="filter-text" type="search" placeholder="filter by path…" oninput="applyFilter()">'  # noqa: E501
     req_label = '<label><input id="filter-req" type="checkbox" onchange="applyFilter()"> failing required only</label>'  # noqa: E501
@@ -89,7 +89,7 @@ def _render_table(scan: PortfolioReport) -> str:
         if isinstance(result, Exception):
             rows.append(_render_row_error(rel, result))
         else:
-            rows.append(_render_row_ok(rel, result, repo_path))
+            rows.append(_render_row_ok(rel, result))
     body = "\n".join(rows)
     controls = (
         '<div class="expand-controls">\n'
@@ -114,16 +114,15 @@ def _render_table(scan: PortfolioReport) -> str:
     )
 
 
-def _render_row_ok(rel_path: str, result: Report, repo_path: Path) -> str:
+def _render_row_ok(rel_path: str, result: Report) -> str:
     failing = [f for f in result.findings if f.status == "fail"]
     req = sum(1 for f in failing if f.severity == "required")
     rec = sum(1 for f in failing if f.severity == "recommended")
     fix = sum(1 for f in failing if f.fix_available)
     score = result.score
     score_class = "score-good" if score >= 85 else "score-warn" if score >= 60 else "score-bad"
-    stack_value = _stack_for(result)
-    stack_esc = html_lib.escape(stack_value)
-    stack_label_esc = html_lib.escape(_stack_label(repo_path, stack_value))
+    stack_attr = html_lib.escape("/".join(result.stacks))
+    stack_label_esc = html_lib.escape(_stack_label(result))
     path_esc = html_lib.escape(rel_path)
     has_findings = bool(result.findings)
     toggle_cell = (
@@ -132,7 +131,7 @@ def _render_row_ok(rel_path: str, result: Report, repo_path: Path) -> str:
         else '<td class="row-toggle"></td>'
     )
     main_row = (
-        f'<tr class="repo-row" data-path="{path_esc}" data-stack="{stack_esc}" '
+        f'<tr class="repo-row" data-path="{path_esc}" data-stack="{stack_attr}" '
         f'data-failing-required="{req}">\n'
         f"{toggle_cell}\n"
         f"<td>{path_esc}</td>\n"
@@ -198,37 +197,12 @@ def _render_script() -> str:
     return f"<script>\n{JS_INLINE}\n</script>\n"
 
 
-def _stack_for(result: Report) -> str:
-    return result.stack or "auto"
+def _stack_label(result: Report) -> str:
+    """Return ``"<mode> (<stacks>)"`` for the stack column.
 
-
-def _stack_label(repo_path: Path, stack_value: str) -> str:
-    """Return ``"<mode> (<stack>)"`` describing how the stack was resolved.
-
-    - ``manual (a/b)`` when the repo has ``[[subprojects]]`` (stacks listed in
-      declaration order, deduplicated).
-    - ``manual (X)`` when the top-level ``stack`` is pinned to a concrete value.
-    - ``auto (X)`` when the stack was auto-detected to ``X``.
-    - ``auto`` (no parens) when nothing could be auto-detected.
-
-    Falls back to the bare ``stack_value`` if the config file is not reachable
-    (e.g. snapshot replay against a path that no longer exists).
+    Examples: ``auto``, ``auto (python)``, ``auto (python/swift)``,
+    ``manual (node)``, ``manual (swift/python)``.
     """
-    config_path = repo_path / ".suzerain.toml"
-    if not config_path.is_file():
-        return stack_value
-    try:
-        config = load_config(repo_path)
-    except (OSError, ValueError):
-        return stack_value
-    if config.subprojects:
-        seen: list[str] = []
-        for sp in config.subprojects:
-            if sp.stack and sp.stack not in seen:
-                seen.append(sp.stack)
-        return f"manual ({'/'.join(seen)})" if seen else "manual"
-    if config.stack and config.stack != "auto":
-        return f"manual ({config.stack})"
-    if stack_value and stack_value != "auto":
-        return f"auto ({stack_value})"
-    return "auto"
+    if result.stacks:
+        return f"{result.mode} ({'/'.join(result.stacks)})"
+    return result.mode

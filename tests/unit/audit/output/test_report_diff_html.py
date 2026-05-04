@@ -9,7 +9,7 @@ from suzerain.audit.output.report_diff_html import render_diff_html
 def _build_diff_with_regression() -> PortfolioDiff:
     """Build a diff representing a portfolio that regressed."""
     current = {
-        "schema_version": "1",
+        "schema_version": "2",
         "scan_count": 2,
         "repos": [
             {
@@ -33,7 +33,7 @@ def _build_diff_with_regression() -> PortfolioDiff:
         ],
     }
     previous = {
-        "schema_version": "1",
+        "schema_version": "2",
         "scan_count": 2,
         "repos": [
             {
@@ -62,7 +62,7 @@ def _build_diff_with_regression() -> PortfolioDiff:
 def _build_diff_clean() -> PortfolioDiff:
     """Build a diff with zero changes."""
     snap = {
-        "schema_version": "1",
+        "schema_version": "2",
         "scan_count": 1,
         "repos": [
             {

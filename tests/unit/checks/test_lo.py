@@ -7,7 +7,7 @@ from suzerain.core.repo import Repo
 
 
 def _repo(tmp_path: Path) -> Repo:
-    return Repo(path=tmp_path, stack="auto")
+    return Repo(path=tmp_path, stacks=("auto",))
 
 
 def test_lo003_passes_when_docs_dir_exists(tmp_path: Path) -> None:

@@ -13,7 +13,7 @@ from suzerain.core.repo import Repo
 
 
 def _setup_repo(tmp_path: Path) -> Repo:
-    return Repo(path=tmp_path, stack="python")
+    return Repo(path=tmp_path, stacks=("python",))
 
 
 def test_dg001_pass(tmp_path: Path) -> None:

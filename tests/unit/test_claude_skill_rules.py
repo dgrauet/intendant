@@ -8,7 +8,7 @@ from suzerain.core.repo import Repo
 
 
 def _skill_repo(path: Path) -> Repo:
-    return Repo(path=path, stack="claude-skill")
+    return Repo(path=path, stacks=("claude-skill",))
 
 
 def _make_skill(tmp_path: Path, body: str) -> Path:

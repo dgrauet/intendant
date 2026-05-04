@@ -17,7 +17,7 @@ def _capture(report: Report) -> str:
 
 
 def test_human_shows_repo_path(tmp_path: Path) -> None:
-    report = Report(repo_path=tmp_path, stack="python", findings=[])
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=[])
     text = _capture(report)
     assert str(tmp_path) in text
 
@@ -26,7 +26,7 @@ def test_human_shows_score(tmp_path: Path) -> None:
     findings = [
         Finding(rule_id="A", severity="required", status="pass", evidence="", fix_available=False),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     text = _capture(report)
     assert "100" in text
 
@@ -41,7 +41,7 @@ def test_human_lists_failing_rules(tmp_path: Path) -> None:
             fix_available=False,
         ),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     text = _capture(report)
     assert "PYTHON_LO001" in text
     assert "missing src/" in text
@@ -51,7 +51,7 @@ def test_human_marks_fixable(tmp_path: Path) -> None:
     findings = [
         Finding(rule_id="X", severity="required", status="fail", evidence="x", fix_available=True),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     text = _capture(report)
     lower = text.lower()
     assert "fix" in lower or "auto" in lower

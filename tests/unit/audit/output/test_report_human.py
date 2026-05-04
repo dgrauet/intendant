@@ -23,7 +23,8 @@ def _capture(scan: PortfolioReport) -> str:
 def _make_clean_report(repo_path: Path) -> Report:
     return Report(
         repo_path=repo_path,
-        stack="python",
+        stacks=("python",),
+        mode="auto",
         findings=[
             Finding(
                 rule_id="DG001",
@@ -39,7 +40,8 @@ def _make_clean_report(repo_path: Path) -> Report:
 def _make_failing_report(repo_path: Path, stack: str = "python") -> Report:
     return Report(
         repo_path=repo_path,
-        stack=stack,
+        stacks=(stack,),
+        mode="auto",
         findings=[
             Finding(
                 rule_id="DG001",

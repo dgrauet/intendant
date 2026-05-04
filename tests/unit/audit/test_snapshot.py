@@ -97,7 +97,7 @@ def test_save_snapshot_content_is_valid_json(tmp_path: Path) -> None:
     saved_path = save_snapshot(scan, snap_dir)
     content = saved_path.read_text()
     parsed = json.loads(content)
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
     assert "timestamp" in parsed
     assert "repos" in parsed
 
@@ -136,7 +136,7 @@ def test_load_snapshot_returns_dict(tmp_path: Path) -> None:
     saved_path = save_snapshot(scan, snap_dir)
     result = load_snapshot(saved_path)
     assert isinstance(result, dict)
-    assert result["schema_version"] == "1"
+    assert result["schema_version"] == "2"
 
 
 def test_load_snapshot_roundtrip_preserves_timestamp(tmp_path: Path) -> None:
@@ -241,14 +241,15 @@ def test_load_snapshot_as_portfolio_report_reconstructs_scan(tmp_path: Path) -> 
     from suzerain.core.report import Report
 
     snapshot = {
-        "schema_version": "1",
+        "schema_version": "2",
         "root": str(tmp_path),
         "timestamp": "2026-05-04T120000",
         "scan_count": 2,
         "repos": [
             {
                 "path": "repo_a",
-                "stack": "python",
+                "stacks": ["python"],
+                "mode": "auto",
                 "score": 75,
                 "status": "ok",
                 "failing_rule_ids": ["DG002", "RL001"],
@@ -257,7 +258,8 @@ def test_load_snapshot_as_portfolio_report_reconstructs_scan(tmp_path: Path) -> 
             },
             {
                 "path": "repo_b",
-                "stack": None,
+                "stacks": [],
+                "mode": None,
                 "score": None,
                 "status": "error",
                 "failing_rule_ids": [],
@@ -281,7 +283,8 @@ def test_load_snapshot_as_portfolio_report_reconstructs_scan(tmp_path: Path) -> 
     path_a, result_a = portfolio.reports[0]
     assert path_a == tmp_path / "repo_a"
     assert isinstance(result_a, Report)
-    assert result_a.stack == "python"
+    assert result_a.stacks == ("python",)
+    assert result_a.mode == "auto"
     failing = [f for f in result_a.findings if f.status == "fail"]
     assert sorted(f.rule_id for f in failing) == ["DG002", "RL001"]
 
@@ -316,14 +319,15 @@ def test_load_snapshot_preserves_original_score(tmp_path: Path) -> None:
     from suzerain.core.report import Report
 
     snapshot = {
-        "schema_version": "1",
+        "schema_version": "2",
         "root": str(tmp_path),
         "timestamp": "2026-05-04T120000",
         "scan_count": 1,
         "repos": [
             {
                 "path": "repo_a",
-                "stack": "python",
+                "stacks": ["python"],
+                "mode": "auto",
                 "score": 75,
                 "status": "ok",
                 "failing_rule_ids": ["DG002", "RL001"],

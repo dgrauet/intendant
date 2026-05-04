@@ -8,7 +8,7 @@ from typing import Any
 from suzerain.audit.registry import collect_rules
 from suzerain.commands.report import PortfolioReport
 
-_SCHEMA_VERSION = "1"
+_SCHEMA_VERSION = "2"
 
 
 def render_report_json(scan: PortfolioReport) -> str:
@@ -26,7 +26,8 @@ def render_report_json(scan: PortfolioReport) -> str:
             repos.append(
                 {
                     "path": rel,
-                    "stack": None,
+                    "stacks": [],
+                    "mode": None,
                     "score": None,
                     "status": "error",
                     "failing_rule_ids": [],
@@ -49,7 +50,8 @@ def render_report_json(scan: PortfolioReport) -> str:
         repos.append(
             {
                 "path": rel,
-                "stack": result.stack,
+                "stacks": list(result.stacks),
+                "mode": result.mode,
                 "score": result.score,
                 "status": "ok",
                 "failing_rule_ids": repo_failing_ids,

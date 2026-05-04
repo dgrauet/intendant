@@ -7,7 +7,7 @@ from typing import Any
 
 from suzerain.audit.diff import PortfolioDiff
 
-_SCHEMA_VERSION = "1"
+_SCHEMA_VERSION = "2"
 
 
 def render_diff_json(diff: PortfolioDiff) -> str:

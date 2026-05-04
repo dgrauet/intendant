@@ -24,7 +24,8 @@ def test_json_flat_when_no_subprojects(tmp_path: Path) -> None:
     """Backward compat: report without subprojects emits flat JSON (no `subprojects` key)."""
     report = Report(
         repo_path=tmp_path,
-        stack="python",
+        stacks=("python",),
+        mode="auto",
         findings=[_make_finding("PYTHON_LO001", None)],
     )
     parsed = json.loads(render_json(report))
@@ -36,7 +37,8 @@ def test_json_nested_when_multi_subproject(tmp_path: Path) -> None:
     """Multi-subproject report emits nested format with synthetic _global_ entry."""
     report = Report(
         repo_path=tmp_path,
-        stack="multi",
+        stacks=("multi",),
+        mode="auto",
         findings=[
             _make_finding("DG001", None),
             _make_finding("PYTHON_LO001", "backend"),

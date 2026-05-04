@@ -45,7 +45,7 @@ def test_finding_exempt() -> None:
 
 
 def test_report_empty(tmp_path: Path) -> None:
-    r = Report(repo_path=tmp_path, stack="python", findings=[])
+    r = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=[])
     assert r.score == 100  # no findings = perfect
 
 
@@ -58,7 +58,7 @@ def test_report_score_with_findings(tmp_path: Path) -> None:
         ),
         Finding(rule_id="D", severity="optional", status="fail", evidence="x", fix_available=False),
     ]
-    r = Report(repo_path=tmp_path, stack="python", findings=findings)
+    r = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     # 2 of 4 fully pass; weights: required=10, recommended=3, optional=1
     # max = 10+10+3+1 = 24 ; got = 10+0+3+0 = 13
     # 13/24 * 100 = 54 (rounded)
@@ -76,7 +76,7 @@ def test_report_skipped_does_not_count(tmp_path: Path) -> None:
             fix_available=False,
         ),
     ]
-    r = Report(repo_path=tmp_path, stack="python", findings=findings)
+    r = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     # Skipped rules excluded from scoring
     assert r.score == 100
 
@@ -92,7 +92,7 @@ def test_report_exempt_counted_as_pass(tmp_path: Path) -> None:
             fix_available=False,
         ),
     ]
-    r = Report(repo_path=tmp_path, stack="python", findings=findings)
+    r = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     assert r.score == 100  # exempt = passing for scoring
 
 
@@ -115,7 +115,7 @@ def test_report_summary_counts(tmp_path: Path) -> None:
             fix_available=False,
         ),
     ]
-    r = Report(repo_path=tmp_path, stack="python", findings=findings)
+    r = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     assert r.passing == 1
     assert r.failing == 1
     assert r.exempt == 1

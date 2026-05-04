@@ -36,7 +36,7 @@ class Rule(ABC):
         return cls.fix is not Rule.fix
 
     def applies(self, repo: Repo) -> bool:
-        return "*" in self.stacks or repo.stack in self.stacks
+        return "*" in self.stacks or any(s in self.stacks for s in repo.stacks)
 
     @abstractmethod
     def check(self, repo: Repo) -> CheckResult: ...

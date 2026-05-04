@@ -19,7 +19,7 @@ def _make_snapshot(
     root: str = "/work",
 ) -> dict[str, Any]:
     return {
-        "schema_version": "1",
+        "schema_version": "2",
         "root": root,
         "timestamp": timestamp,
         "scan_count": len(repos or []),

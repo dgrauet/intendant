@@ -9,7 +9,7 @@ from suzerain.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:
-    return Repo(path=path, stack="go")
+    return Repo(path=path, stacks=("go",))
 
 
 def _wf(tmp_path: Path, body: str) -> None:

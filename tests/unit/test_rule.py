@@ -44,17 +44,17 @@ def test_rule_class_attributes_required() -> None:
 
 def test_rule_applies_wildcard(tmp_path: Path) -> None:
     rule = _PassingRule()
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert rule.applies(repo) is True
-    repo_node = Repo(path=tmp_path, stack="node")
+    repo_node = Repo(path=tmp_path, stacks=("node",))
     assert rule.applies(repo_node) is True
 
 
 def test_rule_applies_specific_stack(tmp_path: Path) -> None:
     rule = _FailingRule()
-    repo_python = Repo(path=tmp_path, stack="python")
+    repo_python = Repo(path=tmp_path, stacks=("python",))
     assert rule.applies(repo_python) is True
-    repo_node = Repo(path=tmp_path, stack="node")
+    repo_node = Repo(path=tmp_path, stacks=("node",))
     assert rule.applies(repo_node) is False
 
 
@@ -72,7 +72,7 @@ def test_check_result_failing_with_evidence() -> None:
 
 def test_rule_default_fix_returns_none(tmp_path: Path) -> None:
     rule = _FailingRule()
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = rule.check(repo)
     assert rule.fix(repo, result) is None
 

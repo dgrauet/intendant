@@ -149,7 +149,7 @@ def test_load_config_parses_subproject_exemptions(tmp_path: Path) -> None:
 def test_is_rule_exempt_for_subproject_scoped_wins(tmp_path: Path) -> None:
     cfg = SuzerainConfig(
         version="1",
-        stack="auto",
+        stack=None,
         mode="strict",
         exemptions={"X": Exemption(reason="top-level")},
         subproject_exemptions={"backend": {"X": Exemption(reason="scoped")}},
@@ -162,7 +162,7 @@ def test_is_rule_exempt_for_subproject_scoped_wins(tmp_path: Path) -> None:
 def test_is_rule_exempt_for_subproject_falls_back_to_top_level(tmp_path: Path) -> None:
     cfg = SuzerainConfig(
         version="1",
-        stack="auto",
+        stack=None,
         mode="strict",
         exemptions={"X": Exemption(reason="top-level")},
         subproject_exemptions={"backend": {}},
@@ -173,7 +173,7 @@ def test_is_rule_exempt_for_subproject_falls_back_to_top_level(tmp_path: Path) -
 
 
 def test_is_rule_exempt_for_subproject_no_match_returns_none(tmp_path: Path) -> None:
-    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    cfg = SuzerainConfig(version="1", stack=None, mode="strict")
     assert cfg.is_rule_exempt_for_subproject("X", "backend") is None
 
 
@@ -182,7 +182,7 @@ def test_is_rule_exempt_for_subproject_with_none_subproject_uses_top_level_only(
 ) -> None:
     cfg = SuzerainConfig(
         version="1",
-        stack="auto",
+        stack=None,
         mode="strict",
         exemptions={"X": Exemption(reason="top-level")},
     )

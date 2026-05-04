@@ -86,14 +86,16 @@ def init(
 
     repo = Repo.from_path(target)
 
-    config_data = {
-        "suzerain": {
-            "version": "1",
-            "stack": repo.stack,
-            "mode": "advisory",
-        },
-        "exemptions": {},
-    }
+    suzerain_block: dict[str, str] = {"version": "1", "mode": "advisory"}
+    if len(repo.stacks) == 1:
+        suzerain_block["stack"] = repo.stacks[0]
+    elif len(repo.stacks) > 1:
+        console.print(
+            f"[yellow]Detected multiple stacks ({list(repo.stacks)}); leaving "
+            "auto-detection enabled. Convert to [[subprojects]] in .suzerain.toml "
+            "if you want per-directory rules.[/yellow]"
+        )
+    config_data = {"suzerain": suzerain_block, "exemptions": {}}
     config_path.write_bytes(tomli_w.dumps(config_data).encode("utf-8"))
     console.print(f"[green]Wrote[/green] {config_path}")
 
@@ -106,7 +108,10 @@ def init(
         )
     else:
         adoption_adr.write_text(
-            _ADOPTION_ADR_TEMPLATE.format(today=date.today().isoformat(), stack=repo.stack),
+            _ADOPTION_ADR_TEMPLATE.format(
+                today=date.today().isoformat(),
+                stack="/".join(repo.stacks) if repo.stacks else "auto",
+            ),
             encoding="utf-8",
         )
         console.print(f"[green]Wrote[/green] {adoption_adr}")

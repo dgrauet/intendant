@@ -14,7 +14,7 @@ def test_default_config_when_no_file(tmp_path: Path) -> None:
     config = load_config(tmp_path)
     assert config.version == "1"
     assert config.mode == "advisory"
-    assert config.stack == "auto"
+    assert config.stack is None
     assert config.exemptions == {}
 
 

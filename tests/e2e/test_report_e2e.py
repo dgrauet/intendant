@@ -31,7 +31,7 @@ def test_report_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir: Pa
     )
     assert proc.returncode in (0, 1), proc.stderr
     parsed = json.loads(proc.stdout)
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
     assert parsed["scan_count"] == 2
     assert {r["path"] for r in parsed["repos"]} == {"repo_a_clean", "repo_b_partial"}
     repo_b = next(r for r in parsed["repos"] if r["path"] == "repo_b_partial")
@@ -104,7 +104,7 @@ def test_report_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path) -
     )
     assert proc3.returncode in (0, 1), proc3.stderr
     parsed = json.loads(proc3.stdout)
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
     assert "score_changes" in parsed
     assert "new_failures" in parsed
     assert "resolved_failures" in parsed

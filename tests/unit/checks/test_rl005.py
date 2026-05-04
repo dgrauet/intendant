@@ -11,7 +11,7 @@ from suzerain.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:
-    return Repo(path=path, stack="auto")
+    return Repo(path=path, stacks=("auto",))
 
 
 def _git_init(path: Path, remote_url: str | None = None) -> None:

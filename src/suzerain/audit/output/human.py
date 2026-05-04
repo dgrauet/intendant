@@ -19,9 +19,10 @@ _STATUS_STYLE = {
 def render_human(report: Report, console: Console | None = None) -> None:
     """Print the report to the given (or default) Console."""
     console = console or Console()
+    stack_label = f"{report.mode} ({'/'.join(report.stacks)})" if report.stacks else report.mode
     console.print(
         f"[bold]{escape(str(report.repo_path))}[/bold]"
-        f"  stack=[cyan]{report.stack}[/cyan]"
+        f"  stack=[cyan]{stack_label}[/cyan]"
         f"  score=[bold]{report.score}/100[/bold]"
     )
     if not report.findings:

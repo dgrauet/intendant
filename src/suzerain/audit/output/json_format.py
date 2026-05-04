@@ -16,9 +16,10 @@ def render_json(report: Report) -> str:
 def _build_payload(report: Report) -> dict:  # type: ignore[type-arg]
     has_subprojects = any(f.subproject is not None for f in report.findings)
     base: dict = {  # type: ignore[type-arg]
-        "schema_version": "1",
+        "schema_version": "2",
         "repo_path": str(report.repo_path),
-        "stack": report.stack,
+        "stacks": list(report.stacks),
+        "mode": report.mode,
         "score": report.score,
     }
     if not has_subprojects:

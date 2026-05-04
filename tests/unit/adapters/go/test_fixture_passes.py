@@ -12,11 +12,11 @@ FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "valid_go_repo"
 
 
 def test_fixture_detected_as_go() -> None:
-    assert Repo.from_path(FIXTURE).stack == "go"
+    assert Repo.from_path(FIXTURE).stacks == ("go",)
 
 
 def test_every_go_rule_passes_on_fixture() -> None:
-    repo = Repo(path=FIXTURE, stack="go")
+    repo = Repo(path=FIXTURE, stacks=("go",))
     for rule in RULES:
         result = rule.check(repo)
         assert result.passing, f"{rule.id} failed on valid_go_repo: {result.evidence}"

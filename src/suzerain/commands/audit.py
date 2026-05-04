@@ -13,9 +13,8 @@ from suzerain.audit.output.human import render_human
 from suzerain.audit.output.json_format import render_json
 from suzerain.audit.output.md import render_markdown
 from suzerain.audit.registry import collect_rules, filter_for_repo
-from suzerain.audit.runner import run_audit
+from suzerain.audit.runner import resolve_repo, run_audit
 from suzerain.core.config import load_config
-from suzerain.core.repo import Repo
 from suzerain.core.report import Report
 
 console = Console()
@@ -58,8 +57,8 @@ def audit(
             console.print(f"[red]Skipping {path}: not a directory.[/red]")
             has_failure = True
             continue
-        repo = Repo.from_path(path)
         config = load_config(path)
+        repo = resolve_repo(path, config)
         # Multi-subproject mode: pass all rules so the runner can dispatch
         # transverse rules at the root and stack-specific rules per subproject.
         applicable = rules if config.subprojects else filter_for_repo(rules, repo, config)
