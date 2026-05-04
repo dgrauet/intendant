@@ -19,6 +19,7 @@ from suzerain.checks.rl import (
     RL003ReleasePlease,
     RL004SemverStrict,
 )
+from suzerain.checks.rl005 import RL005BranchProtection
 from suzerain.checks.sa import (
     SA001PreCommit,
     SA002Gitleaks,
@@ -39,6 +40,7 @@ RULES: list[Rule] = [
     RL002ConventionalCommits(),
     RL003ReleasePlease(),
     RL004SemverStrict(),
+    RL005BranchProtection(),
     TS002RegressionTestsLayout(),
     CI001CIWorkflow(),
     CI003CommitMessageValidation(),

@@ -41,3 +41,27 @@ The version is read from the first file found: `pyproject.toml`,
 (`{".": "0.1.0"}` format). The manifest fallback enables RL004 to
 apply to stacks without a primary language manifest (e.g. `claude-skill`).
 If none of these files is present, the rule is skipped.
+
+### RL005 — main branch protected on GitHub
+
+**Severity:** recommended · **Stacks:** *
+
+When the repo has a GitHub remote, the `main` branch must be
+protected so direct pushes are blocked and changes go through
+PR + CI. Concretely the rule verifies, via the local `gh` CLI:
+
+- `required_pull_request_reviews` is set (PR required)
+- `allow_force_pushes.enabled = false`
+- `allow_deletions.enabled = false`
+- `enforce_admins.enabled = true` (admins included in the rules)
+
+The rule **skips silently** when:
+- the repo is not a git repo
+- there is no `origin` remote
+- the remote is not on github.com
+- `gh` is not installed
+- `gh` returns 401/403 (not authenticated, no access)
+
+The rule does NOT enforce protection itself — branch protection is
+configured server-side via the GitHub API or repo settings UI. RL005
+just audits that it is in place.
