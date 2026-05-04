@@ -1,0 +1,10 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift build
+      - run: swift test
+      - run: swiftlint

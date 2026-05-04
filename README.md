@@ -10,7 +10,7 @@ compliant repo from scratch.
 
 ## Status
 
-v1.0.0 — stable. 62 rules across 5 stacks (python, claude-skill, node, rust, go),
+v1.0.0 — stable. 70 rules across 6 stacks (python, claude-skill, node, rust, go, swift),
 self-audit 100/100, 730 tests. Multi-language sub-projects supported via
 `[[subprojects]]` in `.suzerain.toml`. The `suzerain` CLI ships `init`, `audit`,
 `explain`, `new`, `report`, `doctor`, and `mcp` (optional MCP server for agents).
@@ -84,7 +84,7 @@ suzerain report <portfolio-root> --against snapshots/2026-04-01.json
 
 ```bash
 suzerain explain PYTHON_LO001       # handbook entry + linked ADR
-suzerain explain --all              # table of all 62 rules
+suzerain explain --all              # table of all 70 rules
 ```
 
 ### Health check
@@ -95,7 +95,7 @@ suzerain doctor     # verify install integrity
 
 ## Coverage
 
-62 rules total. Transverse rules apply to every stack; adapter rules apply only to
+70 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
 ### Transverse (18 rules)
@@ -137,6 +137,14 @@ golangci-lint config), tests (`GO_TS`: `*_test.go` with `func Test*`), CI
 (`GO_CI`: vet/build + test + lint), and sanitizing (`GO_SA`: `*.test` in
 `.gitignore`).
 
+### Swift adapter (7 rules — prefix `SWIFT_`)
+
+Covers packaging (`SWIFT_PK`: Package.swift/.resolved, swift-tools-version),
+quality (`SWIFT_QU`: swiftlint/swiftformat config), tests (`SWIFT_TS`:
+`Tests/**/*.swift` with `func test*`/`XCTestCase`/`@Test`), CI (`SWIFT_CI`:
+swift build/test + lint), and sanitizing (`SWIFT_SA`: `.build/` and
+`xcuserdata/` in `.gitignore`).
+
 > Rule IDs were renamed in v0.2.0 (e.g. `LO001` → `PYTHON_LO001`).
 > See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
 > to update `.suzerain.toml` exemptions.
@@ -172,7 +180,7 @@ matching the schemas of the corresponding CLI commands.
 
 ## Documentation
 
-- [Handbook](docs/handbook/) — charter + all 62 rules with rationale.
+- [Handbook](docs/handbook/) — charter + all 70 rules with rationale.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.
 
