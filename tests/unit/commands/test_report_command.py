@@ -402,13 +402,66 @@ def test_from_snapshot_with_diff_exits_2(tmp_path: Path) -> None:
     assert "incompatible" in result.output.lower() or "--from-snapshot" in result.output
 
 
-def test_format_html_not_yet_wired_exits_2(tmp_path: Path) -> None:
-    """Until Task 7 wires it, --format=html with valid --output errors with a placeholder."""
+def test_format_html_writes_output_file(tmp_path: Path) -> None:
+    """--format=html writes a self-contained HTML file to --output."""
     _seed_governed(tmp_path / "repo_a")
     out = tmp_path / "report.html"
 
     result = cli_runner.invoke(
         app, ["report", str(tmp_path), "--format=html", "--output", str(out)]
     )
-    assert result.exit_code == 2
-    assert "not yet implemented" in result.output.lower()
+    # Audit may be 0 or 1, but not 2
+    assert result.exit_code in (0, 1)
+    assert out.exists()
+    content = out.read_text()
+    assert content.startswith("<!doctype html>") or content.startswith("<!DOCTYPE html>")
+    assert "</html>" in content
+
+
+def test_format_html_diff_writes_output_file(tmp_path: Path) -> None:
+    """--diff --format=html renders a diff page to --output."""
+    _seed_governed(tmp_path / "repo_a")
+
+    # First snapshot
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--save-snapshot"])
+    assert result.exit_code in (0, 1)
+
+    # Then diff to HTML
+    out = tmp_path / "diff.html"
+    result = cli_runner.invoke(
+        app, ["report", str(tmp_path), "--diff", "--format=html", "--output", str(out)]
+    )
+    assert result.exit_code in (0, 1)
+    assert out.exists()
+    assert "Portfolio report — diff" in out.read_text()
+
+
+def test_format_html_from_snapshot_writes_output(tmp_path: Path) -> None:
+    """--from-snapshot + --format=html renders from a saved JSON without scanning."""
+    _seed_governed(tmp_path / "repo_a")
+
+    # Save a snapshot first
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--save-snapshot"])
+    assert result.exit_code in (0, 1)
+
+    snap_dir = tmp_path / ".suzerain" / "snapshots"
+    snaps = list(snap_dir.glob("*.json"))
+    assert snaps, f"snapshot file not created in {snap_dir}"
+    snap_file = snaps[0]
+
+    out = tmp_path / "rendered.html"
+    result = cli_runner.invoke(
+        app,
+        [
+            "report",
+            str(tmp_path),
+            "--format=html",
+            "--output",
+            str(out),
+            "--from-snapshot",
+            str(snap_file),
+        ],
+    )
+    assert result.exit_code in (0, 1)
+    assert out.exists()
+    assert "<!doctype html>" in out.read_text().lower()

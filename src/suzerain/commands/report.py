@@ -139,19 +139,21 @@ def report(
     if from_snapshot is not None and diff:
         typer.echo("--from-snapshot and --diff are incompatible", err=True)
         raise typer.Exit(code=2)
-    if format == "html":
-        # Placeholder — Task 7 will wire actual rendering
-        typer.echo("html format not yet implemented", err=True)
-        raise typer.Exit(code=2)
-
     resolved = path if path is not None else Path.cwd()
     if not resolved.exists():
         typer.echo(f"path does not exist: {resolved}", err=True)
         raise typer.Exit(code=2)
-    scan = _scan_all(resolved, maxdepth=maxdepth)
-    if not scan.reports:
-        typer.echo(f"no suzerain-governed repos found under {resolved}", err=True)
-        raise typer.Exit(code=2)
+
+    # ----- --from-snapshot path: load instead of scan -----
+    if from_snapshot is not None:
+        from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
+
+        scan = load_snapshot_as_portfolio_report(from_snapshot)
+    else:
+        scan = _scan_all(resolved, maxdepth=maxdepth)
+        if not scan.reports:
+            typer.echo(f"no suzerain-governed repos found under {resolved}", err=True)
+            raise typer.Exit(code=2)
 
     effective_snapshot_dir = (
         snapshot_dir if snapshot_dir is not None else default_snapshot_dir(resolved)
@@ -187,6 +189,18 @@ def report(
 
         if format == "json":
             typer.echo(render_diff_json(portfolio_diff))
+        elif format == "html":
+            from suzerain.audit.output.report_diff_html import render_diff_html
+            from suzerain.core.handbook import Handbook
+            from suzerain.core.paths import docs_root
+
+            try:
+                handbook: Handbook | None = Handbook(root=docs_root())
+            except FileNotFoundError:
+                handbook = None
+            assert output is not None  # validated up-front
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(render_diff_html(portfolio_diff, handbook))
         else:
             render_diff(portfolio_diff, console=console)
 
@@ -200,6 +214,18 @@ def report(
     # No diff — emit normal report output
     if format == "json":
         typer.echo(render_report_json(scan))
+    elif format == "html":
+        from suzerain.audit.output.report_html import render_html
+        from suzerain.core.handbook import Handbook
+        from suzerain.core.paths import docs_root
+
+        try:
+            handbook: Handbook | None = Handbook(root=docs_root())
+        except FileNotFoundError:
+            handbook = None
+        assert output is not None  # validated up-front
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(render_html(scan, handbook))
     else:
         from suzerain.audit.output.report_human import render_report
 
