@@ -554,7 +554,7 @@ wheels = [
 
 [[package]]
 name = "suzerain"
-version = "0.1.6"
+version = "0.2.3"
 source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },
