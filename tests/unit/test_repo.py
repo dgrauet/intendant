@@ -22,6 +22,11 @@ def test_detect_rust_from_cargo_toml(fixtures_dir: Path) -> None:
     assert stack == "rust"
 
 
+def test_detect_swift_from_package_swift(fixtures_dir: Path) -> None:
+    stack = detect_stack(fixtures_dir / "swift_repo")
+    assert stack == "swift"
+
+
 def test_detect_unknown_returns_none(fixtures_dir: Path) -> None:
     stack = detect_stack(fixtures_dir / "empty_repo")
     assert stack is None
