@@ -79,23 +79,47 @@ details[open] summary { margin-bottom: 8px; }
 .empty { color: var(--text-muted); font-style: italic; }
 .expand-controls { margin-bottom: 12px; }
 .expand-controls button { padding: 4px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); cursor: pointer; margin-right: 8px; }
+.muted { color: var(--text-muted); font-size: 0.85em; }
+.row-toggle { width: 24px; cursor: pointer; user-select: none; text-align: center; color: var(--text-muted); }
+.row-toggle .caret { display: inline-block; transition: transform 0.1s; }
+.findings-row td { background: var(--bg-alt); padding: 8px 24px 16px; }
+.findings-row tr:nth-child(even) td { background: transparent; }
+table.findings { margin: 4px 0; font-size: 0.9em; width: auto; min-width: 60%; }
+table.findings th { background: transparent; cursor: default; }
+table.findings th:hover { background: transparent; }
+table.findings td { background: transparent; }
+.status-pass { color: var(--score-good); }
+.status-fail { color: var(--score-bad); font-weight: 600; }
+.status-skip { color: var(--text-muted); }
+.status-exempt { color: var(--score-warn); }
 """
 
 JS_INLINE = """\
+const CARET_CLOSED = '▸';
+const CARET_OPEN = '▾';
+
 function sortTable(columnIndex) {
   const table = document.getElementById('repos');
   if (!table) return;
   const tbody = table.tBodies[0];
-  const rows = Array.from(tbody.rows);
+  const allRows = Array.from(tbody.rows);
+  const groups = [];
+  for (const row of allRows) {
+    if (row.classList.contains('repo-row')) {
+      groups.push([row]);
+    } else if (groups.length) {
+      groups[groups.length - 1].push(row);
+    }
+  }
   const dir = table.dataset.sortDir === 'asc' && table.dataset.sortCol === String(columnIndex) ? 'desc' : 'asc';
-  rows.sort((a, b) => {
-    const av = a.cells[columnIndex].dataset.sort || a.cells[columnIndex].textContent.trim();
-    const bv = b.cells[columnIndex].dataset.sort || b.cells[columnIndex].textContent.trim();
+  groups.sort((a, b) => {
+    const av = a[0].cells[columnIndex].dataset.sort || a[0].cells[columnIndex].textContent.trim();
+    const bv = b[0].cells[columnIndex].dataset.sort || b[0].cells[columnIndex].textContent.trim();
     const an = parseFloat(av), bn = parseFloat(bv);
     const cmp = (!isNaN(an) && !isNaN(bn)) ? an - bn : av.localeCompare(bv);
     return dir === 'asc' ? cmp : -cmp;
   });
-  rows.forEach(r => tbody.appendChild(r));
+  groups.forEach(group => group.forEach(r => tbody.appendChild(r)));
   table.dataset.sortCol = columnIndex;
   table.dataset.sortDir = dir;
 }
@@ -106,24 +130,68 @@ function applyFilter() {
   const text = (document.getElementById('filter-text')?.value || '').toLowerCase();
   const stack = document.getElementById('filter-stack')?.value || '';
   const reqOnly = document.getElementById('filter-req')?.checked || false;
+  let currentVisible = true;
   for (const row of table.tBodies[0].rows) {
-    const path = (row.dataset.path || '').toLowerCase();
-    const rowStack = row.dataset.stack || '';
-    const failingReq = parseInt(row.dataset.failingRequired || '0', 10);
-    const matchText = !text || path.includes(text);
-    const matchStack = !stack || rowStack === stack;
-    const matchReq = !reqOnly || failingReq > 0;
-    row.style.display = (matchText && matchStack && matchReq) ? '' : 'none';
+    if (row.classList.contains('repo-row')) {
+      const path = (row.dataset.path || '').toLowerCase();
+      const rowStack = row.dataset.stack || '';
+      const failingReq = parseInt(row.dataset.failingRequired || '0', 10);
+      const matchText = !text || path.includes(text);
+      const matchStack = !stack || rowStack === stack;
+      const matchReq = !reqOnly || failingReq > 0;
+      currentVisible = matchText && matchStack && matchReq;
+      row.style.display = currentVisible ? '' : 'none';
+    } else {
+      const opened = row.dataset.open === '1';
+      row.style.display = (currentVisible && opened) ? '' : 'none';
+    }
   }
 }
 
-function expandAll() {
-  document.querySelectorAll('details').forEach(d => d.open = true);
+function toggleFindings(cell) {
+  const mainRow = cell.closest('tr');
+  if (!mainRow) return;
+  const findings = mainRow.nextElementSibling;
+  if (!findings || !findings.classList.contains('findings-row')) return;
+  const open = findings.dataset.open === '1';
+  setFindingsOpen(findings, !open);
+  const caret = cell.querySelector('.caret');
+  if (caret) caret.textContent = open ? CARET_CLOSED : CARET_OPEN;
 }
 
-function collapseAll() {
-  document.querySelectorAll('details').forEach(d => d.open = false);
+function setFindingsOpen(findingsRow, open) {
+  findingsRow.dataset.open = open ? '1' : '0';
+  findingsRow.hidden = !open;
+  findingsRow.style.display = open ? '' : 'none';
 }
+
+function expandAllRows(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  for (const row of table.tBodies[0].rows) {
+    if (row.classList.contains('findings-row')) {
+      setFindingsOpen(row, true);
+    } else {
+      const caret = row.querySelector('.row-toggle .caret');
+      if (caret) caret.textContent = CARET_OPEN;
+    }
+  }
+  applyFilter();
+}
+
+function collapseAllRows(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  for (const row of table.tBodies[0].rows) {
+    if (row.classList.contains('findings-row')) {
+      setFindingsOpen(row, false);
+    } else {
+      const caret = row.querySelector('.row-toggle .caret');
+      if (caret) caret.textContent = CARET_CLOSED;
+    }
+  }
+}
+
 """
 
 

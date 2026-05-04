@@ -26,7 +26,8 @@ def test_js_defines_sort_filter_expand_handlers() -> None:
     """The inline JS exposes the three interactivity functions."""
     assert "function sortTable" in JS_INLINE
     assert "function applyFilter" in JS_INLINE
-    assert "function expandAll" in JS_INLINE
+    assert "function expandAllRows" in JS_INLINE
+    assert "function toggleFindings" in JS_INLINE
 
 
 def test_markdown_lite_paragraphs() -> None:

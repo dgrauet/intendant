@@ -216,16 +216,10 @@ def report(
         typer.echo(render_report_json(scan))
     elif format == "html":
         from suzerain.audit.output.report_html import render_html
-        from suzerain.core.handbook import Handbook
-        from suzerain.core.paths import docs_root
 
-        try:
-            handbook: Handbook | None = Handbook(root=docs_root())
-        except FileNotFoundError:
-            handbook = None
         assert output is not None  # validated up-front
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(render_html(scan, handbook))
+        output.write_text(render_html(scan))
     else:
         from suzerain.audit.output.report_human import render_report
 

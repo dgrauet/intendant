@@ -7,8 +7,6 @@ from pathlib import Path
 
 from suzerain.audit.output.report_html import render_html
 from suzerain.commands.report import PortfolioReport
-from suzerain.core.handbook import Handbook
-from suzerain.core.paths import docs_root
 from suzerain.core.report import Finding, Report
 
 
@@ -19,7 +17,7 @@ def test_status_error_repo_renders_in_table(tmp_path: Path) -> None:
         reports=[(tmp_path / "broken", RuntimeError("scan failed"))],
         timestamp=datetime(2026, 5, 4, 12, 0, 0),
     )
-    html = render_html(scan, handbook=None)
+    html = render_html(scan)
     assert 'data-stack="error"' in html
     assert "scan failed" in html
     # Score class for error rows
@@ -33,15 +31,15 @@ def test_empty_portfolio_renders_minimal_page(tmp_path: Path) -> None:
         reports=[],
         timestamp=datetime(2026, 5, 4, 12, 0, 0),
     )
-    html = render_html(scan, handbook=Handbook(root=docs_root()))
+    html = render_html(scan)
     assert html.startswith("<!doctype html>") or html.startswith("<!DOCTYPE html>")
     assert "No suzerain-governed repos found" in html
     # No table rendered when empty
     assert '<table id="repos"' not in html
 
 
-def test_unknown_rule_in_findings_renders_fallback(tmp_path: Path) -> None:
-    """A failing finding for an unknown rule_id produces a fallback legend entry."""
+def test_unknown_rule_id_appears_in_inline_findings(tmp_path: Path) -> None:
+    """Unknown rule_ids still appear in the inline per-repo findings table."""
     findings = [
         Finding(
             rule_id="ZZZZZ_FAKE_999",
@@ -57,9 +55,9 @@ def test_unknown_rule_in_findings_renders_fallback(tmp_path: Path) -> None:
         reports=[(tmp_path / "r", report)],
         timestamp=datetime(2026, 5, 4, 12, 0, 0),
     )
-    html = render_html(scan, handbook=Handbook(root=docs_root()))
-    assert 'id="rule-ZZZZZ_FAKE_999"' in html
-    assert "handbook entry not found" in html.lower() or "<em>" in html
+    html = render_html(scan)
+    assert "ZZZZZ_FAKE_999" in html
+    assert "synthetic" in html
 
 
 def test_html_escaping_in_repo_path_and_error(tmp_path: Path) -> None:
@@ -70,7 +68,7 @@ def test_html_escaping_in_repo_path_and_error(tmp_path: Path) -> None:
         reports=[(scary_path, RuntimeError("<img src=x onerror=alert(1)>"))],
         timestamp=datetime(2026, 5, 4, 12, 0, 0),
     )
-    html = render_html(scan, handbook=None)
+    html = render_html(scan)
     assert "<script>alert(1)</script>" not in html
     assert "&lt;script&gt;" in html
     assert "<img src=x" not in html
@@ -108,6 +106,6 @@ def test_score_thresholds(tmp_path: Path) -> None:
         ],
         timestamp=datetime(2026, 5, 4, 12, 0, 0),
     )
-    html = render_html(scan, handbook=None)
+    html = render_html(scan)
     assert 'class="score-good"' in html
     assert 'class="score-bad"' in html
