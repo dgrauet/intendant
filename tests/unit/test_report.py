@@ -121,3 +121,30 @@ def test_report_summary_counts(tmp_path: Path) -> None:
     assert r.exempt == 1
     assert r.skipped == 1
     assert r.fixable == 1
+
+
+def test_finding_carries_optional_subproject_name() -> None:
+    """Finding.subproject identifies which subproject produced this finding.
+
+    None means a transverse (repo-level) finding.
+    """
+    from suzerain.core.report import Finding
+
+    transverse = Finding(
+        rule_id="DG001",
+        severity="required",
+        status="pass",
+        evidence="",
+        fix_available=False,
+    )
+    assert transverse.subproject is None
+
+    sub = Finding(
+        rule_id="PYTHON_LO001",
+        severity="required",
+        status="pass",
+        evidence="",
+        fix_available=False,
+        subproject="backend",
+    )
+    assert sub.subproject == "backend"

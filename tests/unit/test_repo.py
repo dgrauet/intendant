@@ -41,3 +41,16 @@ def test_repo_unknown_stack_defaults_to_auto(fixtures_dir: Path) -> None:
 def test_detect_stack_raises_for_missing_path(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         detect_stack(tmp_path / "does_not_exist")
+
+
+def test_repo_can_have_name_for_subproject() -> None:
+    """Subproject Repos carry a name; root meta-Repo has name=None."""
+    from pathlib import Path
+
+    from suzerain.core.repo import Repo
+
+    sub = Repo(path=Path("/tmp"), stack="python", name="backend")
+    assert sub.name == "backend"
+
+    root = Repo(path=Path("/tmp"), stack="multi")
+    assert root.name is None

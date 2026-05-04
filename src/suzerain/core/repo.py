@@ -42,7 +42,8 @@ class Repo:
     """A repository with its detected stack."""
 
     path: Path
-    stack: str  # "claude-skill" | "python" | "node" | "rust" | "auto"
+    stack: str  # "claude-skill" | "python" | "node" | "rust" | "auto" | "multi"
+    name: str | None = None  # subproject name; None for root meta-Repo or single-subproject
 
     @classmethod
     def from_path(cls, path: Path) -> Repo:

@@ -19,6 +19,7 @@ class Finding:
     evidence: str
     fix_available: bool
     fix_preview: str | None = None
+    subproject: str | None = None  # subproject name; None for transverse findings
 
 
 @dataclass(frozen=True)
