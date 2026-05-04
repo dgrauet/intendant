@@ -120,6 +120,35 @@ Covers packaging (`NODE_PK`), quality (`NODE_QU`), and tests (`NODE_TS`).
 > See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
 > to update `.suzerain.toml` exemptions.
 
+## MCP server
+
+Suzerain ships an optional MCP server so any MCP-compatible agent (Claude Code,
+Claude Desktop, Cursor, …) can query governance state directly.
+
+Install with the extra:
+
+```bash
+uv tool install 'suzerain[mcp]'
+```
+
+Then register the server in your MCP client. Example for Claude Desktop
+(`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "suzerain": {
+      "command": "suzerain",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Five tools are exposed: `audit_repo`, `explain_rule`, `list_rules`,
+`report_portfolio`, `diff_portfolio`. All return JSON-serializable payloads
+matching the schemas of the corresponding CLI commands.
+
 ## Documentation
 
 - [Handbook](docs/handbook/) — charter + all 44 rules with rationale.
@@ -128,8 +157,7 @@ Covers packaging (`NODE_PK`), quality (`NODE_QU`), and tests (`NODE_TS`).
 
 ## Roadmap
 
-Future paliers: MCP server for agent-driven governance queries, HTML report
-export, multi-language adapters (Go, Rust).
+Future paliers: multi-language adapters (Go, Rust).
 
 ## License
 

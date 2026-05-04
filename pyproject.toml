@@ -19,6 +19,9 @@ dependencies = [
     "pyyaml>=6.0",
 ]
 
+[project.optional-dependencies]
+mcp = ["mcp>=1.2.0"]
+
 [project.scripts]
 suzerain = "suzerain.cli:main"
 
