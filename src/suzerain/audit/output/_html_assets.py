@@ -129,6 +129,27 @@ function collapseAll() {
 
 _FENCE_RE = re.compile(r"```(.*?)```", re.DOTALL)
 _INLINE_CODE_RE = re.compile(r"`([^`\n]+)`")
+_BOLD_RE = re.compile(r"\*\*([^*\n]+?)\*\*")
+_LINK_RE = re.compile(r"\[([^\]\n]+)\]\(([^)\n]+)\)")
+
+
+def _safe_href(url: str) -> str:
+    """Return url if it uses a safe scheme/relative form, else '#'.
+
+    Input is HTML-escaped text (so `"` appears as `&quot;`). Reject any URL
+    containing whitespace or `&quot;` to prevent attribute breakouts, and
+    reject schemes other than http/https/mailto. Relative URLs (no scheme,
+    or anchor/path) are allowed.
+    """
+    if " " in url or "\t" in url or "&quot;" in url or "&#x27;" in url:
+        return "#"
+    lower = url.lower()
+    if "://" in lower:
+        if not (lower.startswith("http://") or lower.startswith("https://")):
+            return "#"
+    elif ":" in lower and not lower.startswith("mailto:"):
+        return "#"
+    return url
 
 
 def markdown_lite_to_html(text: str) -> str:
@@ -138,6 +159,8 @@ def markdown_lite_to_html(text: str) -> str:
     - Paragraphs (blank-line separated)
     - Inline code: ``backtick`` → <code>...</code>
     - Fenced code blocks: ```...``` → <pre><code>...</code></pre>
+    - Bold: **text** → <strong>text</strong>
+    - Links: [label](url) → <a href="url">label</a> (unsafe schemes → href="#")
 
     Everything is HTML-escaped first, so <script> tags etc. never reach the DOM.
     Returns '' for empty/whitespace-only input.
@@ -157,6 +180,13 @@ def markdown_lite_to_html(text: str) -> str:
     # Inline code
     work = _INLINE_CODE_RE.sub(
         lambda m: f"<code>{html.escape(m.group(1))}</code>",
+        work,
+    )
+    # Bold (after inline code so we don't bold inside code spans)
+    work = _BOLD_RE.sub(r"<strong>\1</strong>", work)
+    # Links — sanitize the href; label is already escaped
+    work = _LINK_RE.sub(
+        lambda m: f'<a href="{_safe_href(m.group(2))}">{m.group(1)}</a>',
         work,
     )
     # Paragraphs (split on blank lines)

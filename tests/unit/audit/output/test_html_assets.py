@@ -66,3 +66,71 @@ def test_markdown_lite_empty_input_returns_empty_string() -> None:
     """Empty input produces empty output (no crash)."""
     assert markdown_lite_to_html("") == ""
     assert markdown_lite_to_html("   \n\n  ") == ""
+
+
+def test_markdown_lite_bold() -> None:
+    """**text** becomes <strong>text</strong>."""
+    md = "**Severity:** required"
+    html = markdown_lite_to_html(md)
+    assert "<strong>Severity:</strong>" in html
+    assert "**" not in html
+
+
+def test_markdown_lite_bold_multiple_per_line() -> None:
+    """Multiple bold spans on the same line each render."""
+    md = "**Severity:** required · **Stacks:** python"
+    html = markdown_lite_to_html(md)
+    assert "<strong>Severity:</strong>" in html
+    assert "<strong>Stacks:</strong>" in html
+
+
+def test_markdown_lite_bold_does_not_match_unbalanced() -> None:
+    """A lone ** does not produce a stray <strong>."""
+    md = "Use ** carefully"
+    html = markdown_lite_to_html(md)
+    assert "<strong>" not in html
+
+
+def test_markdown_lite_link_http() -> None:
+    """[label](https://...) becomes a safe <a> tag."""
+    md = "See [Keep-a-Changelog](https://keepachangelog.com/en/1.1.0/) for the format."
+    html = markdown_lite_to_html(md)
+    assert '<a href="https://keepachangelog.com/en/1.1.0/">Keep-a-Changelog</a>' in html
+
+
+def test_markdown_lite_link_relative() -> None:
+    """Relative links (anchor / path) are preserved."""
+    md = "See [ADR-0001](../adr/0001-layout.md) for rationale."
+    html = markdown_lite_to_html(md)
+    assert '<a href="../adr/0001-layout.md">ADR-0001</a>' in html
+
+
+def test_markdown_lite_link_rejects_javascript_scheme() -> None:
+    """javascript: URLs are stripped to '#' to prevent XSS."""
+    md = "Click [me](javascript:alert(1))."
+    html = markdown_lite_to_html(md)
+    assert "javascript:" not in html
+    assert 'href="#"' in html
+
+
+def test_markdown_lite_link_rejects_data_scheme() -> None:
+    """data: URLs are also blocked."""
+    md = "Open [doc](data:text/html,<script>alert(1)</script>)."
+    html = markdown_lite_to_html(md)
+    assert "data:" not in html
+    assert 'href="#"' in html
+
+
+def test_markdown_lite_link_escapes_attribute_quotes() -> None:
+    """A double-quote in a URL cannot break out of the href attribute."""
+    md = '[x](https://evil.example/" onmouseover=alert(1) ")'
+    html = markdown_lite_to_html(md)
+    assert "onmouseover=alert" not in html
+    assert '"' not in html.split('href="')[1].split('"')[0]
+
+
+def test_markdown_lite_bold_inside_paragraph() -> None:
+    """Bold spans inside a paragraph keep the paragraph wrapper."""
+    md = "First **important** word.\n\nSecond paragraph."
+    html = markdown_lite_to_html(md)
+    assert "<p>First <strong>important</strong> word.</p>" in html
