@@ -101,6 +101,7 @@ def load_snapshot_as_portfolio_report(path: Path) -> PortfolioReport:
             repo_path=repo_path,
             stack=entry.get("stack") or "auto",
             findings=findings,
+            score_override=entry.get("score"),
         )
         reports.append((repo_path, report))
 

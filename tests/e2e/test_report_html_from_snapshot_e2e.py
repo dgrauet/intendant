@@ -54,3 +54,4 @@ def test_render_from_snapshot_matches_snapshot_paths(fixture_copy: Path, tmp_pat
     for repo in snap["repos"]:
         if repo["status"] == "ok":
             assert repo["path"] in content
+            assert str(repo["score"]) in content

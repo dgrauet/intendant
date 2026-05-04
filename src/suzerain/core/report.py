@@ -29,10 +29,13 @@ class Report:
     repo_path: Path
     stack: str
     findings: list[Finding] = field(default_factory=list)
+    score_override: int | None = None
 
     @property
     def score(self) -> int:
         """Weighted 0-100 score. Skipped rules excluded; exempt counted as pass."""
+        if self.score_override is not None:
+            return self.score_override
         relevant = [f for f in self.findings if f.status != "skip"]
         if not relevant:
             return 100

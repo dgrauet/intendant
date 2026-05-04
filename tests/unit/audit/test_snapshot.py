@@ -308,3 +308,36 @@ def test_load_snapshot_as_portfolio_report_rejects_unknown_schema(tmp_path: Path
 
     with pytest.raises(ValueError, match="schema_version"):
         load_snapshot_as_portfolio_report(snap_path)
+
+
+def test_load_snapshot_preserves_original_score(tmp_path: Path) -> None:
+    """Reconstructed Report.score returns the snapshot's stored score, not a recomputed one."""
+    from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
+    from suzerain.core.report import Report
+
+    snapshot = {
+        "schema_version": "1",
+        "root": str(tmp_path),
+        "timestamp": "2026-05-04T120000",
+        "scan_count": 1,
+        "repos": [
+            {
+                "path": "repo_a",
+                "stack": "python",
+                "score": 75,
+                "status": "ok",
+                "failing_rule_ids": ["DG002", "RL001"],
+                "failing_by_severity": {"required": 1, "recommended": 1, "optional": 0},
+                "fixable_count": 0,
+            },
+        ],
+    }
+    snap_path = tmp_path / "snap.json"
+    snap_path.write_text(json.dumps(snapshot))
+
+    portfolio = load_snapshot_as_portfolio_report(snap_path)
+    _, result = portfolio.reports[0]
+    assert isinstance(result, Report)
+    # Without the override, score would be 0 (all synthesized findings are failing).
+    # With the override, it returns the stored score.
+    assert result.score == 75
