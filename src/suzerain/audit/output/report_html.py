@@ -3,21 +3,18 @@
 from __future__ import annotations
 
 import html as html_lib
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from suzerain.audit.output._html_assets import (
-    CSS_INLINE,
-    JS_INLINE,
-    markdown_lite_to_html,
-)
+from suzerain.audit.output._html_assets import CSS_INLINE, JS_INLINE
+from suzerain.core.config import load_config
 from suzerain.core.report import Report
 
 if TYPE_CHECKING:
     from suzerain.commands.report import PortfolioReport
-    from suzerain.core.handbook import Handbook, RuleSection
 
 
-def render_html(scan: PortfolioReport, handbook: Handbook | None = None) -> str:
+def render_html(scan: PortfolioReport) -> str:
     """Return a self-contained HTML document representing the portfolio report."""
     head = _render_head(scan)
     header = _render_header(scan)
@@ -30,7 +27,6 @@ def render_html(scan: PortfolioReport, handbook: Handbook | None = None) -> str:
                 header,
                 _render_filter_bar(scan),
                 _render_table(scan),
-                _render_legend(scan, handbook),
                 _render_script(),
             ]
         )
@@ -93,49 +89,75 @@ def _render_table(scan: PortfolioReport) -> str:
         if isinstance(result, Exception):
             rows.append(_render_row_error(rel, result))
         else:
-            rows.append(_render_row_ok(rel, result))
+            rows.append(_render_row_ok(rel, result, repo_path))
     body = "\n".join(rows)
+    controls = (
+        '<div class="expand-controls">\n'
+        "<button onclick=\"expandAllRows('repos')\">Expand all</button>\n"
+        "<button onclick=\"collapseAllRows('repos')\">Collapse all</button>\n"
+        "</div>\n"
+    )
     return (
+        f"{controls}"
         '<table id="repos">\n'
         "<thead><tr>\n"
-        '<th onclick="sortTable(0)">Path</th>\n'
-        '<th onclick="sortTable(1)">Stack</th>\n'
-        '<th onclick="sortTable(2)">Score</th>\n'
-        '<th onclick="sortTable(3)">Required failures</th>\n'
-        '<th onclick="sortTable(4)">Recommended failures</th>\n'
-        '<th onclick="sortTable(5)">Fixable</th>\n'
+        "<th></th>\n"
+        '<th onclick="sortTable(1)">Path</th>\n'
+        '<th onclick="sortTable(2)">Stack</th>\n'
+        '<th onclick="sortTable(3)">Score</th>\n'
+        '<th onclick="sortTable(4)">Failed required rules</th>\n'
+        '<th onclick="sortTable(5)">Failed recommended rules</th>\n'
+        '<th onclick="sortTable(6)">Fixable</th>\n'
         "</tr></thead>\n"
         f"<tbody>\n{body}\n</tbody>\n"
         "</table>\n"
     )
 
 
-def _render_row_ok(rel_path: str, result: Report) -> str:
+def _render_row_ok(rel_path: str, result: Report, repo_path: Path) -> str:
     failing = [f for f in result.findings if f.status == "fail"]
     req = sum(1 for f in failing if f.severity == "required")
     rec = sum(1 for f in failing if f.severity == "recommended")
     fix = sum(1 for f in failing if f.fix_available)
     score = result.score
     score_class = "score-good" if score >= 85 else "score-warn" if score >= 60 else "score-bad"
-    stack_esc = html_lib.escape(_stack_for(result))
+    stack_value = _stack_for(result)
+    stack_esc = html_lib.escape(stack_value)
+    stack_label_esc = html_lib.escape(_stack_label(repo_path, stack_value))
     path_esc = html_lib.escape(rel_path)
-    return (
-        f'<tr data-path="{path_esc}" data-stack="{stack_esc}" '
+    has_findings = bool(result.findings)
+    toggle_cell = (
+        '<td class="row-toggle" onclick="toggleFindings(this)"><span class="caret">▸</span></td>'
+        if has_findings
+        else '<td class="row-toggle"></td>'
+    )
+    main_row = (
+        f'<tr class="repo-row" data-path="{path_esc}" data-stack="{stack_esc}" '
         f'data-failing-required="{req}">\n'
+        f"{toggle_cell}\n"
         f"<td>{path_esc}</td>\n"
-        f"<td>{stack_esc}</td>\n"
+        f"<td>{stack_label_esc}</td>\n"
         f'<td class="{score_class}" data-sort="{score}">{score}</td>\n'
         f'<td data-sort="{req}">{req}</td>\n'
         f'<td data-sort="{rec}">{rec}</td>\n'
         f'<td data-sort="{fix}">{fix}</td>\n'
         "</tr>"
     )
+    if not has_findings:
+        return main_row
+    findings_row = (
+        '<tr class="findings-row" hidden>\n'
+        f'<td></td><td colspan="6">{_render_findings_table(result)}</td>\n'
+        "</tr>"
+    )
+    return f"{main_row}\n{findings_row}"
 
 
 def _render_row_error(rel_path: str, exc: Exception) -> str:
     return (
-        f'<tr data-path="{html_lib.escape(rel_path)}" data-stack="error" '
+        f'<tr class="repo-row" data-path="{html_lib.escape(rel_path)}" data-stack="error" '
         f'data-failing-required="0">\n'
+        '<td class="row-toggle"></td>\n'
         f"<td>{html_lib.escape(rel_path)}</td>\n"
         '<td class="score-error">error</td>\n'
         f'<td class="score-error" data-sort="-1">N/A — {html_lib.escape(str(exc))}</td>\n'
@@ -146,46 +168,29 @@ def _render_row_error(rel_path: str, exc: Exception) -> str:
     )
 
 
-def _render_legend(scan: PortfolioReport, handbook: Handbook | None) -> str:
-    failing_by_id: dict[str, str] = {}  # rule_id -> severity
-    for _, result in scan.reports:
-        if isinstance(result, Report):
-            for f in result.findings:
-                if f.status == "fail":
-                    failing_by_id.setdefault(f.rule_id, f.severity)
-    if not failing_by_id:
-        return (
-            '<section id="failing-rules">'
-            "<h2>Failing rules</h2>"
-            '<p class="empty">No failing rules — clean portfolio.</p>'
-            "</section>"
+def _render_findings_table(result: Report) -> str:
+    rank = {"fail": 0, "pass": 1, "exempt": 2, "skip": 3}
+    sorted_findings = sorted(result.findings, key=lambda f: (rank.get(f.status, 9), f.rule_id))
+    rows: list[str] = []
+    for f in sorted_findings:
+        rid = html_lib.escape(f.rule_id)
+        sev = html_lib.escape(f.severity)
+        status = html_lib.escape(f.status)
+        evidence = html_lib.escape(f.evidence)
+        sub = html_lib.escape(f.subproject) if f.subproject else ""
+        rid_cell = f"<code>{rid}</code>" + (f' <span class="muted">[{sub}]</span>' if sub else "")
+        rows.append(
+            f"<tr>"
+            f"<td>{rid_cell}</td>"
+            f'<td><span class="badge sev-{sev}">{sev}</span></td>'
+            f'<td class="status-{status}">{status}</td>'
+            f"<td>{evidence}</td>"
+            f"</tr>"
         )
-    items: list[str] = []
-    for rule_id in sorted(failing_by_id):
-        severity = failing_by_id[rule_id]
-        items.append(_render_rule_details(rule_id, severity, handbook))
     return (
-        '<section id="failing-rules">\n'
-        "<h2>Failing rules</h2>\n"
-        '<div class="expand-controls">\n'
-        '<button onclick="expandAll()">Expand all</button>\n'
-        '<button onclick="collapseAll()">Collapse all</button>\n'
-        "</div>\n" + "\n".join(items) + "\n</section>\n"
-    )
-
-
-def _render_rule_details(rule_id: str, severity: str, handbook: Handbook | None) -> str:
-    rule: RuleSection | None = handbook.get_rule(rule_id) if handbook else None
-    title = html_lib.escape(rule.title) if rule else "<em>(handbook entry not found)</em>"
-    body_html = markdown_lite_to_html(rule.body) if rule else ""
-    rid = html_lib.escape(rule_id)
-    sev = html_lib.escape(severity)
-    return (
-        f'<details id="rule-{rid}" data-severity="{sev}">\n'
-        f'<summary><span class="badge sev-{sev}">{sev}</span> '
-        f"<code>{rid}</code> — {title}</summary>\n"
-        f'<div class="rule-body">{body_html}</div>\n'
-        "</details>"
+        '<table class="findings"><thead><tr>'
+        "<th>Rule</th><th>Severity</th><th>Status</th><th>Evidence</th>"
+        "</tr></thead><tbody>\n" + "\n".join(rows) + "\n</tbody></table>"
     )
 
 
@@ -195,3 +200,35 @@ def _render_script() -> str:
 
 def _stack_for(result: Report) -> str:
     return result.stack or "auto"
+
+
+def _stack_label(repo_path: Path, stack_value: str) -> str:
+    """Return ``"<mode> (<stack>)"`` describing how the stack was resolved.
+
+    - ``manual (a/b)`` when the repo has ``[[subprojects]]`` (stacks listed in
+      declaration order, deduplicated).
+    - ``manual (X)`` when the top-level ``stack`` is pinned to a concrete value.
+    - ``auto (X)`` when the stack was auto-detected to ``X``.
+    - ``auto`` (no parens) when nothing could be auto-detected.
+
+    Falls back to the bare ``stack_value`` if the config file is not reachable
+    (e.g. snapshot replay against a path that no longer exists).
+    """
+    config_path = repo_path / ".suzerain.toml"
+    if not config_path.is_file():
+        return stack_value
+    try:
+        config = load_config(repo_path)
+    except (OSError, ValueError):
+        return stack_value
+    if config.subprojects:
+        seen: list[str] = []
+        for sp in config.subprojects:
+            if sp.stack and sp.stack not in seen:
+                seen.append(sp.stack)
+        return f"manual ({'/'.join(seen)})" if seen else "manual"
+    if config.stack and config.stack != "auto":
+        return f"manual ({config.stack})"
+    if stack_value and stack_value != "auto":
+        return f"auto ({stack_value})"
+    return "auto"
