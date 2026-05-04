@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0](https://github.com/dgrauet/suzerain/compare/v1.3.0...v2.0.0) (2026-05-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* rewrites the core data model to separate "how the stack composition was determined" from "what the stacks actually are":
+
+### Code Refactoring
+
+* replace stack sentinels with mode + stacks tuple ([#41](https://github.com/dgrauet/suzerain/issues/41)) ([daf268d](https://github.com/dgrauet/suzerain/commit/daf268d69a00040fbc81343a61e2a3c8a2d805a8))
+
 ## [1.3.0](https://github.com/dgrauet/suzerain/compare/v1.2.0...v1.3.0) (2026-05-04)
 
 
