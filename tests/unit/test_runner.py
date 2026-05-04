@@ -225,3 +225,56 @@ def test_runner_calls_fix_when_compute_fix_preview_true(tmp_path: Path) -> None:
     assert fix_call_count["n"] == 1
     assert report.findings[0].fix_available is True
     assert report.findings[0].fix_preview == "diff"
+
+
+def test_run_audit_finding_carries_subproject_name(tmp_path: Path) -> None:
+    """When repo has a name, all findings tagged with that name."""
+    from suzerain.audit.runner import run_audit
+    from suzerain.core.config import SuzerainConfig
+    from suzerain.core.repo import Repo
+    from suzerain.core.rule import CheckResult, Rule
+
+    class AlwaysPass(Rule):
+        id = "ZZ100"
+        title = "always pass"
+        severity = "recommended"
+        stacks = ("python",)
+        handbook_ref = "n/a"
+
+        def check(self, repo: Repo) -> CheckResult:
+            return CheckResult(passing=True)
+
+    repo = Repo(path=tmp_path, stack="python", name="backend")
+    cfg = SuzerainConfig(version="1", stack="python", mode="strict")
+    report = run_audit(repo, cfg, [AlwaysPass()])
+    assert report.findings[0].subproject == "backend"
+
+
+def test_run_audit_subproject_scoped_exemption_wins(tmp_path: Path) -> None:
+    """Scoped exemption for a subproject overrides top-level exemption."""
+    from suzerain.audit.runner import run_audit
+    from suzerain.core.config import Exemption, SuzerainConfig
+    from suzerain.core.repo import Repo
+    from suzerain.core.rule import CheckResult, Rule
+
+    class AlwaysFail(Rule):
+        id = "ZZ200"
+        title = "always fail"
+        severity = "required"
+        stacks = ("python",)
+        handbook_ref = "n/a"
+
+        def check(self, repo: Repo) -> CheckResult:
+            return CheckResult(passing=False, evidence="never passes")
+
+    repo = Repo(path=tmp_path, stack="python", name="backend")
+    cfg = SuzerainConfig(
+        version="1",
+        stack="python",
+        mode="strict",
+        exemptions={"ZZ200": Exemption(reason="top-level reason")},
+        subproject_exemptions={"backend": {"ZZ200": Exemption(reason="scoped reason")}},
+    )
+    report = run_audit(repo, cfg, [AlwaysFail()])
+    assert report.findings[0].status == "exempt"
+    assert "scoped reason" in report.findings[0].evidence

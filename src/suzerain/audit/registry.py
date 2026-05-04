@@ -47,14 +47,32 @@ def collect_rules() -> list[Rule]:
 def filter_for_repo(rules: Sequence[Rule], repo: Repo, config: SuzerainConfig) -> list[Rule]:
     """Return the subset of rules that apply to the repo under the given mode.
 
-    - Mode `recommended` excludes `optional` severity.
-    - Mode `advisory` keeps everything (reporting only).
-    - Mode `strict` keeps everything.
-    Stack filtering: a rule applies if its `stacks` includes "*" or the
-    repo's stack.
+    Mode filtering:
+    - `recommended` excludes `optional` severity.
+    - `advisory` and `strict` keep everything.
+
+    Stack scoping:
+    - If `config.subprojects` is empty (legacy single-Repo mode): keep ALL rules
+      that apply to repo.stack (transverse OR stack-specific). Backward compat
+      with the existing pipeline.
+    - If `config.subprojects` is non-empty AND `repo.name is None` (root meta-Repo
+      pass): only transverse rules (`stacks=("*",)`).
+    - If `config.subprojects` is non-empty AND `repo.name is not None` (subproject
+      pass): only stack-specific rules matching `repo.stack` (transverse excluded).
+
     Exemptions are NOT removed here; the runner marks them as exempt.
     """
-    applicable = [r for r in rules if r.applies(repo)]
+    if repo.name is not None:
+        # Subproject pass (named repo): only stack-specific rules matching this stack
+        applicable = [r for r in rules if "*" not in r.stacks and r.applies(repo)]
+    elif config.subprojects:
+        # Root meta-Repo in multi-subproject mode (name=None, subprojects configured):
+        # only transverse rules
+        applicable = [r for r in rules if "*" in r.stacks]
+    else:
+        # Legacy single-Repo path (name=None, no subprojects): rule applies if its
+        # stacks include "*" or repo.stack. Backward compat with the existing pipeline.
+        applicable = [r for r in rules if r.applies(repo)]
     if config.mode == "recommended":
         applicable = [r for r in applicable if r.severity != "optional"]
     return applicable

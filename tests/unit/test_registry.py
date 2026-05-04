@@ -124,3 +124,36 @@ def test_registry_imports_claude_skill_adapter_module() -> None:
     collect_rules()
     # Direct import test — the adapter module must be importable
     import suzerain.adapters.claude_skill  # noqa: F401
+
+
+def test_filter_for_repo_with_named_subproject_returns_only_stack_specific(tmp_path: Path) -> None:
+    """When repo.name is set (subproject), only stack-specific rules apply (no transverse)."""
+    from suzerain.audit.registry import collect_rules, filter_for_repo
+    from suzerain.core.config import SuzerainConfig
+    from suzerain.core.repo import Repo
+
+    repo = Repo(path=Path("/tmp"), stack="python", name="backend")
+    cfg = SuzerainConfig(version="1", stack="python", mode="strict")
+    rules = filter_for_repo(collect_rules(), repo, cfg)
+    for r in rules:
+        assert "*" not in r.stacks, f"{r.id} is transverse but ran on subproject scope"
+
+
+def test_filter_for_repo_with_no_name_returns_only_transverse(tmp_path: Path) -> None:
+    """When repo.name is None AND multi mode, only transverse rules apply."""
+    from suzerain.audit.registry import collect_rules, filter_for_repo
+    from suzerain.core.config import SuzerainConfig
+    from suzerain.core.repo import Repo
+    from suzerain.core.subproject import Subproject
+
+    # In multi mode (config has subprojects), name=None means root meta-Repo: only transverse
+    repo = Repo(path=Path("/tmp"), stack="multi")
+    cfg = SuzerainConfig(
+        version="1",
+        stack="multi",
+        mode="strict",
+        subprojects=[Subproject(name="x", path="x", stack="python")],
+    )
+    rules = filter_for_repo(collect_rules(), repo, cfg)
+    for r in rules:
+        assert "*" in r.stacks, f"{r.id} is stack-specific but ran on root meta scope"
