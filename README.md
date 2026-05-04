@@ -77,7 +77,7 @@ suzerain report <portfolio-root> --against snapshots/2026-04-01.json
 
 ```bash
 suzerain explain PYTHON_LO001       # handbook entry + linked ADR
-suzerain explain --all              # table of all 44 rules
+suzerain explain --all              # table of all 55 rules
 ```
 
 ### Health check
@@ -88,10 +88,10 @@ suzerain doctor     # verify install integrity
 
 ## Coverage
 
-44 rules total. Transverse rules apply to every stack; adapter rules apply only to
+55 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
-### Transverse (19 rules)
+### Transverse (18 rules)
 
 | Family | Prefix | Count | Examples |
 |---|---|---|---|
@@ -102,19 +102,26 @@ the declared stack.
 | Sanitizing | `SA` | 4 | pre-commit baseline, gitleaks, .env.example, .gitignore |
 | Tests | `TS` | 1 | regression_tests/ (when applicable) |
 
-### Python adapter (12 rules — prefix `PYTHON_`)
+### Python adapter (14 rules — prefix `PYTHON_`)
 
 Covers layout (`PYTHON_LO`), packaging (`PYTHON_PK`), quality (`PYTHON_QU`), and
 tests (`PYTHON_TS`).
 
-### Claude Skill adapter (7 rules — prefix `CLAUDE_SKILL_SK`)
+### Claude Skill adapter (8 rules — prefix `CLAUDE_SKILL_`)
 
 Covers SKILL.md presence and frontmatter, evals/, referenced directories, and README
 install path.
 
-### Node adapter (6 rules — prefix `NODE_`)
+### Node adapter (8 rules — prefix `NODE_`)
 
-Covers packaging (`NODE_PK`), quality (`NODE_QU`), and tests (`NODE_TS`).
+Covers packaging (`NODE_PK`), quality (`NODE_QU`), tests (`NODE_TS`), CI
+(`NODE_CI`), and sanitizing (`NODE_SA`).
+
+### Rust adapter (7 rules — prefix `RUST_`)
+
+Covers packaging (`RUST_PK`: Cargo.toml/lock, edition), quality (`RUST_QU`:
+toolchain pin), tests (`RUST_TS`: `#[test]` annotations), CI (`RUST_CI`: cargo
+fmt/clippy/test), and sanitizing (`RUST_SA`: `target/` in `.gitignore`).
 
 > Rule IDs were renamed in v0.2.0 (e.g. `LO001` → `PYTHON_LO001`).
 > See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
@@ -151,13 +158,13 @@ matching the schemas of the corresponding CLI commands.
 
 ## Documentation
 
-- [Handbook](docs/handbook/) — charter + all 44 rules with rationale.
+- [Handbook](docs/handbook/) — charter + all 55 rules with rationale.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.
 
 ## Roadmap
 
-Future paliers: multi-language adapters (Go, Rust).
+Future paliers: Go adapter; scaffolder for Rust (`suzerain new --stack=rust`).
 
 ## License
 
