@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0](https://github.com/dgrauet/suzerain/compare/v1.1.0...v1.2.0) (2026-05-04)
+
+
+### Features
+
+* **report:** redesign HTML report with inline per-repo findings ([#37](https://github.com/dgrauet/suzerain/issues/37)) ([8a7db17](https://github.com/dgrauet/suzerain/commit/8a7db1742c820d46799401a4035f31be761af805))
+
 ## [1.1.0](https://github.com/dgrauet/suzerain/compare/v1.0.0...v1.1.0) (2026-05-04)
 
 
