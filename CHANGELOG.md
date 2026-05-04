@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/dgrauet/suzerain/compare/v1.0.0...v1.1.0) (2026-05-04)
+
+
+### Features
+
+* **rules:** add RL005 — main branch protected on GitHub ([#33](https://github.com/dgrauet/suzerain/issues/33)) ([534c6f9](https://github.com/dgrauet/suzerain/commit/534c6f99b6b705d9f0299bc20942f1a44ea09f3a))
+
+
+### Bug Fixes
+
+* **ci:** use uvx --from commitizen for cz check ([#35](https://github.com/dgrauet/suzerain/issues/35)) ([600ab13](https://github.com/dgrauet/suzerain/commit/600ab13e475c5b3e9259584ccc10fc93091d4e54))
+
 ## [1.0.0](https://github.com/dgrauet/suzerain/compare/v0.4.5...v1.0.0) (2026-05-04)
 
 
