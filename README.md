@@ -10,9 +10,10 @@ compliant repo from scratch.
 
 ## Status
 
-v0.2.3 — 48 rules across 3 stacks (python, claude-skill, node), self-audit 100/100,
-567 tests. Multi-language sub-projects supported via `[[subprojects]]` in `.suzerain.toml`.
-The `suzerain` CLI ships `init`, `audit`, `explain`, `new`, `report`, and `doctor`.
+v1.0.0 — stable. 62 rules across 5 stacks (python, claude-skill, node, rust, go),
+self-audit 100/100, 730 tests. Multi-language sub-projects supported via
+`[[subprojects]]` in `.suzerain.toml`. The `suzerain` CLI ships `init`, `audit`,
+`explain`, `new`, `report`, `doctor`, and `mcp` (optional MCP server for agents).
 
 ## Installation
 
