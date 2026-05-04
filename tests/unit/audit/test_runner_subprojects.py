@@ -51,10 +51,10 @@ def _make_dirs(root: Path, *paths: str) -> None:
 
 def test_multi_subproject_runs_transverse_at_root(tmp_path: Path) -> None:
     _make_dirs(tmp_path, "backend", "frontend")
-    repo = Repo(path=tmp_path, stack="multi")
+    repo = Repo(path=tmp_path, stacks=("multi",))
     cfg = SuzerainConfig(
         version="1",
-        stack="multi",
+        stack=None,
         mode="strict",
         subprojects=[
             Subproject(name="backend", path="backend", stack="python"),
@@ -70,10 +70,10 @@ def test_multi_subproject_runs_transverse_at_root(tmp_path: Path) -> None:
 
 def test_multi_subproject_runs_stack_rules_per_subproject(tmp_path: Path) -> None:
     _make_dirs(tmp_path, "backend", "frontend")
-    repo = Repo(path=tmp_path, stack="multi")
+    repo = Repo(path=tmp_path, stacks=("multi",))
     cfg = SuzerainConfig(
         version="1",
-        stack="multi",
+        stack=None,
         mode="strict",
         subprojects=[
             Subproject(name="backend", path="backend", stack="python"),
@@ -91,10 +91,10 @@ def test_multi_subproject_runs_stack_rules_per_subproject(tmp_path: Path) -> Non
 
 
 def test_multi_subproject_skips_when_path_missing(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="multi")
+    repo = Repo(path=tmp_path, stacks=("multi",))
     cfg = SuzerainConfig(
         version="1",
-        stack="multi",
+        stack=None,
         mode="strict",
         subprojects=[Subproject(name="backend", path="backend", stack="python")],
     )
@@ -108,7 +108,7 @@ def test_multi_subproject_skips_when_path_missing(tmp_path: Path) -> None:
 
 def test_single_subproject_implicit_no_subprojects_block(tmp_path: Path) -> None:
     """Backward compat: config without subprojects runs as before."""
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     cfg = SuzerainConfig(version="1", stack="python", mode="strict")
     rules = [_AlwaysPassTransverse(), _AlwaysPassPython()]
     report = run_audit(repo, cfg, rules)

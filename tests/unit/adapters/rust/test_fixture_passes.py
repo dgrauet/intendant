@@ -12,11 +12,11 @@ FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "valid_rust_repo"
 
 
 def test_fixture_detected_as_rust() -> None:
-    assert Repo.from_path(FIXTURE).stack == "rust"
+    assert Repo.from_path(FIXTURE).stacks == ("rust",)
 
 
 def test_every_rust_rule_passes_on_fixture() -> None:
-    repo = Repo(path=FIXTURE, stack="rust")
+    repo = Repo(path=FIXTURE, stacks=("rust",))
     for rule in RULES:
         result = rule.check(repo)
         assert result.passing, f"{rule.id} failed on valid_rust_repo: {result.evidence}"

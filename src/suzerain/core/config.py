@@ -25,10 +25,16 @@ class Exemption:
 
 @dataclass(frozen=True)
 class SuzerainConfig:
-    """Parsed .suzerain.toml content."""
+    """Parsed .suzerain.toml content.
+
+    ``stack`` is the user's manual pin, or ``None`` to leave detection to
+    ``detect_stacks``. ``mode`` is the audit-mode (strict/recommended/advisory),
+    *not* the stack-resolution mode (auto/manual) — that distinction lives on
+    ``Repo``.
+    """
 
     version: str
-    stack: str
+    stack: str | None
     mode: Literal["strict", "recommended", "advisory"]
     subprojects: list[Subproject] = field(default_factory=list)
     exemptions: dict[str, Exemption] = field(default_factory=dict)
@@ -52,19 +58,24 @@ class SuzerainConfig:
 
 
 def load_config(repo_path: Path) -> SuzerainConfig:
-    """Load .suzerain.toml from `repo_path`. Returns defaults if no file."""
+    """Load .suzerain.toml from `repo_path`. Returns defaults if no file.
+
+    ``stack = "auto"`` (legacy sentinel) is treated as no pin (``None``).
+    """
     cfg_path = repo_path / ".suzerain.toml"
     if not cfg_path.is_file():
-        return SuzerainConfig(version="1", stack="auto", mode=DEFAULT_MODE)
+        return SuzerainConfig(version="1", stack=None, mode=DEFAULT_MODE)
     raw = tomllib.loads(cfg_path.read_text())
     suz = raw.get("suzerain", {})
     raw_exemptions = raw.get("exemptions", {})
     exemptions = _parse_exemptions(raw_exemptions)
     subprojects = _parse_subprojects(raw.get("subprojects", []))
     subproject_exemptions = _parse_subproject_exemptions(raw_exemptions)
+    raw_stack = suz.get("stack")
+    stack = None if raw_stack in (None, "auto") else str(raw_stack)
     return SuzerainConfig(
         version=str(suz.get("version", "1")),
-        stack=str(suz.get("stack", "auto")),
+        stack=stack,
         mode=suz.get("mode", DEFAULT_MODE),
         subprojects=subprojects,
         exemptions=exemptions,

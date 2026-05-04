@@ -52,7 +52,7 @@ class _RaisingRule(Rule):
 
 
 def test_run_audit_empty_rules(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(version="1", stack="python", mode="strict")
     report = run_audit(repo, config, rules=[])
     assert report.findings == []
@@ -60,7 +60,7 @@ def test_run_audit_empty_rules(tmp_path: Path) -> None:
 
 
 def test_run_audit_passing_rule(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(version="1", stack="python", mode="strict")
     report = run_audit(repo, config, rules=[_PassingRule()])
     assert len(report.findings) == 1
@@ -68,7 +68,7 @@ def test_run_audit_passing_rule(tmp_path: Path) -> None:
 
 
 def test_run_audit_failing_rule_with_fix(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(version="1", stack="python", mode="strict")
     report = run_audit(repo, config, rules=[_FailingRule()])
     assert len(report.findings) == 1
@@ -80,7 +80,7 @@ def test_run_audit_failing_rule_with_fix(tmp_path: Path) -> None:
 
 
 def test_run_audit_failing_rule_with_fix_preview_when_requested(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(version="1", stack="python", mode="strict")
     report = run_audit(repo, config, rules=[_FailingRule()], compute_fix_preview=True)
     assert len(report.findings) == 1
@@ -91,7 +91,7 @@ def test_run_audit_failing_rule_with_fix_preview_when_requested(tmp_path: Path) 
 
 
 def test_run_audit_exempt_rule(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(
         version="1",
         stack="python",
@@ -116,7 +116,7 @@ def test_run_audit_skipped_rule_when_not_applicable(tmp_path: Path) -> None:
         def check(self, repo: Repo) -> CheckResult:
             return CheckResult(passing=True)
 
-    repo = Repo(path=tmp_path, stack="node")
+    repo = Repo(path=tmp_path, stacks=("node",))
     config = SuzerainConfig(version="1", stack="node", mode="strict")
     report = run_audit(repo, config, rules=[_PythonOnly()])
     assert len(report.findings) == 1
@@ -124,7 +124,7 @@ def test_run_audit_skipped_rule_when_not_applicable(tmp_path: Path) -> None:
 
 
 def test_run_audit_handles_rule_exception(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(version="1", stack="python", mode="strict")
     report = run_audit(repo, config, rules=[_RaisingRule()])
     assert len(report.findings) == 1
@@ -134,7 +134,7 @@ def test_run_audit_handles_rule_exception(tmp_path: Path) -> None:
 
 
 def test_run_audit_findings_in_rule_order(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     config = SuzerainConfig(version="1", stack="python", mode="strict")
     rules = [_PassingRule(), _FailingRule()]
     report = run_audit(repo, config, rules=rules)
@@ -158,8 +158,8 @@ def test_run_audit_skipped_check_emits_skip_status(tmp_path: Path) -> None:
         def check(self, repo: Repo) -> CheckResult:
             return CheckResult(passing=True, evidence="precondition not met", skipped=True)
 
-    repo = Repo(path=tmp_path, stack="auto")
-    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    repo = Repo(path=tmp_path, stacks=("auto",))
+    cfg = SuzerainConfig(version="1", stack=None, mode="strict")
     report = run_audit(repo, cfg, [SkippableRule()])
     assert len(report.findings) == 1
     finding = report.findings[0]
@@ -185,8 +185,8 @@ def test_runner_does_not_call_fix_in_default_mode(tmp_path: Path) -> None:
             fix_call_count["n"] += 1
             return None
 
-    repo = Repo(path=tmp_path, stack="auto")
-    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    repo = Repo(path=tmp_path, stacks=("auto",))
+    cfg = SuzerainConfig(version="1", stack=None, mode="strict")
     report = run_audit(repo, cfg, [TrackingRule()])
     # fix should NOT have been called
     assert fix_call_count["n"] == 0
@@ -219,8 +219,8 @@ def test_runner_calls_fix_when_compute_fix_preview_true(tmp_path: Path) -> None:
                 safe=True,
             )
 
-    repo = Repo(path=tmp_path, stack="auto")
-    cfg = SuzerainConfig(version="1", stack="auto", mode="strict")
+    repo = Repo(path=tmp_path, stacks=("auto",))
+    cfg = SuzerainConfig(version="1", stack=None, mode="strict")
     report = run_audit(repo, cfg, [TrackingRule()], compute_fix_preview=True)
     assert fix_call_count["n"] == 1
     assert report.findings[0].fix_available is True
@@ -244,7 +244,7 @@ def test_run_audit_finding_carries_subproject_name(tmp_path: Path) -> None:
         def check(self, repo: Repo) -> CheckResult:
             return CheckResult(passing=True)
 
-    repo = Repo(path=tmp_path, stack="python", name="backend")
+    repo = Repo(path=tmp_path, stacks=("python",), mode="manual", name="backend")
     cfg = SuzerainConfig(version="1", stack="python", mode="strict")
     report = run_audit(repo, cfg, [AlwaysPass()])
     assert report.findings[0].subproject == "backend"
@@ -267,7 +267,7 @@ def test_run_audit_subproject_scoped_exemption_wins(tmp_path: Path) -> None:
         def check(self, repo: Repo) -> CheckResult:
             return CheckResult(passing=False, evidence="never passes")
 
-    repo = Repo(path=tmp_path, stack="python", name="backend")
+    repo = Repo(path=tmp_path, stacks=("python",), mode="manual", name="backend")
     cfg = SuzerainConfig(
         version="1",
         stack="python",

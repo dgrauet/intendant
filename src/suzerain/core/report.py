@@ -24,10 +24,17 @@ class Finding:
 
 @dataclass(frozen=True)
 class Report:
-    """Aggregate result of an audit run on a Repo."""
+    """Aggregate result of an audit run on a Repo.
+
+    ``stacks`` lists every language/stack that contributed rules to this
+    report (multi-stack repos are first-class — no ``"multi"`` sentinel).
+    ``mode`` records how the composition was determined: ``auto`` from
+    filesystem markers or ``manual`` from ``.suzerain.toml``.
+    """
 
     repo_path: Path
-    stack: str
+    stacks: tuple[str, ...]
+    mode: Literal["auto", "manual"]
     findings: list[Finding] = field(default_factory=list)
     score_override: int | None = None
 

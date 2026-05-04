@@ -15,12 +15,11 @@ from suzerain.audit.diff import compute_diff
 from suzerain.audit.output.json_format import _build_payload
 from suzerain.audit.output.report_json import render_report_json
 from suzerain.audit.registry import collect_rules, filter_for_repo
-from suzerain.audit.runner import run_audit
+from suzerain.audit.runner import resolve_repo, run_audit
 from suzerain.audit.snapshot import find_latest_snapshot, load_snapshot
 from suzerain.core.config import load_config
 from suzerain.core.handbook import Handbook
 from suzerain.core.paths import docs_root
-from suzerain.core.repo import Repo
 
 _VALID_SEVERITIES = ("required", "recommended", "optional")
 
@@ -48,8 +47,8 @@ def audit_repo(path: str, severity: str | None = None) -> dict[str, Any]:
     if repo_path is None:
         return _err(f"path not found or not a directory: {path}")
     try:
-        repo = Repo.from_path(repo_path)
         config = load_config(repo_path)
+        repo = resolve_repo(repo_path, config)
         all_rules = collect_rules()
         rules = all_rules if config.subprojects else filter_for_repo(all_rules, repo, config)
         report = run_audit(repo, config, rules)

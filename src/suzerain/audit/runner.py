@@ -3,11 +3,32 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from pathlib import Path
 
 from suzerain.core.config import SuzerainConfig
-from suzerain.core.repo import Repo
+from suzerain.core.repo import Repo, detect_stacks
 from suzerain.core.report import Finding, Report
 from suzerain.core.rule import Rule
+
+
+def resolve_repo(repo_path: Path, config: SuzerainConfig) -> Repo:
+    """Build the effective root Repo from filesystem + ``.suzerain.toml``.
+
+    Resolution rules:
+    - subprojects declared → ``mode=manual``, stacks = union of subproject stacks
+    - top-level ``stack = "..."`` pinned → ``mode=manual``, stacks=(that one,)
+    - neither → ``mode=auto``, stacks = whatever ``detect_stacks`` finds
+    """
+    path = repo_path
+    if config.subprojects:
+        seen: list[str] = []
+        for sp in config.subprojects:
+            if sp.stack and sp.stack not in seen:
+                seen.append(sp.stack)
+        return Repo(path=path, stacks=tuple(seen), mode="manual")
+    if config.stack is not None:
+        return Repo(path=path, stacks=(config.stack,), mode="manual")
+    return Repo(path=path, stacks=detect_stacks(path), mode="auto")
 
 
 def run_audit(
@@ -19,31 +40,44 @@ def run_audit(
 ) -> Report:
     """Execute every rule against the repo and return an aggregated Report.
 
-    When ``config.subprojects`` is empty (legacy mode), every rule that applies
-    to the repo executes against `repo` (transverse + matching stack-specific).
+    When ``config.subprojects`` is empty (single-Repo mode), every rule that
+    applies to the repo executes against `repo` (transverse + matching
+    stack-specific). The repo's own ``mode`` and ``stacks`` are surfaced on
+    the resulting ``Report``.
 
     When ``config.subprojects`` is non-empty (multi-subproject mode):
-    - Transverse rules (`stacks=("*",)`) run once at the root meta-Repo (name=None).
-    - Stack-specific rules run for each declared subproject (name=<subproject_name>),
-      with the subproject's `path` resolved against the root.
-    - Findings are aggregated; each Finding is tagged with the `subproject` name
-      (or None for transverse).
+    - Transverse rules (``stacks=("*",)``) run once at the root meta-Repo
+      (``name=None``), built with ``mode="manual"`` and the union of the
+      subprojects' stacks.
+    - Stack-specific rules run for each declared subproject (``name=<n>``),
+      with the subproject's ``path`` resolved against the root and
+      ``stacks=(sp.stack,)``.
+    - Findings are aggregated; each Finding is tagged with the ``subproject``
+      name (or None for transverse).
     - If a subproject's path doesn't exist on disk, applicable stack-specific
-      rules emit a `status="skip"` finding with evidence "subproject path not found".
+      rules emit a ``status="skip"`` finding.
     """
     if not config.subprojects:
-        # Legacy single-Repo path
         findings: list[Finding] = []
         for rule in rules:
-            finding = _run_one(rule, repo, config, compute_fix_preview=compute_fix_preview)
-            findings.append(finding)
-        return Report(repo_path=repo.path, stack=repo.stack, findings=findings)
+            findings.append(_run_one(rule, repo, config, compute_fix_preview=compute_fix_preview))
+        return Report(
+            repo_path=repo.path,
+            stacks=repo.stacks,
+            mode=repo.mode,
+            findings=findings,
+        )
 
     # Multi-subproject orchestration
     findings = []
+    sub_stacks: list[str] = []
+    for sp in config.subprojects:
+        if sp.stack and sp.stack not in sub_stacks:
+            sub_stacks.append(sp.stack)
+    aggregated = tuple(sub_stacks)
 
     # Step 1: transverse rules at root meta-Repo (name=None)
-    root_meta = Repo(path=repo.path, stack="multi", name=None)
+    root_meta = Repo(path=repo.path, stacks=aggregated, mode="manual", name=None)
     transverse_rules = [r for r in rules if "*" in r.stacks]
     for rule in transverse_rules:
         findings.append(_run_one(rule, root_meta, config, compute_fix_preview=compute_fix_preview))
@@ -60,7 +94,7 @@ def run_audit(
                 else f"subproject path is not a directory: {sp.path!r}"
             )
             for rule in stack_rules:
-                applies_check = Repo(path=sub_path, stack=sp.stack, name=sp.name)
+                applies_check = Repo(path=sub_path, stacks=(sp.stack,), mode="manual", name=sp.name)
                 if rule.applies(applies_check):
                     findings.append(
                         Finding(
@@ -73,7 +107,7 @@ def run_audit(
                         )
                     )
             continue
-        sub_repo = Repo(path=sub_path, stack=sp.stack, name=sp.name)
+        sub_repo = Repo(path=sub_path, stacks=(sp.stack,), mode="manual", name=sp.name)
         for rule in stack_rules:
             if not rule.applies(sub_repo):
                 continue
@@ -81,7 +115,7 @@ def run_audit(
                 _run_one(rule, sub_repo, config, compute_fix_preview=compute_fix_preview)
             )
 
-    return Report(repo_path=repo.path, stack="multi", findings=findings)
+    return Report(repo_path=repo.path, stacks=aggregated, mode="manual", findings=findings)
 
 
 def _run_one(
@@ -98,7 +132,7 @@ def _run_one(
             rule_id=rule.id,
             severity=rule.severity,
             status="skip",
-            evidence=f"rule does not apply to stack {repo.stack!r}",
+            evidence=f"rule does not apply to stacks {list(repo.stacks)!r}",
             fix_available=False,
             subproject=sp,
         )

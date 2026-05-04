@@ -13,7 +13,7 @@ from suzerain.core.repo import Repo
 def test_e2e_valid_skill_passes_all_sk_rules(fixtures_dir: Path) -> None:
     repo_path = fixtures_dir / "valid_claude_skill_repo"
     repo = Repo.from_path(repo_path)
-    assert repo.stack == "claude-skill"
+    assert "claude-skill" in repo.stacks
 
     cfg = SuzerainConfig(version="1", stack="claude-skill", mode="strict")
     report = run_audit(repo, cfg, CLAUDE_SKILL_RULES)

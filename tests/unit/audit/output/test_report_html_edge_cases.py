@@ -49,7 +49,7 @@ def test_unknown_rule_id_appears_in_inline_findings(tmp_path: Path) -> None:
             fix_available=False,
         )
     ]
-    report = Report(repo_path=tmp_path / "r", stack="python", findings=findings)
+    report = Report(repo_path=tmp_path / "r", stacks=("python",), mode="auto", findings=findings)
     scan = PortfolioReport(
         root=tmp_path,
         reports=[(tmp_path / "r", report)],
@@ -97,11 +97,21 @@ def test_score_thresholds(tmp_path: Path) -> None:
         reports=[
             (
                 tmp_path / "good",
-                Report(repo_path=tmp_path / "good", stack="python", findings=good_findings),
+                Report(
+                    repo_path=tmp_path / "good",
+                    stacks=("python",),
+                    mode="auto",
+                    findings=good_findings,
+                ),
             ),
             (
                 tmp_path / "bad",
-                Report(repo_path=tmp_path / "bad", stack="python", findings=bad_findings),
+                Report(
+                    repo_path=tmp_path / "bad",
+                    stacks=("python",),
+                    mode="auto",
+                    findings=bad_findings,
+                ),
             ),
         ],
         timestamp=datetime(2026, 5, 4, 12, 0, 0),

@@ -12,11 +12,11 @@ FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "valid_swift_repo"
 
 
 def test_fixture_detected_as_swift() -> None:
-    assert Repo.from_path(FIXTURE).stack == "swift"
+    assert Repo.from_path(FIXTURE).stacks == ("swift",)
 
 
 def test_every_swift_rule_passes_on_fixture() -> None:
-    repo = Repo(path=FIXTURE, stack="swift")
+    repo = Repo(path=FIXTURE, stacks=("swift",))
     for rule in RULES:
         result = rule.check(repo)
         assert result.passing, f"{rule.id} failed on valid_swift_repo: {result.evidence}"

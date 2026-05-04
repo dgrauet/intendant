@@ -11,4 +11,4 @@ class Subproject:
 
     name: str
     path: str  # repo-relative; "." means root
-    stack: str  # "python" | "node" | "claude-skill" | "auto" | future stacks
+    stack: str  # one of the supported stacks: python | node | claude-skill | rust | go | swift

@@ -25,19 +25,19 @@ def test_ci001_pass(tmp_path: Path) -> None:
     (workflows / "ci.yml").write_text(
         "name: CI\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps: []\n"
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI001CIWorkflow().check(repo).passing is True
 
 
 def test_ci001_fail_no_workflows_dir(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = CI001CIWorkflow().check(repo)
     assert result.passing is False
 
 
 def test_ci001_fail_empty_workflows_dir(tmp_path: Path) -> None:
     (tmp_path / ".github" / "workflows").mkdir(parents=True)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = CI001CIWorkflow().check(repo)
     assert result.passing is False
     assert "no workflow" in result.evidence.lower()
@@ -48,7 +48,7 @@ def test_ci001_pass_alternative_filename(tmp_path: Path) -> None:
     wf = tmp_path / ".github" / "workflows"
     wf.mkdir(parents=True)
     (wf / "test.yaml").write_text("name: test\non: [push]\njobs: {}\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI001CIWorkflow().check(repo).passing is True
 
 
@@ -102,21 +102,21 @@ def _make_workflows_dir(tmp_path: Path) -> Path:
 def test_ci004_pass_enable_cache(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_WITH_ENABLE_CACHE)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI004CacheConfigured().check(repo).passing is True
 
 
 def test_ci004_pass_actions_cache(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_WITH_ACTIONS_CACHE)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI004CacheConfigured().check(repo).passing is True
 
 
 def test_ci004_fail_no_cache(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_NO_CACHE)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = CI004CacheConfigured().check(repo)
     assert result.passing is False
     assert "cache" in result.evidence.lower()
@@ -124,7 +124,7 @@ def test_ci004_fail_no_cache(tmp_path: Path) -> None:
 
 def test_ci004_skip_no_workflows_dir(tmp_path: Path) -> None:
     """No workflows directory → skip (pass with evidence)."""
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = CI004CacheConfigured().check(repo)
     # Should pass cleanly (skip) when no workflows dir exists
     assert result.passing is True
@@ -184,7 +184,7 @@ jobs:
 
 
 def test_ci003_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = CI003CommitMessageValidation().check(repo)
     assert result.passing is True
     assert result.skipped is True
@@ -193,28 +193,28 @@ def test_ci003_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
 def test_ci003_passes_with_cz_check(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_WITH_CZ_CHECK)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI003CommitMessageValidation().check(repo).passing is True
 
 
 def test_ci003_passes_with_commitizen_action(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_WITH_COMMITIZEN_ACTION)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI003CommitMessageValidation().check(repo).passing is True
 
 
 def test_ci003_passes_with_commitlint(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_WITH_COMMITLINT)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert CI003CommitMessageValidation().check(repo).passing is True
 
 
 def test_ci003_fails_when_no_commit_validation(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_WITHOUT_COMMIT_VALIDATION)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = CI003CommitMessageValidation().check(repo)
     assert result.passing is False
     assert "commit" in result.evidence.lower()

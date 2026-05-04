@@ -36,7 +36,7 @@ jobs:
 
 
 def test_claude_skill_ci001_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="claude-skill")
+    repo = Repo(path=tmp_path, stacks=("claude-skill",))
     result = CLAUDE_SKILL_CI001MinimumSteps().check(repo)
     assert result.passing is True
     assert result.skipped is True
@@ -46,7 +46,7 @@ def test_claude_skill_ci001_skipped_when_no_workflows_dir(tmp_path: Path) -> Non
 def test_claude_skill_ci001_passes_when_suzerain_audit_present(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_CLAUDE_SKILL_WORKFLOW_FULL)
-    repo = Repo(path=tmp_path, stack="claude-skill")
+    repo = Repo(path=tmp_path, stacks=("claude-skill",))
     result = CLAUDE_SKILL_CI001MinimumSteps().check(repo)
     assert result.passing is True
     assert "suzerain audit" in result.evidence
@@ -55,7 +55,7 @@ def test_claude_skill_ci001_passes_when_suzerain_audit_present(tmp_path: Path) -
 def test_claude_skill_ci001_fails_when_suzerain_audit_missing(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_CLAUDE_SKILL_WORKFLOW_NO_AUDIT)
-    repo = Repo(path=tmp_path, stack="claude-skill")
+    repo = Repo(path=tmp_path, stacks=("claude-skill",))
     result = CLAUDE_SKILL_CI001MinimumSteps().check(repo)
     assert result.passing is False
     assert "suzerain audit" in result.evidence

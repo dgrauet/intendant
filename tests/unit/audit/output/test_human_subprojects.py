@@ -40,7 +40,8 @@ def test_human_renders_single_section_when_all_findings_have_no_subproject(
     """Backward compat: legacy single-Repo report renders as a single flat table."""
     report = Report(
         repo_path=tmp_path,
-        stack="python",
+        stacks=("python",),
+        mode="auto",
         findings=[_make_finding("PYTHON_LO001", "pass", None)],
     )
     out = _capture(report)
@@ -54,7 +55,8 @@ def test_human_renders_multi_sections_when_findings_have_subprojects(
     """Multi-subproject report renders one section per subproject + ROOT for transverse."""
     report = Report(
         repo_path=tmp_path,
-        stack="multi",
+        stacks=("multi",),
+        mode="auto",
         findings=[
             _make_finding("DG001", "pass", None),
             _make_finding("PYTHON_LO001", "pass", "backend"),

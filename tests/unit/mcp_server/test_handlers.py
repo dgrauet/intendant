@@ -17,10 +17,11 @@ from suzerain.mcp_server.handlers import (
 FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
 
 
-def test_audit_repo_returns_schema_v1_payload() -> None:
+def test_audit_repo_returns_schema_v2_payload() -> None:
     payload = audit_repo(str(FIXTURES / "conformant_python_repo"))
-    assert payload["schema_version"] == "1"
-    assert payload["stack"] == "python"
+    assert payload["schema_version"] == "2"
+    assert payload["stacks"] == ["python"]
+    assert payload["mode"] == "manual"  # fixture pins stack="python" in .suzerain.toml
     assert isinstance(payload["score"], int)
     assert isinstance(payload["findings"], list)
     assert payload["findings"], "conformant repo should still produce per-rule findings"
@@ -77,9 +78,9 @@ def test_list_rules_filtered_by_severity() -> None:
         assert r["severity"] == "required"
 
 
-def test_report_portfolio_returns_schema_v1_payload() -> None:
+def test_report_portfolio_returns_schema_v2_payload() -> None:
     payload = report_portfolio(str(FIXTURES / "portfolio_mini"))
-    assert payload["schema_version"] == "1"
+    assert payload["schema_version"] == "2"
     assert payload["scan_count"] >= 1
     assert isinstance(payload["repos"], list)
 

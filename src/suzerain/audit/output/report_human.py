@@ -60,7 +60,8 @@ def _render_summary(scan: PortfolioReport, console: Console) -> None:
                 f" · [green]{fixable_n} fix[/green]"
                 f"\n  {ids}"
             )
-        table.add_row(str(rel), result.stack, score, status)
+        stack_label = f"{result.mode} ({'/'.join(result.stacks)})" if result.stacks else result.mode
+        table.add_row(str(rel), stack_label, score, status)
     console.print(table)
 
 

@@ -7,7 +7,7 @@ from suzerain.core.report import Finding, Report
 
 
 def test_md_starts_with_header(tmp_path: Path) -> None:
-    report = Report(repo_path=tmp_path, stack="python", findings=[])
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=[])
     md = render_markdown(report)
     assert md.startswith("## suzerain audit")
 
@@ -16,7 +16,7 @@ def test_md_contains_score_table(tmp_path: Path) -> None:
     findings = [
         Finding(rule_id="A", severity="required", status="pass", evidence="", fix_available=False),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     md = render_markdown(report)
     assert "| Score |" in md or "**Score**" in md
 
@@ -31,7 +31,7 @@ def test_md_lists_failures(tmp_path: Path) -> None:
             fix_available=True,
         ),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     md = render_markdown(report)
     assert "PYTHON_LO001" in md
     assert "missing src/" in md
@@ -41,7 +41,7 @@ def test_md_omits_pass_section_when_no_failures(tmp_path: Path) -> None:
     findings = [
         Finding(rule_id="A", severity="required", status="pass", evidence="", fix_available=False),
     ]
-    report = Report(repo_path=tmp_path, stack="python", findings=findings)
+    report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=findings)
     md = render_markdown(report)
     assert "All required checks passing" in md or "✅" in md
 
@@ -53,7 +53,8 @@ def test_md_renders_subproject_sections_when_multi(tmp_path: Path) -> None:
 
     report = Report(
         repo_path=tmp_path,
-        stack="multi",
+        stacks=("python", "node"),
+        mode="manual",
         findings=[
             Finding(
                 rule_id="DG001",

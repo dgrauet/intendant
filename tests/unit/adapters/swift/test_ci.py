@@ -9,7 +9,7 @@ from suzerain.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:
-    return Repo(path=path, stack="swift")
+    return Repo(path=path, stacks=("swift",))
 
 
 def _write_workflow(repo: Path, body: str) -> None:

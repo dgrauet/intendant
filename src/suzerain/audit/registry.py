@@ -70,13 +70,14 @@ def filter_for_repo(rules: Sequence[Rule], repo: Repo, config: SuzerainConfig) -
     - `advisory` and `strict` keep everything.
 
     Stack scoping:
-    - If `config.subprojects` is empty (legacy single-Repo mode): keep ALL rules
-      that apply to repo.stack (transverse OR stack-specific). Backward compat
-      with the existing pipeline.
-    - If `config.subprojects` is non-empty AND `repo.name is None` (root meta-Repo
-      pass): only transverse rules (`stacks=("*",)`).
-    - If `config.subprojects` is non-empty AND `repo.name is not None` (subproject
-      pass): only stack-specific rules matching `repo.stack` (transverse excluded).
+    - If `config.subprojects` is empty (single-Repo mode): keep every rule
+      that applies to any stack in `repo.stacks` (transverse OR
+      stack-specific).
+    - If `config.subprojects` is non-empty AND `repo.name is None` (root
+      meta-Repo pass): only transverse rules (`stacks=("*",)`).
+    - If `config.subprojects` is non-empty AND `repo.name is not None`
+      (subproject pass): only stack-specific rules matching `repo.stacks`
+      (transverse excluded).
 
     Exemptions are NOT removed here; the runner marks them as exempt.
     """

@@ -9,7 +9,7 @@ from suzerain.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:
-    return Repo(path=path, stack="rust")
+    return Repo(path=path, stacks=("rust",))
 
 
 def test_ts001_pass_with_inline_test(tmp_path: Path) -> None:

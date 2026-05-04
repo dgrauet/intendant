@@ -70,8 +70,8 @@ def load_snapshot_as_portfolio_report(path: Path) -> PortfolioReport:
 
     data = json.loads(path.read_text())
     schema_version = data.get("schema_version")
-    if schema_version != "1":
-        raise ValueError(f"unsupported snapshot schema_version: {schema_version!r} (expected '1')")
+    if schema_version != "2":
+        raise ValueError(f"unsupported snapshot schema_version: {schema_version!r} (expected '2')")
     root = Path(data["root"])
     ts_str = data["timestamp"]
     timestamp = datetime.fromisoformat(ts_str) if "T" in ts_str else datetime.now()
@@ -99,7 +99,8 @@ def load_snapshot_as_portfolio_report(path: Path) -> PortfolioReport:
             )
         report = Report(
             repo_path=repo_path,
-            stack=entry.get("stack") or "auto",
+            stacks=tuple(entry.get("stacks") or ()),
+            mode=entry.get("mode") or "auto",
             findings=findings,
             score_override=entry.get("score"),
         )

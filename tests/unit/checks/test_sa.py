@@ -25,12 +25,12 @@ def _write_minimal_precommit(tmp_path: Path) -> None:
 
 def test_sa001_pass(tmp_path: Path) -> None:
     _write_minimal_precommit(tmp_path)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert SA001PreCommit().check(repo).passing is True
 
 
 def test_sa001_fail_no_config(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA001PreCommit().check(repo)
     assert result.passing is False
 
@@ -44,7 +44,7 @@ def test_sa001_fail_missing_minimum_hooks(tmp_path: Path) -> None:
         "      - id: trailing-whitespace\n"
         # missing end-of-file-fixer and check-yaml
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA001PreCommit().check(repo)
     assert result.passing is False
     assert "end-of-file-fixer" in result.evidence or "check-yaml" in result.evidence
@@ -67,12 +67,12 @@ def _write_precommit_with_gitleaks(tmp_path: Path) -> None:
 
 def test_sa002_pass(tmp_path: Path) -> None:
     _write_precommit_with_gitleaks(tmp_path)
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert SA002Gitleaks().check(repo).passing is True
 
 
 def test_sa002_fail_no_config(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA002Gitleaks().check(repo)
     assert result.passing is False
     assert "pre-commit-config.yaml" in result.evidence
@@ -86,7 +86,7 @@ def test_sa002_fail_no_gitleaks(tmp_path: Path) -> None:
         "    hooks:\n"
         "      - id: trailing-whitespace\n"
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA002Gitleaks().check(repo)
     assert result.passing is False
     assert "gitleaks" in result.evidence.lower()
@@ -106,18 +106,18 @@ def test_sa002_metadata() -> None:
 
 def test_sa004_pass_with_ds_store(tmp_path: Path) -> None:
     (tmp_path / ".gitignore").write_text(".DS_Store\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert SA004GitignoreBaseline().check(repo).passing is True
 
 
 def test_sa004_pass_with_extra_content(tmp_path: Path) -> None:
     (tmp_path / ".gitignore").write_text("__pycache__/\n.DS_Store\n.venv/\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     assert SA004GitignoreBaseline().check(repo).passing is True
 
 
 def test_sa004_fail_no_gitignore(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA004GitignoreBaseline().check(repo)
     assert result.passing is False
     assert ".gitignore" in result.evidence
@@ -125,7 +125,7 @@ def test_sa004_fail_no_gitignore(tmp_path: Path) -> None:
 
 def test_sa004_fail_missing_ds_store(tmp_path: Path) -> None:
     (tmp_path / ".gitignore").write_text("__pycache__/\n.venv/\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA004GitignoreBaseline().check(repo)
     assert result.passing is False
     assert ".DS_Store" in result.evidence
@@ -141,14 +141,14 @@ def test_sa004_metadata() -> None:
 def test_sa004_passes_for_node_stack_with_ds_store(tmp_path: Path) -> None:
     """SA004 is now generic — only .DS_Store required regardless of stack."""
     (tmp_path / ".gitignore").write_text(".DS_Store\n")
-    repo = Repo(path=tmp_path, stack="node")
+    repo = Repo(path=tmp_path, stacks=("node",))
     result = SA004GitignoreBaseline().check(repo)
     assert result.passing is True
 
 
 def test_sa004_passes_for_claude_skill_with_ds_store(tmp_path: Path) -> None:
     (tmp_path / ".gitignore").write_text(".DS_Store\n")
-    repo = Repo(path=tmp_path, stack="claude-skill")
+    repo = Repo(path=tmp_path, stacks=("claude-skill",))
     result = SA004GitignoreBaseline().check(repo)
     assert result.passing is True
 
@@ -159,7 +159,7 @@ def test_sa004_passes_for_claude_skill_with_ds_store(tmp_path: Path) -> None:
 
 
 def test_sa001_fix_creates_file_when_missing(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA001PreCommit()
     result = rule.check(repo)
     assert result.passing is False
@@ -180,7 +180,7 @@ def test_sa001_fix_appends_when_no_pre_commit_hooks_repo(tmp_path: Path) -> None
         "    hooks:\n"
         "      - id: ruff\n"
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA001PreCommit()
     result = rule.check(repo)
     assert result.passing is False
@@ -202,7 +202,7 @@ def test_sa001_fix_returns_none_when_pre_commit_hooks_partially_declared(tmp_pat
         "      - id: trailing-whitespace\n"
         # missing end-of-file-fixer and check-yaml
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA001PreCommit()
     result = rule.check(repo)
     assert result.passing is False
@@ -216,7 +216,7 @@ def test_sa001_fix_returns_none_when_pre_commit_hooks_partially_declared(tmp_pat
 
 
 def test_sa002_fix_creates_file_when_missing(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA002Gitleaks()
     result = rule.check(repo)
     assert result.passing is False
@@ -235,7 +235,7 @@ def test_sa002_fix_appends_when_no_gitleaks_repo(tmp_path: Path) -> None:
         "    hooks:\n"
         "      - id: trailing-whitespace\n"
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA002Gitleaks()
     result = rule.check(repo)
     assert result.passing is False
@@ -252,7 +252,7 @@ def test_sa002_fix_appends_when_no_gitleaks_repo(tmp_path: Path) -> None:
 
 
 def test_sa003_skipped_when_no_env_artifact(tmp_path: Path) -> None:
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA003EnvExample().check(repo)
     assert result.passing is True
     assert result.skipped is True
@@ -260,7 +260,7 @@ def test_sa003_skipped_when_no_env_artifact(tmp_path: Path) -> None:
 
 def test_sa003_fails_when_env_present_and_example_missing(tmp_path: Path) -> None:
     (tmp_path / ".env").write_text("SECRET=hunter2\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA003EnvExample().check(repo)
     assert result.passing is False
     assert ".env.example" in result.evidence
@@ -269,7 +269,7 @@ def test_sa003_fails_when_env_present_and_example_missing(tmp_path: Path) -> Non
 def test_sa003_passes_when_both_env_and_example_present(tmp_path: Path) -> None:
     (tmp_path / ".env").write_text("SECRET=hunter2\n")
     (tmp_path / ".env.example").write_text("SECRET=\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA003EnvExample().check(repo)
     assert result.passing is True
 
@@ -278,7 +278,7 @@ def test_sa003_fails_when_dotenv_dep_and_example_missing(tmp_path: Path) -> None
     (tmp_path / "pyproject.toml").write_text(
         '[project]\nname = "x"\ndependencies = ["python-dotenv>=1.0"]\n'
     )
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     result = SA003EnvExample().check(repo)
     assert result.passing is False
     assert ".env.example" in result.evidence
@@ -286,7 +286,7 @@ def test_sa003_fails_when_dotenv_dep_and_example_missing(tmp_path: Path) -> None
 
 def test_sa003_fix_creates_env_example(tmp_path: Path) -> None:
     (tmp_path / ".env").write_text("SECRET=hunter2\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA003EnvExample()
     result = rule.check(repo)
     assert result.passing is False
@@ -301,7 +301,7 @@ def test_sa003_fix_creates_env_example(tmp_path: Path) -> None:
 def test_sa003_fix_returns_none_when_already_present(tmp_path: Path) -> None:
     (tmp_path / ".env").write_text("SECRET=hunter2\n")
     (tmp_path / ".env.example").write_text("SECRET=\n")
-    repo = Repo(path=tmp_path, stack="python")
+    repo = Repo(path=tmp_path, stacks=("python",))
     rule = SA003EnvExample()
     result = rule.check(repo)
     assert result.passing is True

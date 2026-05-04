@@ -13,9 +13,8 @@ from rich.console import Console
 
 from suzerain.audit.discovery import find_suzerain_repos
 from suzerain.audit.registry import collect_rules, filter_for_repo
-from suzerain.audit.runner import run_audit
+from suzerain.audit.runner import resolve_repo, run_audit
 from suzerain.core.config import load_config
-from suzerain.core.repo import Repo
 from suzerain.core.report import Report
 
 console = Console()
@@ -38,8 +37,8 @@ def _scan_one(repo_path: Path) -> tuple[Path, Report | Exception]:
     Legacy single-Repo mode: filters at the call site as before.
     """
     try:
-        repo = Repo.from_path(repo_path)
         config = load_config(repo_path)
+        repo = resolve_repo(repo_path, config)
         all_rules = collect_rules()
         rules = all_rules if config.subprojects else filter_for_repo(all_rules, repo, config)
         report = run_audit(repo, config, rules)

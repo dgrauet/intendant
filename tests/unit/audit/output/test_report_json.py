@@ -14,7 +14,8 @@ from suzerain.core.report import Finding, Report
 def _make_clean_report(repo_path: Path) -> Report:
     return Report(
         repo_path=repo_path,
-        stack="python",
+        stacks=("python",),
+        mode="auto",
         findings=[
             Finding(
                 rule_id="DG001",
@@ -30,7 +31,8 @@ def _make_clean_report(repo_path: Path) -> Report:
 def _make_failing_report(repo_path: Path) -> Report:
     return Report(
         repo_path=repo_path,
-        stack="python",
+        stacks=("python",),
+        mode="auto",
         findings=[
             Finding(
                 rule_id="DG001",
@@ -61,7 +63,7 @@ def test_render_returns_valid_json_string(tmp_path: Path) -> None:
     scan = PortfolioReport(root=tmp_path, reports=[], timestamp=datetime(2026, 5, 2, 15, 42))
     text = render_report_json(scan)
     parsed = json.loads(text)
-    assert parsed["schema_version"] == "1"
+    assert parsed["schema_version"] == "2"
 
 
 def test_root_is_absolute_string(tmp_path: Path) -> None:
@@ -142,7 +144,8 @@ def test_error_repo_has_status_error_and_message(tmp_path: Path) -> None:
     repo_obj = parsed["repos"][0]
     assert repo_obj["status"] == "error"
     assert repo_obj["score"] is None
-    assert repo_obj["stack"] is None
+    assert repo_obj["stacks"] == []
+    assert repo_obj["mode"] is None
     assert repo_obj["failing_by_severity"] == {"required": 0, "recommended": 0, "optional": 0}
     assert "ValueError" in repo_obj["error"]
     assert "invalid TOML" in repo_obj["error"]

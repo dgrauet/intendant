@@ -32,7 +32,8 @@ def test_init_in_empty_dir_writes_config(tmp_path: Path, fixtures_dir: Path) -> 
     assert config_path.is_file()
     config = tomllib.loads(config_path.read_text())
     assert config["suzerain"]["version"] == "1"
-    assert config["suzerain"]["stack"] == "auto"
+    # Empty repo → no detection → no `stack` field written (auto-detect each run)
+    assert "stack" not in config["suzerain"]
     assert config["suzerain"]["mode"] == "advisory"
 
 

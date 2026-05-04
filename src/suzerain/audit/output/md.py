@@ -9,10 +9,11 @@ def render_markdown(report: Report) -> str:
     lines: list[str] = []
     lines.append(f"## suzerain audit — `{report.repo_path}`")
     lines.append("")
+    stack_label = f"{report.mode} ({'/'.join(report.stacks)})" if report.stacks else report.mode
     lines.append("| Score | Stack | Passing | Failing | Exempt | Skipped | Fixable |")
     lines.append("|---|---|---|---|---|---|---|")
     lines.append(
-        f"| **{report.score}/100** | `{report.stack}` | "
+        f"| **{report.score}/100** | `{stack_label}` | "
         f"{report.passing} | {report.failing} | {report.exempt} | "
         f"{report.skipped} | {report.fixable} |"
     )

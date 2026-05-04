@@ -28,10 +28,13 @@ def _build_scan(tmp_path: Path) -> PortfolioReport:
             fix_available=True,
         ),
     ]
-    report_a = Report(repo_path=tmp_path / "repo_a", stack="python", findings=findings_a)
+    report_a = Report(
+        repo_path=tmp_path / "repo_a", stacks=("python",), mode="auto", findings=findings_a
+    )
     report_b = Report(
         repo_path=tmp_path / "repo_b",
-        stack="node",
+        stacks=("node",),
+        mode="auto",
         findings=[
             Finding(
                 rule_id="DG001",
@@ -116,80 +119,61 @@ def test_render_html_renames_failure_columns(tmp_path: Path) -> None:
     assert ">Recommended failures<" not in html
 
 
-def test_render_html_stack_label_auto_when_no_config(tmp_path: Path) -> None:
-    """Without .suzerain.toml the stack cell shows the bare detected stack."""
+def test_render_html_stack_label_auto_with_detected_stack(tmp_path: Path) -> None:
+    """Repo with mode=auto and one detected stack renders as 'auto (python)'."""
     scan = _build_scan(tmp_path)
     html = render_html(scan)
-    # data-stack stays the resolved stack (used by the filter)
-    assert 'data-stack="python"' in html
-    # No config file present → no mode badge
-    assert "manual (python)" not in html
-    assert "auto (python)" not in html
+    assert "auto (python)" in html
+    assert "auto (node)" in html
 
 
-def test_render_html_stack_label_undetected_shows_plain_auto(tmp_path: Path) -> None:
-    """When auto-detection found nothing (stack='auto'), display just 'auto'."""
+def test_render_html_stack_label_auto_with_no_detection(tmp_path: Path) -> None:
+    """Repo with mode=auto and no detected stack renders as plain 'auto'."""
     repo = tmp_path / "repo"
     repo.mkdir()
-    (repo / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "auto"\nmode = "advisory"\n'
-    )
     scan = PortfolioReport(
         root=tmp_path,
         reports=[
-            (repo, Report(repo_path=repo, stack="auto", findings=[])),
+            (repo, Report(repo_path=repo, stacks=(), mode="auto", findings=[])),
         ],
         timestamp=datetime(2026, 5, 5, 0, 0, 0),
     )
     html = render_html(scan)
-    assert "auto (auto)" not in html
     assert ">auto<" in html
+    assert "auto (" not in html
 
 
-def test_render_html_stack_label_subprojects(tmp_path: Path) -> None:
-    """With [[subprojects]], cell shows 'manual (a/b)' from declared stacks."""
+def test_render_html_stack_label_manual_multi(tmp_path: Path) -> None:
+    """Repo with mode=manual and multi stacks renders as 'manual (a/b)'."""
     repo = tmp_path / "repo"
-    (repo / "frontend").mkdir(parents=True)
-    (repo / "backend").mkdir(parents=True)
-    (repo / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "auto"\nmode = "advisory"\n'
-        '[[subprojects]]\npath = "frontend"\nstack = "swift"\n'
-        '[[subprojects]]\npath = "backend"\nstack = "python"\n'
-    )
+    repo.mkdir()
     scan = PortfolioReport(
         root=tmp_path,
         reports=[
-            (repo, Report(repo_path=repo, stack="multi", findings=[])),
+            (
+                repo,
+                Report(repo_path=repo, stacks=("swift", "python"), mode="manual", findings=[]),
+            ),
         ],
         timestamp=datetime(2026, 5, 5, 0, 0, 0),
     )
     html = render_html(scan)
     assert "manual (swift/python)" in html
-    assert "auto (multi)" not in html
 
 
-def test_render_html_stack_label_manual_when_config_pins_stack(tmp_path: Path) -> None:
-    """With stack='node' in .suzerain.toml, the cell shows 'manual (node)'."""
-    scan = _build_scan(tmp_path)
-    repo_b = tmp_path / "repo_b"
-    repo_b.mkdir(parents=True, exist_ok=True)
-    (repo_b / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "node"\nmode = "advisory"\n'
+def test_render_html_stack_label_manual_single(tmp_path: Path) -> None:
+    """Repo with mode=manual and one pinned stack renders as 'manual (node)'."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    scan = PortfolioReport(
+        root=tmp_path,
+        reports=[
+            (repo, Report(repo_path=repo, stacks=("node",), mode="manual", findings=[])),
+        ],
+        timestamp=datetime(2026, 5, 5, 0, 0, 0),
     )
     html = render_html(scan)
     assert "manual (node)" in html
-
-
-def test_render_html_stack_label_auto_when_config_says_auto(tmp_path: Path) -> None:
-    """With stack='auto' explicitly set, the cell shows 'auto (python)'."""
-    scan = _build_scan(tmp_path)
-    repo_a = tmp_path / "repo_a"
-    repo_a.mkdir(parents=True, exist_ok=True)
-    (repo_a / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "auto"\nmode = "advisory"\n'
-    )
-    html = render_html(scan)
-    assert "auto (python)" in html
 
 
 def test_render_html_inline_findings_row_per_repo(tmp_path: Path) -> None:
