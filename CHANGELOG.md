@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4](https://github.com/dgrauet/suzerain/compare/v0.4.3...v0.4.4) (2026-05-04)
+
+
+### Features
+
+* **adapter:** add Go adapter with 7 rules ([#28](https://github.com/dgrauet/suzerain/issues/28)) ([0abe9f7](https://github.com/dgrauet/suzerain/commit/0abe9f7430e5e51b2a6f9566be14288f58062892))
+
 ## [0.4.3](https://github.com/dgrauet/suzerain/compare/v0.4.2...v0.4.3) (2026-05-04)
 
 
