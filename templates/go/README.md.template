@@ -1,0 +1,21 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+go mod tidy         # generates go.sum
+go build ./...
+```
+
+## Commands
+
+- `go test ./...` — run tests
+- `go vet ./...` — vet
+- `golangci-lint run` — lint (requires golangci-lint installed)
+- `gofmt -l .` — format check
+
+## License
+
+MIT
