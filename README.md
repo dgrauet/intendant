@@ -80,7 +80,7 @@ suzerain report <portfolio-root> --against snapshots/2026-04-01.json
 
 ```bash
 suzerain explain PYTHON_LO001       # handbook entry + linked ADR
-suzerain explain --all              # table of all 55 rules
+suzerain explain --all              # table of all 62 rules
 ```
 
 ### Health check
@@ -91,7 +91,7 @@ suzerain doctor     # verify install integrity
 
 ## Coverage
 
-55 rules total. Transverse rules apply to every stack; adapter rules apply only to
+62 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
 ### Transverse (18 rules)
@@ -125,6 +125,13 @@ Covers packaging (`NODE_PK`), quality (`NODE_QU`), tests (`NODE_TS`), CI
 Covers packaging (`RUST_PK`: Cargo.toml/lock, edition), quality (`RUST_QU`:
 toolchain pin), tests (`RUST_TS`: `#[test]` annotations), CI (`RUST_CI`: cargo
 fmt/clippy/test), and sanitizing (`RUST_SA`: `target/` in `.gitignore`).
+
+### Go adapter (7 rules — prefix `GO_`)
+
+Covers packaging (`GO_PK`: go.mod/go.sum, go directive), quality (`GO_QU`:
+golangci-lint config), tests (`GO_TS`: `*_test.go` with `func Test*`), CI
+(`GO_CI`: vet/build + test + lint), and sanitizing (`GO_SA`: `*.test` in
+`.gitignore`).
 
 > Rule IDs were renamed in v0.2.0 (e.g. `LO001` → `PYTHON_LO001`).
 > See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
@@ -161,13 +168,13 @@ matching the schemas of the corresponding CLI commands.
 
 ## Documentation
 
-- [Handbook](docs/handbook/) — charter + all 55 rules with rationale.
+- [Handbook](docs/handbook/) — charter + all 62 rules with rationale.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.
 
 ## Roadmap
 
-Future paliers: Go adapter.
+Future paliers: Go scaffolder (`suzerain new --stack=go`).
 
 ## License
 

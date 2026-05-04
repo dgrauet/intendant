@@ -12,6 +12,7 @@ _STACK_MARKERS: dict[str, tuple[str, ...]] = {
     "python": ("pyproject.toml",),
     "node": ("package.json",),
     "rust": ("Cargo.toml",),
+    "go": ("go.mod",),
 }
 
 
@@ -20,7 +21,7 @@ def detect_stack(path: Path) -> str | None:
 
     Detection order:
     1. ``claude-skill`` if a SKILL.md exists at depth ≤ 2 (via skill adapter inspector).
-    2. ``python``/``node``/``rust`` if their root marker file exists.
+    2. ``python``/``node``/``rust``/``go`` if their root marker file exists.
 
     Raises ``FileNotFoundError`` if ``path`` does not exist.
     """
@@ -42,7 +43,7 @@ class Repo:
     """A repository with its detected stack."""
 
     path: Path
-    stack: str  # "claude-skill" | "python" | "node" | "rust" | "auto" | "multi"
+    stack: str  # "claude-skill" | "python" | "node" | "rust" | "go" | "auto" | "multi"
     name: str | None = None  # subproject name; None for root meta-Repo or single-subproject
 
     @classmethod
