@@ -31,11 +31,17 @@ class DashboardScan:
 
 
 def _scan_one(repo_path: Path) -> tuple[Path, Report | Exception]:
-    """Audit a single repo, capturing any exception as the result."""
+    """Audit a single repo, capturing any exception as the result.
+
+    Multi-subproject mode: passes ALL rules to ``run_audit`` so it can dispatch
+    transverse rules at root and stack-specific rules per subproject.
+    Legacy single-Repo mode: filters at the call site as before.
+    """
     try:
         repo = Repo.from_path(repo_path)
         config = load_config(repo_path)
-        rules = filter_for_repo(collect_rules(), repo, config)
+        all_rules = collect_rules()
+        rules = all_rules if config.subprojects else filter_for_repo(all_rules, repo, config)
         report = run_audit(repo, config, rules)
         return (repo_path, report)
     except Exception as exc:
