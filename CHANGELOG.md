@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3](https://github.com/dgrauet/suzerain/compare/v0.2.2...v0.2.3) (2026-05-04)
+
+
+### Features
+
+* **audit/output:** multi-subproject sections in human/JSON/markdown + e2e fixture ([c760742](https://github.com/dgrauet/suzerain/commit/c760742fae9b2eb11a570f058f229a6ab66a5e11))
+* **audit:** orchestrate multi-subproject audit + per-subproject exemption resolution ([a40831a](https://github.com/dgrauet/suzerain/commit/a40831ace9dbd66c887118416ab20ed1421ffa91))
+* **core:** add Subproject + extend SuzerainConfig/Repo/Finding for multi-subproject ([08babac](https://github.com/dgrauet/suzerain/commit/08babacca6fb517f3a426f211d48dd4ab3c2b6d7))
+
 ## [0.2.2](https://github.com/dgrauet/suzerain/compare/v0.2.1...v0.2.2) (2026-05-03)
 
 
