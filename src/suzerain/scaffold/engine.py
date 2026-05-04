@@ -11,7 +11,7 @@ import tomli_w
 from suzerain.core.paths import templates_root
 from suzerain.scaffold.substitutions import SubstitutionContext, resolve_placeholders
 
-_KNOWN_STACKS = {"python", "claude-skill", "node"}
+_KNOWN_STACKS = {"python", "claude-skill", "node", "rust"}
 
 
 def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> None:
@@ -182,6 +182,25 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
             '    expect(greet("world")).toBe("Hello, world!");\n'
             "  });\n"
             "});\n"
+        )
+    elif stack == "rust":
+        # src/lib.rs with one #[test] satisfies RUST_TS001 out of the box.
+        src_dir = target / "src"
+        src_dir.mkdir(parents=True, exist_ok=True)
+        (src_dir / "lib.rs").write_text(
+            "pub fn add(a: i32, b: i32) -> i32 {\n"
+            "    a + b\n"
+            "}\n"
+            "\n"
+            "#[cfg(test)]\n"
+            "mod tests {\n"
+            "    use super::*;\n"
+            "\n"
+            "    #[test]\n"
+            "    fn it_adds() {\n"
+            "        assert_eq!(add(2, 3), 5);\n"
+            "    }\n"
+            "}\n"
         )
 
 

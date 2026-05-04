@@ -1,0 +1,20 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+rustup show         # ensure toolchain matches rust-toolchain.toml
+cargo build         # generates Cargo.lock
+```
+
+## Commands
+
+- `cargo test` — run unit + integration tests
+- `cargo fmt` — format
+- `cargo clippy -- -D warnings` — lint
+
+## License
+
+MIT

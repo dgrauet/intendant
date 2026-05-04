@@ -57,6 +57,9 @@ suzerain new my-skill --stack=claude-skill --description="..."
 # Node package
 suzerain new my-pkg --stack=node --description="..."
 
+# Rust crate
+suzerain new my-crate --stack=rust --description="..."
+
 # After scaffolding
 cd my-lib
 uv sync && uv run pre-commit install
@@ -164,7 +167,7 @@ matching the schemas of the corresponding CLI commands.
 
 ## Roadmap
 
-Future paliers: Go adapter; scaffolder for Rust (`suzerain new --stack=rust`).
+Future paliers: Go adapter.
 
 ## License
 

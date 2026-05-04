@@ -24,7 +24,7 @@ def new(
         str,
         typer.Option(
             "--stack",
-            help="Target stack. Currently supported: python, claude-skill, node.",
+            help="Target stack. Currently supported: python, claude-skill, node, rust.",
         ),
     ] = "python",
     description: Annotated[
@@ -128,4 +128,11 @@ def _print_quickstart(target: Path, stack: str) -> None:
         console.print("  npm test                     # run vitest")
         console.print("  npm run lint                 # run eslint")
         console.print("  npm run typecheck            # run tsc --noEmit")
+        console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")
+    elif stack == "rust":
+        console.print(f"  cd {target}")
+        console.print("  cargo build                  # generates Cargo.lock")
+        console.print("  cargo test                   # run tests")
+        console.print("  cargo clippy -- -D warnings  # lint")
+        console.print("  cargo fmt                    # format")
         console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")

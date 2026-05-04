@@ -157,3 +157,41 @@ def test_scaffold_node_passes_required_audit(tmp_path: Path) -> None:
     assert audit_proc.returncode == 0, (
         f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
     )
+
+
+@pytest.mark.e2e()
+def test_scaffold_rust_passes_required_audit(tmp_path: Path) -> None:
+    """Success criterion: a fresh rust scaffold passes suzerain audit --severity=required."""
+    target = tmp_path / "my-rust-test"
+    suzerain_repo = Path(__file__).resolve().parents[2]
+    proc = subprocess.run(
+        [
+            "uv",
+            "run",
+            "suzerain",
+            "new",
+            "my-rust-test",
+            "--stack",
+            "rust",
+            "--path",
+            str(tmp_path),
+        ],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, f"scaffold failed: {proc.stderr}"
+    assert target.is_dir()
+    assert (target / "Cargo.toml").is_file()
+    assert (target / "rust-toolchain.toml").is_file()
+    assert (target / "src" / "lib.rs").is_file()
+    assert (target / ".github" / "workflows" / "ci.yml").is_file()
+    audit_proc = subprocess.run(
+        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
+        cwd=suzerain_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert audit_proc.returncode == 0, (
+        f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
+    )

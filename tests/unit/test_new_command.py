@@ -50,10 +50,10 @@ def test_new_refuses_existing_target(tmp_path: Path) -> None:
 def test_new_unknown_stack(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["new", "x", "--stack", "rust", "--path", str(tmp_path), "--no-git"],
+        ["new", "x", "--stack", "go", "--path", str(tmp_path), "--no-git"],
     )
     assert result.exit_code == 1
-    assert "rust" in result.stdout.lower() or "stack" in result.stdout.lower()
+    assert "go" in result.stdout.lower() or "stack" in result.stdout.lower()
 
 
 def test_new_with_git_inits_repo(tmp_path: Path) -> None:
@@ -280,3 +280,74 @@ def test_new_node_eslint_config_present(tmp_path: Path) -> None:
 def test_new_node_tsconfig_present(tmp_path: Path) -> None:
     target = _invoke_node_scaffold(tmp_path)
     assert (target / "tsconfig.json").is_file()
+
+
+# ---------------------------------------------------------------------------
+# Rust scaffolder
+# ---------------------------------------------------------------------------
+
+
+def _invoke_rust_scaffold(tmp_path: Path, name: str = "my-rust-app") -> Path:
+    result = runner.invoke(
+        app,
+        [
+            "new",
+            name,
+            "--stack",
+            "rust",
+            "--description",
+            "A Rust test project",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    return tmp_path / name
+
+
+def test_new_rust_creates_cargo_toml_with_package(tmp_path: Path) -> None:
+    target = _invoke_rust_scaffold(tmp_path)
+    cargo = target / "Cargo.toml"
+    assert cargo.is_file()
+    data = tomllib.loads(cargo.read_text())
+    assert data["package"]["name"] == "my-rust-app"
+    assert data["package"]["edition"] == "2021"
+
+
+def test_new_rust_creates_lib_rs_with_test(tmp_path: Path) -> None:
+    target = _invoke_rust_scaffold(tmp_path)
+    lib = target / "src" / "lib.rs"
+    assert lib.is_file()
+    assert "#[test]" in lib.read_text()
+
+
+def test_new_rust_ships_toolchain_pin(tmp_path: Path) -> None:
+    target = _invoke_rust_scaffold(tmp_path)
+    assert (target / "rust-toolchain.toml").is_file()
+
+
+def test_new_rust_ci_workflow_runs_fmt_clippy_test(tmp_path: Path) -> None:
+    target = _invoke_rust_scaffold(tmp_path)
+    ci = target / ".github" / "workflows" / "ci.yml"
+    assert ci.is_file()
+    content = ci.read_text()
+    assert "cargo fmt" in content
+    assert "cargo clippy" in content
+    assert "cargo test" in content
+
+
+def test_new_rust_gitignore_has_target(tmp_path: Path) -> None:
+    target = _invoke_rust_scaffold(tmp_path)
+    text = (target / ".gitignore").read_text()
+    assert "target/" in text
+
+
+def test_new_rust_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) -> None:
+    target = _invoke_rust_scaffold(tmp_path)
+    cfg = target / ".suzerain.toml"
+    assert cfg.is_file()
+    data = tomllib.loads(cfg.read_text())
+    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["stack"] == "rust"
+    assert "RUST_PK002" in data.get("exemptions", {})

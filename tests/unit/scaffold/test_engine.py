@@ -131,7 +131,7 @@ def test_scaffold_drops_template_suffix(tmp_path: Path, context: SubstitutionCon
 def test_scaffold_unknown_stack_raises(tmp_path: Path, context: SubstitutionContext) -> None:
     target = tmp_path / "my-test"
     with pytest.raises(ValueError, match="unknown stack"):
-        scaffold_project(target, "rust", context)
+        scaffold_project(target, "go", context)
 
 
 def test_scaffold_creates_placeholder_test(tmp_path: Path, context: SubstitutionContext) -> None:
