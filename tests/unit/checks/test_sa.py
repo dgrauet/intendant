@@ -100,15 +100,18 @@ def test_sa002_metadata() -> None:
 
 
 # ---------------------------------------------------------------------------
-# SA004GitignoreBaseline
+# SA004GitignoreBaseline (simplified — generic .DS_Store only)
 # ---------------------------------------------------------------------------
 
 
-_BASELINE_CONTENT = "__pycache__/\n.DS_Store\n.venv/\n"
+def test_sa004_pass_with_ds_store(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text(".DS_Store\n")
+    repo = Repo(path=tmp_path, stack="python")
+    assert SA004GitignoreBaseline().check(repo).passing is True
 
 
-def test_sa004_pass(tmp_path: Path) -> None:
-    (tmp_path / ".gitignore").write_text(_BASELINE_CONTENT)
+def test_sa004_pass_with_extra_content(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text("__pycache__/\n.DS_Store\n.venv/\n")
     repo = Repo(path=tmp_path, stack="python")
     assert SA004GitignoreBaseline().check(repo).passing is True
 
@@ -120,28 +123,12 @@ def test_sa004_fail_no_gitignore(tmp_path: Path) -> None:
     assert ".gitignore" in result.evidence
 
 
-def test_sa004_fail_missing_pycache(tmp_path: Path) -> None:
-    (tmp_path / ".gitignore").write_text(".DS_Store\n.venv/\n")
-    repo = Repo(path=tmp_path, stack="python")
-    result = SA004GitignoreBaseline().check(repo)
-    assert result.passing is False
-    assert "__pycache__/" in result.evidence
-
-
 def test_sa004_fail_missing_ds_store(tmp_path: Path) -> None:
     (tmp_path / ".gitignore").write_text("__pycache__/\n.venv/\n")
     repo = Repo(path=tmp_path, stack="python")
     result = SA004GitignoreBaseline().check(repo)
     assert result.passing is False
     assert ".DS_Store" in result.evidence
-
-
-def test_sa004_fail_missing_venv(tmp_path: Path) -> None:
-    (tmp_path / ".gitignore").write_text("__pycache__/\n.DS_Store\n")
-    repo = Repo(path=tmp_path, stack="python")
-    result = SA004GitignoreBaseline().check(repo)
-    assert result.passing is False
-    assert ".venv/" in result.evidence
 
 
 def test_sa004_metadata() -> None:
@@ -151,23 +138,15 @@ def test_sa004_metadata() -> None:
     assert "*" in rule.stacks
 
 
-def test_sa004_node_baseline(tmp_path: Path) -> None:
-    (tmp_path / ".gitignore").write_text("node_modules/\n.DS_Store\ndist/\n")
+def test_sa004_passes_for_node_stack_with_ds_store(tmp_path: Path) -> None:
+    """SA004 is now generic — only .DS_Store required regardless of stack."""
+    (tmp_path / ".gitignore").write_text(".DS_Store\n")
     repo = Repo(path=tmp_path, stack="node")
     result = SA004GitignoreBaseline().check(repo)
     assert result.passing is True
-    assert "node" in result.evidence
 
 
-def test_sa004_node_fails_when_node_modules_missing(tmp_path: Path) -> None:
-    (tmp_path / ".gitignore").write_text(".DS_Store\ndist/\n")
-    repo = Repo(path=tmp_path, stack="node")
-    result = SA004GitignoreBaseline().check(repo)
-    assert result.passing is False
-    assert "node_modules/" in result.evidence
-
-
-def test_sa004_claude_skill_only_needs_ds_store(tmp_path: Path) -> None:
+def test_sa004_passes_for_claude_skill_with_ds_store(tmp_path: Path) -> None:
     (tmp_path / ".gitignore").write_text(".DS_Store\n")
     repo = Repo(path=tmp_path, stack="claude-skill")
     result = SA004GitignoreBaseline().check(repo)

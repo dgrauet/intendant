@@ -25,13 +25,26 @@ If the project uses environment variables, a `.env.example` file
 at the root documents the expected variable names with empty or
 dummy values. The real `.env` is in `.gitignore`.
 
-### SA004 — `.gitignore` baseline
+### SA004 — `.gitignore` generic baseline
 
 **Severity:** required · **Stacks:** *
 
-The root `.gitignore` must contain the baseline patterns appropriate for
-the stack:
+The root `.gitignore` must contain `.DS_Store`. This is the universal
+baseline applicable to all stacks. Stack-specific patterns are enforced
+by the stack adapter rules below.
 
-- **python**: `__pycache__/`, `.DS_Store`, `.venv/`.
-- **node**: `node_modules/`, `.DS_Store`, `dist/`.
-- **other** (claude-skill, auto, generic): `.DS_Store` only.
+### PYTHON_SA001 — Python `.gitignore` baseline
+
+**Severity:** required · **Stacks:** python
+
+The root `.gitignore` must contain the Python-specific baseline patterns:
+`__pycache__/` and `.venv/`. Skipped when `.gitignore` does not exist
+(covered by SA004).
+
+### NODE_SA001 — Node `.gitignore` baseline
+
+**Severity:** required · **Stacks:** node
+
+The root `.gitignore` must contain the Node-specific baseline patterns:
+`node_modules/` and `dist/`. Skipped when `.gitignore` does not exist
+(covered by SA004).

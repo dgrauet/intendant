@@ -9,6 +9,7 @@ from suzerain.adapters.python.pk import (
     PK004NoRequirementsTxt,
 )
 from suzerain.adapters.python.qu import QU001Ruff, QU002Ty, QU003StrictTypeAnnotations, QU004TyCheck
+from suzerain.adapters.python.sa import PYTHON_SA001GitignoreBaseline
 from suzerain.adapters.python.ts import TS001Pytest, TS003CoverageConfigured
 from suzerain.core.rule import Rule
 
@@ -26,4 +27,5 @@ RULES: list[Rule] = [
     TS001Pytest(),
     TS003CoverageConfigured(),
     PYTHON_CI001MinimumSteps(),
+    PYTHON_SA001GitignoreBaseline(),
 ]
