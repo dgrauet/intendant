@@ -334,3 +334,81 @@ def test_cli_diff_json_format_emits_valid_json(tmp_path: Path) -> None:
     assert "score_changes" in parsed
     assert "new_failures" in parsed
     assert "resolved_failures" in parsed
+
+
+# ---------------------------------------------------------------------------
+# --output and --from-snapshot tests
+# ---------------------------------------------------------------------------
+
+
+def test_format_html_without_output_exits_2(tmp_path: Path) -> None:
+    """--format=html requires --output PATH."""
+    _seed_governed(tmp_path / "repo_a")
+
+    result = cli_runner.invoke(app, ["report", str(tmp_path), "--format=html"])
+    assert result.exit_code == 2
+    assert "--output" in result.output
+    assert "html" in result.output.lower()
+
+
+def test_format_html_with_output_dir_exits_2(tmp_path: Path) -> None:
+    """--output pointing to an existing directory is rejected."""
+    _seed_governed(tmp_path / "repo_a")
+    out_dir = tmp_path / "out_dir"
+    out_dir.mkdir()
+
+    result = cli_runner.invoke(
+        app, ["report", str(tmp_path), "--format=html", "--output", str(out_dir)]
+    )
+    assert result.exit_code == 2
+    assert "directory" in result.output.lower()
+
+
+def test_output_with_non_html_format_warns_and_continues(tmp_path: Path) -> None:
+    """--output with --format=human emits a warning but does not fail."""
+    _seed_governed(tmp_path / "repo_a")
+    out = tmp_path / "ignored.html"
+
+    result = cli_runner.invoke(
+        app, ["report", str(tmp_path), "--format=human", "--output", str(out)]
+    )
+    # Exit code may be 0 or 1 depending on the audit, but NOT 2 (validation passed)
+    assert result.exit_code in (0, 1)
+    assert "ignored" in result.output.lower() or "--output" in result.output
+
+
+def test_from_snapshot_missing_path_exits_2(tmp_path: Path) -> None:
+    """--from-snapshot path must exist."""
+    result = cli_runner.invoke(
+        app,
+        ["report", str(tmp_path), "--from-snapshot", str(tmp_path / "nope.json")],
+    )
+    assert result.exit_code == 2
+    assert "snapshot" in result.output.lower()
+
+
+def test_from_snapshot_with_diff_exits_2(tmp_path: Path) -> None:
+    """--from-snapshot is incompatible with --diff."""
+    snap = tmp_path / "snap.json"
+    snap.write_text(
+        '{"schema_version":"1","root":".","timestamp":"2026-01-01T000000","scan_count":0,"repos":[]}'
+    )
+
+    result = cli_runner.invoke(
+        app,
+        ["report", str(tmp_path), "--diff", "--from-snapshot", str(snap)],
+    )
+    assert result.exit_code == 2
+    assert "incompatible" in result.output.lower() or "--from-snapshot" in result.output
+
+
+def test_format_html_not_yet_wired_exits_2(tmp_path: Path) -> None:
+    """Until Task 7 wires it, --format=html with valid --output errors with a placeholder."""
+    _seed_governed(tmp_path / "repo_a")
+    out = tmp_path / "report.html"
+
+    result = cli_runner.invoke(
+        app, ["report", str(tmp_path), "--format=html", "--output", str(out)]
+    )
+    assert result.exit_code == 2
+    assert "not yet implemented" in result.output.lower()

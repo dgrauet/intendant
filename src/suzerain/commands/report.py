@@ -94,6 +94,21 @@ def report(
             help="Override the snapshot directory (default: <root>/.suzerain/snapshots/).",
         ),
     ] = None,
+    output: Annotated[
+        Path | None,
+        typer.Option(
+            "--output",
+            help="Output file path. Required when --format=html. Ignored otherwise.",
+        ),
+    ] = None,
+    from_snapshot: Annotated[
+        Path | None,
+        typer.Option(
+            "--from-snapshot",
+            help="Render an existing snapshot JSON instead of running a fresh scan. "
+            "Incompatible with --diff.",
+        ),
+    ] = None,
 ) -> None:
     """Aggregate audit across all suzerain-governed repos under PATH."""
     from suzerain.audit.diff import compute_diff
@@ -108,6 +123,26 @@ def report(
     from suzerain.audit.snapshot import (
         save_snapshot as _save_snapshot,
     )
+
+    # ----- Validate new flags up-front, before any scanning -----
+    if format == "html" and output is None:
+        typer.echo("--output PATH is required when --format=html", err=True)
+        raise typer.Exit(code=2)
+    if output is not None and format != "html":
+        typer.echo(f"--output is ignored for --format={format}", err=True)
+    if output is not None and output.exists() and output.is_dir():
+        typer.echo("--output must be a file path, not a directory", err=True)
+        raise typer.Exit(code=2)
+    if from_snapshot is not None and not from_snapshot.exists():
+        typer.echo(f"--from-snapshot path does not exist: {from_snapshot}", err=True)
+        raise typer.Exit(code=2)
+    if from_snapshot is not None and diff:
+        typer.echo("--from-snapshot and --diff are incompatible", err=True)
+        raise typer.Exit(code=2)
+    if format == "html":
+        # Placeholder — Task 7 will wire actual rendering
+        typer.echo("html format not yet implemented", err=True)
+        raise typer.Exit(code=2)
 
     resolved = path if path is not None else Path.cwd()
     if not resolved.exists():
