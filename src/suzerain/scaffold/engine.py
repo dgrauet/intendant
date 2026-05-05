@@ -11,7 +11,7 @@ import tomli_w
 from suzerain.core.paths import templates_root
 from suzerain.scaffold.substitutions import SubstitutionContext, resolve_placeholders
 
-_KNOWN_STACKS = {"python", "claude-skill", "node", "rust", "go"}
+_KNOWN_STACKS = {"python", "claude-skill", "node", "rust", "go", "swift"}
 
 
 def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> None:
@@ -228,6 +228,50 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
             "    }\n"
             "}\n"
         )
+    elif stack == "swift":
+        # Package.swift + Sources/<Name>/<Name>.swift + Tests satisfy SWIFT_PK001/TS001.
+        module = _swift_module_name(context.project_name)
+        (target / "Package.swift").write_text(
+            "// swift-tools-version:5.9\n"
+            "import PackageDescription\n"
+            "\n"
+            "let package = Package(\n"
+            f'    name: "{module}",\n'
+            "    products: [\n"
+            f'        .library(name: "{module}", targets: ["{module}"]),\n'
+            "    ],\n"
+            "    targets: [\n"
+            f'        .target(name: "{module}"),\n'
+            f'        .testTarget(name: "{module}Tests", dependencies: ["{module}"]),\n'
+            "    ]\n"
+            ")\n"
+        )
+        sources_dir = target / "Sources" / module
+        sources_dir.mkdir(parents=True, exist_ok=True)
+        (sources_dir / f"{module}.swift").write_text(
+            f"public struct {module} {{\n"
+            "    public init() {}\n"
+            "    public func add(_ a: Int, _ b: Int) -> Int { a + b }\n"
+            "}\n"
+        )
+        tests_dir = target / "Tests" / f"{module}Tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        (tests_dir / f"{module}Tests.swift").write_text(
+            "import XCTest\n"
+            f"@testable import {module}\n"
+            "\n"
+            f"final class {module}Tests: XCTestCase {{\n"
+            "    func testAdd() {\n"
+            f"        XCTAssertEqual({module}().add(2, 3), 5)\n"
+            "    }\n"
+            "}\n"
+        )
+
+
+def _swift_module_name(project_name: str) -> str:
+    """Convert ``my-project`` / ``my_project`` → ``MyProject`` (Swift identifier)."""
+    parts = [p for p in project_name.replace("_", "-").split("-") if p]
+    return "".join(p[:1].upper() + p[1:] for p in parts) or "App"
 
 
 def _strict_enforcement_in_suzerain_toml(target: Path, context: SubstitutionContext) -> None:

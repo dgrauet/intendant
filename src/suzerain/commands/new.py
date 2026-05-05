@@ -24,7 +24,7 @@ def new(
         str,
         typer.Option(
             "--stack",
-            help="Target stack. Currently supported: python, claude-skill, node, rust, go.",
+            help="Target stack. Currently supported: python, claude-skill, node, rust, go, swift.",
         ),
     ] = "python",
     description: Annotated[
@@ -142,4 +142,11 @@ def _print_quickstart(target: Path, stack: str) -> None:
         console.print("  go test ./...                # run tests")
         console.print("  go vet ./...                 # vet")
         console.print("  golangci-lint run            # lint")
+        console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")
+    elif stack == "swift":
+        console.print(f"  cd {target}")
+        console.print("  swift package resolve        # generates Package.resolved")
+        console.print("  swift build                  # build the package")
+        console.print("  swift test                   # run XCTest suite")
+        console.print("  swiftlint --strict           # lint (requires SwiftLint)")
         console.print("  suzerain audit . --severity=required   # verify the scaffold conforms")

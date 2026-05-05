@@ -423,3 +423,80 @@ def test_new_go_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) -> N
     assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "go"
     assert "GO_PK002" in data.get("exemptions", {})
+
+
+# ---------------------------------------------------------------------------
+# Swift scaffold
+# ---------------------------------------------------------------------------
+
+
+def _invoke_swift_scaffold(tmp_path: Path, name: str = "my-swift-app") -> Path:
+    result = runner.invoke(
+        app,
+        [
+            "new",
+            name,
+            "--stack",
+            "swift",
+            "--description",
+            "A Swift test project",
+            "--path",
+            str(tmp_path),
+            "--no-git",
+        ],
+    )
+    assert result.exit_code == 0, result.stdout
+    return tmp_path / name
+
+
+def test_new_swift_creates_package_swift_with_module(tmp_path: Path) -> None:
+    target = _invoke_swift_scaffold(tmp_path)
+    pkg = target / "Package.swift"
+    assert pkg.is_file()
+    text = pkg.read_text()
+    # kebab-case → PascalCase: my-swift-app → MySwiftApp
+    assert 'name: "MySwiftApp"' in text
+    assert "// swift-tools-version:" in text
+
+
+def test_new_swift_creates_sources_and_tests(tmp_path: Path) -> None:
+    target = _invoke_swift_scaffold(tmp_path)
+    src = target / "Sources" / "MySwiftApp" / "MySwiftApp.swift"
+    test = target / "Tests" / "MySwiftAppTests" / "MySwiftAppTests.swift"
+    assert src.is_file()
+    assert test.is_file()
+    assert "public struct MySwiftApp" in src.read_text()
+    assert "func testAdd" in test.read_text()
+    assert "XCTestCase" in test.read_text()
+
+
+def test_new_swift_ships_swiftlint_config(tmp_path: Path) -> None:
+    target = _invoke_swift_scaffold(tmp_path)
+    assert (target / ".swiftlint.yml").is_file()
+
+
+def test_new_swift_ci_workflow_runs_build_test_lint(tmp_path: Path) -> None:
+    target = _invoke_swift_scaffold(tmp_path)
+    ci = target / ".github" / "workflows" / "ci.yml"
+    assert ci.is_file()
+    content = ci.read_text()
+    assert "swift build" in content
+    assert "swift test" in content
+    assert "swiftlint" in content
+
+
+def test_new_swift_gitignore_has_baseline_patterns(tmp_path: Path) -> None:
+    target = _invoke_swift_scaffold(tmp_path)
+    text = (target / ".gitignore").read_text()
+    assert ".build/" in text
+    assert "xcuserdata/" in text
+
+
+def test_new_swift_suzerain_toml_has_strict_enforcement_and_exemption(tmp_path: Path) -> None:
+    target = _invoke_swift_scaffold(tmp_path)
+    cfg = target / ".suzerain.toml"
+    assert cfg.is_file()
+    data = tomllib.loads(cfg.read_text())
+    assert data["suzerain"]["enforcement"] == "strict"
+    assert data["suzerain"]["stack"] == "swift"
+    assert "SWIFT_PK002" in data.get("exemptions", {})

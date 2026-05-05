@@ -1,0 +1,20 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+swift package resolve   # generates Package.resolved
+swift build
+```
+
+## Commands
+
+- `swift test` — run tests (XCTest + Swift Testing)
+- `swift build` — build the package
+- `swiftlint --strict` — lint (requires SwiftLint installed)
+
+## License
+
+MIT
