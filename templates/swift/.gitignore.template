@@ -1,0 +1,10 @@
+.build/
+xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+.swiftpm/
+*.swiftpm/configuration/
+.DS_Store
+.idea/
+.vscode/
+docs/superpowers/

@@ -64,6 +64,9 @@ suzerain new my-crate --stack=rust --description="..."
 # Go module
 suzerain new my-svc --stack=go --description="..."
 
+# Swift (SwiftPM library, package + Sources + Tests + swiftlint + CI)
+suzerain new my-pkg --stack=swift --description="..."
+
 # After scaffolding
 cd my-lib
 uv sync && uv run pre-commit install
