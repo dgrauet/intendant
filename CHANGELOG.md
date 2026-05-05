@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0](https://github.com/dgrauet/suzerain/compare/v2.0.0...v3.0.0) (2026-05-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* the audit gate field is renamed both in code and in .suzerain.toml to free up `mode` for the new `auto`/`manual` semantics on Repo/Report:
+
+### Code Refactoring
+
+* rename SuzerainConfig.mode → enforcement ([#43](https://github.com/dgrauet/suzerain/issues/43)) ([50bcbd3](https://github.com/dgrauet/suzerain/commit/50bcbd3d82230ee31da53990d5c7c754e0591ae1))
+
 ## [2.0.0](https://github.com/dgrauet/suzerain/compare/v1.3.0...v2.0.0) (2026-05-04)
 
 
