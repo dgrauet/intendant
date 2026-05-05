@@ -1,6 +1,6 @@
 [project]
 name = "suzerain"
-version = "3.0.0"
+version = "3.1.0"
 description = "Multi-stack project governance framework"
 readme = "README.md"
 requires-python = ">=3.13"

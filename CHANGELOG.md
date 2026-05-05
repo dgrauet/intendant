@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0](https://github.com/dgrauet/suzerain/compare/v3.0.0...v3.1.0) (2026-05-05)
+
+
+### Features
+
+* **scaffold:** add Swift scaffolder ([#45](https://github.com/dgrauet/suzerain/issues/45)) ([61f3964](https://github.com/dgrauet/suzerain/commit/61f39643cfcbd529354b29bbcd8f0b50d7947ef1))
+
 ## [3.0.0](https://github.com/dgrauet/suzerain/compare/v2.0.0...v3.0.0) (2026-05-05)
 
 
