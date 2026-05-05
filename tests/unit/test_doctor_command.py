@@ -1,9 +1,9 @@
-"""Tests for `suzerain doctor`."""
+"""Tests for `intendant doctor`."""
 
 from typer.testing import CliRunner
 
-from suzerain import __version__
-from suzerain.cli import app
+from intendant import __version__
+from intendant.cli import app
 
 runner = CliRunner()
 

@@ -1,0 +1,46 @@
+"""Rule abstract base class and CheckResult dataclass."""
+
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import ClassVar, Literal
+
+from intendant.core.patch import Patch
+from intendant.core.repo import Repo
+
+
+@dataclass(frozen=True)
+class CheckResult:
+    """Outcome of running a Rule against a Repo."""
+
+    passing: bool
+    evidence: str = ""
+    skipped: bool = False
+
+
+class Rule(ABC):
+    """Abstract base class for all intendant rules."""
+
+    id: ClassVar[str]
+    title: ClassVar[str]
+    severity: ClassVar[Literal["required", "recommended", "optional"]]
+    stacks: ClassVar[tuple[str, ...]]
+    handbook_ref: ClassVar[str]
+    adr_ref: ClassVar[str | None] = None
+    template_ref: ClassVar[str | None] = None
+
+    @classmethod
+    def supports_fix(cls) -> bool:
+        """True if this Rule subclass overrides the no-op ``fix`` method."""
+        return cls.fix is not Rule.fix
+
+    def applies(self, repo: Repo) -> bool:
+        return "*" in self.stacks or any(s in self.stacks for s in repo.stacks)
+
+    @abstractmethod
+    def check(self, repo: Repo) -> CheckResult: ...
+
+    def fix(self, repo: Repo, result: CheckResult) -> Patch | None:
+        """Default: no auto-fix. Subclasses override to provide one."""
+        return None

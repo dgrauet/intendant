@@ -1,0 +1,18 @@
+[intendant]
+version = "1"
+enforcement = "advisory"
+
+[[subprojects]]
+name = "root"
+path = "."
+stack = "python"
+
+[[subprojects]]
+name = "backend"
+path = "backend"
+stack = "python"
+
+[exemptions]
+
+[exemptions.backend]
+PYTHON_PK002 = "fresh fixture: lockfile generated at install"

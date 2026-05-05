@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.swift.qu import SwiftLinter
-from suzerain.adapters.swift.sa import SWIFT_SA001GitignoreBaseline
-from suzerain.adapters.swift.ts import SwiftTestFiles
-from suzerain.core.repo import Repo
+from intendant.adapters.swift.qu import SwiftLinter
+from intendant.adapters.swift.sa import SWIFT_SA001GitignoreBaseline
+from intendant.adapters.swift.ts import SwiftTestFiles
+from intendant.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:

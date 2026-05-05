@@ -1,7 +1,0 @@
-[suzerain]
-version = "1"
-stack = "node"
-enforcement = "strict"
-
-[exemptions]
-NODE_PK002 = "fresh scaffold; run `npm install` (or yarn/pnpm/bun) to generate the lockfile, then remove this exemption"

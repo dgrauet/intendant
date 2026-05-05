@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.sa import PYTHON_SA001GitignoreBaseline
-from suzerain.core.repo import Repo
+from intendant.adapters.python.sa import PYTHON_SA001GitignoreBaseline
+from intendant.core.repo import Repo
 
 
 def test_python_sa001_skipped_when_no_gitignore(tmp_path: Path) -> None:

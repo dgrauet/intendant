@@ -1,4 +1,4 @@
-"""Tests for `suzerain audit --fix`."""
+"""Tests for `intendant audit --fix`."""
 
 import shutil
 import subprocess
@@ -6,7 +6,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 runner = CliRunner()
 
@@ -39,10 +39,10 @@ def test_fix_dry_run_does_not_write(tmp_path: Path, fixtures_dir: Path) -> None:
 
 
 def test_fix_creates_proposed_dir_for_unsafe(tmp_path: Path, fixtures_dir: Path) -> None:
-    """Currently all our fixes are safe, so .suzerain/proposed/ may not be created.
+    """Currently all our fixes are safe, so .intendant/proposed/ may not be created.
     This test asserts the dir is at least valid when needed."""
     target = _setup(tmp_path, "nonconformant_python_repo", fixtures_dir)
     runner.invoke(app, ["audit", str(target), "--fix"])
-    proposed = target / ".suzerain" / "proposed"
+    proposed = target / ".intendant" / "proposed"
     if proposed.exists():
         assert proposed.is_dir()

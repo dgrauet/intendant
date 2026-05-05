@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.core.handbook import Handbook
+from intendant.core.handbook import Handbook
 
 
 @pytest.fixture()
@@ -66,7 +66,7 @@ def test_handbook_root_must_exist(tmp_path: Path) -> None:
 
 def test_handbook_regex_accepts_node_prefix(tmp_path: Path) -> None:
     """_RULE_HEADING_RE must match NODE_PK001-style IDs (new) and XX001-style (legacy)."""
-    from suzerain.core.handbook import _RULE_HEADING_RE
+    from intendant.core.handbook import _RULE_HEADING_RE
 
     # Legacy 2-letter prefix (backward compat)
     assert _RULE_HEADING_RE.match("### XX001 — Some rule")
@@ -84,8 +84,8 @@ def test_handbook_regex_accepts_node_prefix(tmp_path: Path) -> None:
 
 def test_handbook_indexes_node_rules() -> None:
     """The real handbook must contain all 6 Node rules after 10-node.md is added."""
-    from suzerain.core.handbook import Handbook
-    from suzerain.core.paths import docs_root
+    from intendant.core.handbook import Handbook
+    from intendant.core.paths import docs_root
 
     handbook = Handbook(root=docs_root())
     rule_ids = handbook.list_rules()
@@ -99,8 +99,8 @@ def test_handbook_indexes_node_rules() -> None:
 
 
 def test_handbook_indexes_all_sk_rules() -> None:
-    from suzerain.core.handbook import Handbook
-    from suzerain.core.paths import docs_root
+    from intendant.core.handbook import Handbook
+    from intendant.core.paths import docs_root
 
     handbook = Handbook(root=docs_root())
     rule_ids = handbook.list_rules()

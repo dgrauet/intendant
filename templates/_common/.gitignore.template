@@ -1,4 +1,4 @@
-# suzerain-template: v1
+# intendant-template: v1
 
 # Python
 __pycache__/
@@ -42,8 +42,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-# Suzerain runtime
-.suzerain/proposed/
+# Intendant runtime
+.intendant/proposed/
 
 # Local environment
 .env

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.core.repo import Repo, detect_stacks
+from intendant.core.repo import Repo, detect_stacks
 
 
 def test_detect_python_from_pyproject(fixtures_dir: Path) -> None:

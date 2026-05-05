@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.core.repo import Repo
-from suzerain.core.rule import CheckResult, Rule
+from intendant.core.repo import Repo
+from intendant.core.rule import CheckResult, Rule
 
 
 class _PassingRule(Rule):

@@ -3,13 +3,13 @@
 import subprocess
 from pathlib import Path
 
-from suzerain.checks.rl import (
+from intendant.checks.rl import (
     RL001Changelog,
     RL002ConventionalCommits,
     RL003ReleasePlease,
     RL004SemverStrict,
 )
-from suzerain.core.repo import Repo
+from intendant.core.repo import Repo
 
 
 def _git_init(path: Path) -> None:

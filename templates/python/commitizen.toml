@@ -1,4 +1,4 @@
-# suzerain-template: v1
+# intendant-template: v1
 # Standalone commitizen config — préférer la section [tool.commitizen]
 # dans pyproject.toml.
 [tool.commitizen]

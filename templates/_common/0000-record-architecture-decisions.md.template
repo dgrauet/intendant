@@ -1,4 +1,4 @@
-<!-- suzerain-template: v1 -->
+<!-- intendant-template: v1 -->
 # ADR-0000 : Record architecture decisions
 
 - **Statut** : accepted
@@ -18,14 +18,14 @@ traçable et révisable.
   la décision.
 - Numérotation séquentielle `NNNN` (4 chiffres), jamais réutilisée.
 - Statuts : `proposed | accepted | superseded by ADR-MMMM | deprecated`.
-- Template canonique fourni par suzerain (`templates/_common/adr.md`).
+- Template canonique fourni par intendant (`templates/_common/adr.md`).
 
 ## Conséquences
 
 - Toute décision d'architecture non triviale fait l'objet d'une ADR.
 - Les ADRs ne sont pas modifiées rétroactivement : on les supersede
   ou déprécie.
-- Les règles suzerain peuvent pointer vers ces ADRs via `adr_ref`.
+- Les règles intendant peuvent pointer vers ces ADRs via `adr_ref`.
 
 ## Alternatives considérées
 

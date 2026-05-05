@@ -1,0 +1,3 @@
+"""Intendant — multi-stack project governance framework."""
+
+__version__ = "3.1.0"

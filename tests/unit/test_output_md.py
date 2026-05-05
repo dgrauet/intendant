@@ -2,14 +2,14 @@
 
 from pathlib import Path
 
-from suzerain.audit.output.md import render_markdown
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.md import render_markdown
+from intendant.core.report import Finding, Report
 
 
 def test_md_starts_with_header(tmp_path: Path) -> None:
     report = Report(repo_path=tmp_path, stacks=("python",), mode="auto", findings=[])
     md = render_markdown(report)
-    assert md.startswith("## suzerain audit")
+    assert md.startswith("## intendant audit")
 
 
 def test_md_contains_score_table(tmp_path: Path) -> None:
@@ -48,8 +48,8 @@ def test_md_omits_pass_section_when_no_failures(tmp_path: Path) -> None:
 
 def test_md_renders_subproject_sections_when_multi(tmp_path: Path) -> None:
     """Multi-subproject markdown emits one ## section per subproject + ROOT."""
-    from suzerain.audit.output.md import render_markdown
-    from suzerain.core.report import Finding, Report
+    from intendant.audit.output.md import render_markdown
+    from intendant.core.report import Finding, Report
 
     report = Report(
         repo_path=tmp_path,

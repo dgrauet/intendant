@@ -1,7 +1,0 @@
-[suzerain]
-version = "1"
-stack = "swift"
-enforcement = "strict"
-
-[exemptions]
-SWIFT_PK002 = "fresh scaffold; run `swift package resolve` to generate Package.resolved, then remove this exemption"

@@ -1,0 +1,7 @@
+[intendant]
+version = "1"
+stack = "rust"
+enforcement = "strict"
+
+[exemptions]
+RUST_PK002 = "fresh scaffold; run `cargo build` (or `cargo generate-lockfile`) to create Cargo.lock, then remove this exemption"

@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.adapters.node.sa import NODE_SA001GitignoreBaseline
-from suzerain.core.repo import Repo
+from intendant.adapters.node.sa import NODE_SA001GitignoreBaseline
+from intendant.core.repo import Repo
 
 
 def test_node_sa001_skipped_when_no_gitignore(tmp_path: Path) -> None:

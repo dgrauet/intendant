@@ -1,4 +1,4 @@
-"""Tests for `suzerain new`."""
+"""Tests for `intendant new`."""
 
 import subprocess
 import tomllib
@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 runner = CliRunner()
 
@@ -82,7 +82,7 @@ def test_new_with_git_inits_repo(tmp_path: Path) -> None:
         text=True,
         check=True,
     )
-    assert "scaffold from suzerain" in log.stdout
+    assert "scaffold from intendant" in log.stdout
 
 
 def test_new_claude_skill_creates_skill_md_at_nested_path(tmp_path: Path) -> None:
@@ -141,7 +141,7 @@ def test_new_claude_skill_readme_mentions_install_path(tmp_path: Path) -> None:
     assert "~/.claude/skills/" in readme.read_text()
 
 
-def test_new_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(tmp_path: Path) -> None:
+def test_new_claude_skill_intendant_toml_has_strict_mode_and_exemptions(tmp_path: Path) -> None:
     runner.invoke(
         app,
         [
@@ -154,12 +154,12 @@ def test_new_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(tmp_path:
             "--no-git",
         ],
     )
-    cfg = tmp_path / "test-skill" / ".suzerain.toml"
+    cfg = tmp_path / "test-skill" / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "claude-skill"
-    # CI002 exemption removed: claude-skill CI now runs suzerain audit (CI002 passes natively)
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "claude-skill"
+    # CI002 exemption removed: claude-skill CI now runs intendant audit (CI002 passes natively)
     assert "CI003" in data.get("exemptions", {})
     assert "CI004" in data.get("exemptions", {})
 
@@ -260,13 +260,13 @@ def test_new_node_creates_src_and_tests(tmp_path: Path) -> None:
     assert (target / "tests" / "index.test.ts").is_file()
 
 
-def test_new_node_suzerain_toml_has_strict_mode_and_exemptions(tmp_path: Path) -> None:
+def test_new_node_intendant_toml_has_strict_mode_and_exemptions(tmp_path: Path) -> None:
     target = _invoke_node_scaffold(tmp_path)
-    cfg = target / ".suzerain.toml"
+    cfg = target / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "node"
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "node"
     exemptions = data.get("exemptions", {})
     assert "NODE_PK002" in exemptions
     # CI002 exemption removed: node CI now runs eslint/tsc/vitest (CI002 passes natively)
@@ -343,13 +343,13 @@ def test_new_rust_gitignore_has_target(tmp_path: Path) -> None:
     assert "target/" in text
 
 
-def test_new_rust_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) -> None:
+def test_new_rust_intendant_toml_has_strict_mode_and_exemption(tmp_path: Path) -> None:
     target = _invoke_rust_scaffold(tmp_path)
-    cfg = target / ".suzerain.toml"
+    cfg = target / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "rust"
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "rust"
     assert "RUST_PK002" in data.get("exemptions", {})
 
 
@@ -415,13 +415,13 @@ def test_new_go_gitignore_has_test_pattern(tmp_path: Path) -> None:
     assert "*.test" in text
 
 
-def test_new_go_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) -> None:
+def test_new_go_intendant_toml_has_strict_mode_and_exemption(tmp_path: Path) -> None:
     target = _invoke_go_scaffold(tmp_path)
-    cfg = target / ".suzerain.toml"
+    cfg = target / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "go"
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "go"
     assert "GO_PK002" in data.get("exemptions", {})
 
 
@@ -492,11 +492,11 @@ def test_new_swift_gitignore_has_baseline_patterns(tmp_path: Path) -> None:
     assert "xcuserdata/" in text
 
 
-def test_new_swift_suzerain_toml_has_strict_enforcement_and_exemption(tmp_path: Path) -> None:
+def test_new_swift_intendant_toml_has_strict_enforcement_and_exemption(tmp_path: Path) -> None:
     target = _invoke_swift_scaffold(tmp_path)
-    cfg = target / ".suzerain.toml"
+    cfg = target / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "swift"
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "swift"
     assert "SWIFT_PK002" in data.get("exemptions", {})

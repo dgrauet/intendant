@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.scaffold.engine import scaffold_project
-from suzerain.scaffold.substitutions import SubstitutionContext
+from intendant.scaffold.engine import scaffold_project
+from intendant.scaffold.substitutions import SubstitutionContext
 
 
 @pytest.fixture()
@@ -95,16 +95,16 @@ def test_scaffold_writes_changelog_with_keep_format(
     assert "Keep a Changelog" in changelog.read_text()
 
 
-def test_scaffold_writes_strict_mode_suzerain_toml(
+def test_scaffold_writes_strict_mode_intendant_toml(
     tmp_path: Path, context: SubstitutionContext
 ) -> None:
     target = tmp_path / "my-test"
     scaffold_project(target, "python", context)
-    cfg = target / ".suzerain.toml"
+    cfg = target / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "python"
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "python"
 
 
 def test_scaffold_writes_ci_workflow(tmp_path: Path, context: SubstitutionContext) -> None:
@@ -212,21 +212,21 @@ def test_scaffold_claude_skill_readme_mentions_install_path(
     assert "~/.claude/skills/" in readme.read_text()
 
 
-def test_scaffold_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(
+def test_scaffold_claude_skill_intendant_toml_has_strict_mode_and_exemptions(
     tmp_path: Path, skill_context: SubstitutionContext
 ) -> None:
-    """`.suzerain.toml` must declare strict mode + claude-skill stack + CI exemptions."""
+    """`.intendant.toml` must declare strict mode + claude-skill stack + CI exemptions."""
     import tomllib
 
     target = tmp_path / "my-skill"
     scaffold_project(target, "claude-skill", skill_context)
-    cfg = target / ".suzerain.toml"
+    cfg = target / ".intendant.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["enforcement"] == "strict"
-    assert data["suzerain"]["stack"] == "claude-skill"
+    assert data["intendant"]["enforcement"] == "strict"
+    assert data["intendant"]["stack"] == "claude-skill"
     exemptions = data.get("exemptions", {})
-    # CI002 exemption removed: claude-skill CI now runs suzerain audit (CI002 passes natively)
+    # CI002 exemption removed: claude-skill CI now runs intendant audit (CI002 passes natively)
     assert "CI003" in exemptions
     assert "CI004" in exemptions
 

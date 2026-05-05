@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.swift.inspectors import (
+from intendant.adapters.swift.inspectors import (
     find_test_files,
     has_package_swift,
     load_package_swift,

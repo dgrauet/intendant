@@ -1,6 +1,6 @@
 # 01 — Layout
 
-Folder structure convention for projects governed by suzerain.
+Folder structure convention for projects governed by intendant.
 
 ## Rules
 

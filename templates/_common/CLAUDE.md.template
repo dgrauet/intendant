@@ -1,4 +1,4 @@
-<!-- suzerain-template: v1 -->
+<!-- intendant-template: v1 -->
 # CLAUDE.md — {{ project_name }}
 
 Contexte agent pour le repo `{{ project_name }}`.

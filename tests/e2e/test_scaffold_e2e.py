@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 runner = CliRunner()
 
@@ -36,7 +36,7 @@ def test_scaffold_then_audit_passes_required(tmp_path: Path) -> None:
     assert target.is_dir()
 
     # Step 2: audit the scaffolded repo
-    # We invoke suzerain via the CLI so the registry picks up the real rules.
+    # We invoke intendant via the CLI so the registry picks up the real rules.
     result_audit = runner.invoke(
         app,
         ["audit", str(target), "--severity", "required"],
@@ -78,14 +78,14 @@ def test_scaffold_creates_uv_lock_capable_project(tmp_path: Path) -> None:
 
 @pytest.mark.e2e()
 def test_scaffold_claude_skill_passes_required_audit(tmp_path: Path) -> None:
-    """Success criterion: fresh claude-skill scaffold passes suzerain audit --severity=required."""
+    """Success criterion: fresh claude-skill scaffold passes intendant audit --severity=required."""
     target = tmp_path / "my-test-skill"
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
         [
             "uv",
             "run",
-            "suzerain",
+            "intendant",
             "new",
             "my-test-skill",
             "--stack",
@@ -93,7 +93,7 @@ def test_scaffold_claude_skill_passes_required_audit(tmp_path: Path) -> None:
             "--path",
             str(tmp_path),
         ],
-        cwd=suzerain_repo,
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -109,8 +109,8 @@ def test_scaffold_claude_skill_passes_required_audit(tmp_path: Path) -> None:
     assert "~/.claude/skills/" in readme_text
     # Audit must pass at required severity
     audit_proc = subprocess.run(
-        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "audit", str(target), "--severity=required"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -121,14 +121,14 @@ def test_scaffold_claude_skill_passes_required_audit(tmp_path: Path) -> None:
 
 @pytest.mark.e2e()
 def test_scaffold_node_passes_required_audit(tmp_path: Path) -> None:
-    """Success criterion: a fresh node scaffold passes suzerain audit --severity=required."""
+    """Success criterion: a fresh node scaffold passes intendant audit --severity=required."""
     target = tmp_path / "my-node-test"
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
         [
             "uv",
             "run",
-            "suzerain",
+            "intendant",
             "new",
             "my-node-test",
             "--stack",
@@ -136,7 +136,7 @@ def test_scaffold_node_passes_required_audit(tmp_path: Path) -> None:
             "--path",
             str(tmp_path),
         ],
-        cwd=suzerain_repo,
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -149,8 +149,8 @@ def test_scaffold_node_passes_required_audit(tmp_path: Path) -> None:
     assert (target / "tests" / "index.test.ts").is_file()
     # Audit must pass at required severity
     audit_proc = subprocess.run(
-        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "audit", str(target), "--severity=required"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -161,14 +161,14 @@ def test_scaffold_node_passes_required_audit(tmp_path: Path) -> None:
 
 @pytest.mark.e2e()
 def test_scaffold_rust_passes_required_audit(tmp_path: Path) -> None:
-    """Success criterion: a fresh rust scaffold passes suzerain audit --severity=required."""
+    """Success criterion: a fresh rust scaffold passes intendant audit --severity=required."""
     target = tmp_path / "my-rust-test"
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
         [
             "uv",
             "run",
-            "suzerain",
+            "intendant",
             "new",
             "my-rust-test",
             "--stack",
@@ -176,7 +176,7 @@ def test_scaffold_rust_passes_required_audit(tmp_path: Path) -> None:
             "--path",
             str(tmp_path),
         ],
-        cwd=suzerain_repo,
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -187,8 +187,8 @@ def test_scaffold_rust_passes_required_audit(tmp_path: Path) -> None:
     assert (target / "src" / "lib.rs").is_file()
     assert (target / ".github" / "workflows" / "ci.yml").is_file()
     audit_proc = subprocess.run(
-        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "audit", str(target), "--severity=required"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -199,14 +199,14 @@ def test_scaffold_rust_passes_required_audit(tmp_path: Path) -> None:
 
 @pytest.mark.e2e()
 def test_scaffold_go_passes_required_audit(tmp_path: Path) -> None:
-    """Success criterion: a fresh go scaffold passes suzerain audit --severity=required."""
+    """Success criterion: a fresh go scaffold passes intendant audit --severity=required."""
     target = tmp_path / "my-go-test"
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
         [
             "uv",
             "run",
-            "suzerain",
+            "intendant",
             "new",
             "my-go-test",
             "--stack",
@@ -214,7 +214,7 @@ def test_scaffold_go_passes_required_audit(tmp_path: Path) -> None:
             "--path",
             str(tmp_path),
         ],
-        cwd=suzerain_repo,
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -226,8 +226,8 @@ def test_scaffold_go_passes_required_audit(tmp_path: Path) -> None:
     assert (target / ".golangci.yml").is_file()
     assert (target / ".github" / "workflows" / "ci.yml").is_file()
     audit_proc = subprocess.run(
-        ["uv", "run", "suzerain", "audit", str(target), "--severity=required"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "audit", str(target), "--severity=required"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.go import RULES
-from suzerain.audit.registry import collect_rules
-from suzerain.core.repo import Repo
+from intendant.adapters.go import RULES
+from intendant.audit.registry import collect_rules
+from intendant.core.repo import Repo
 
 FIXTURE = Path(__file__).resolve().parents[3] / "fixtures" / "valid_go_repo"
 

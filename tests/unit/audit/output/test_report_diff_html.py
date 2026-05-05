@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from suzerain.audit.diff import PortfolioDiff
-from suzerain.audit.output.report_diff_html import render_diff_html
+from intendant.audit.diff import PortfolioDiff
+from intendant.audit.output.report_diff_html import render_diff_html
 
 
 def _build_diff_with_regression() -> PortfolioDiff:

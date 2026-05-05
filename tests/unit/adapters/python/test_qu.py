@@ -2,14 +2,14 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.qu import (
+from intendant.adapters.python.qu import (
     QU001Ruff,
     QU002Ty,
     QU003StrictTypeAnnotations,
     QU004TyCheck,
 )
-from suzerain.core.repo import Repo
-from suzerain.core.rule import CheckResult
+from intendant.core.repo import Repo
+from intendant.core.rule import CheckResult
 
 
 def test_qu001_pass_with_pyproject_section(tmp_path: Path) -> None:

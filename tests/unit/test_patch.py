@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.core.patch import Patch, apply_patch
+from intendant.core.patch import Patch, apply_patch
 
 
 def test_patch_create_file_safe(tmp_path: Path) -> None:

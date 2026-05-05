@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.checks.ts import TS002RegressionTestsLayout
-from suzerain.core.repo import Repo
+from intendant.checks.ts import TS002RegressionTestsLayout
+from intendant.core.repo import Repo
 
 
 def _repo(tmp_path: Path) -> Repo:

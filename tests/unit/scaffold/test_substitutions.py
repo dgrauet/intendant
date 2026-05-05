@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from suzerain.scaffold.substitutions import (
+from intendant.scaffold.substitutions import (
     SubstitutionContext,
     derive_package_name,
     resolve_placeholders,

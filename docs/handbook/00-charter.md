@@ -2,7 +2,7 @@
 
 ## Mission
 
-Suzerain is a multi-stack governance framework. It materializes project
+Intendant is a multi-stack governance framework. It materializes project
 management standards in a form that is both human-readable
 (handbook + ADRs) and executable (audit and scaffolding CLI).
 
@@ -33,7 +33,7 @@ Each rule has a `severity`:
 - `recommended`: warning, does not stop the pipeline.
 - `optional`: informational.
 
-The enforcement gate is declared per repo in `.suzerain.toml`
+The enforcement gate is declared per repo in `.intendant.toml`
 (`enforcement = "strict" | "recommended" | "advisory"`). It controls
 which severities block the pipeline; it is distinct from `Repo.mode`
 (`auto` / `manual`) which describes how the stack composition was
@@ -41,7 +41,7 @@ resolved.
 
 ## Exemptions
 
-A rule can be exempted per repo via `.suzerain.toml`, with a
+A rule can be exempted per repo via `.intendant.toml`, with a
 **written reason** and optionally an **expiration date**. The exemption
 does not erase the finding: it appears as `EXEMPT(reason)` in the report.
 Technical debt remains visible.

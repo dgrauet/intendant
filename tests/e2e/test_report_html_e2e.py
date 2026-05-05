@@ -1,4 +1,4 @@
-"""E2E: suzerain report --format=html against the portfolio_mini fixture."""
+"""E2E: intendant report --format=html against the portfolio_mini fixture."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 FIXTURE = Path(__file__).parent.parent / "fixtures" / "portfolio_mini"
 
@@ -62,7 +62,7 @@ def test_report_html_contains_fixture_repo_names(fixture_copy: Path, tmp_path: P
     runner = CliRunner()
     runner.invoke(app, ["report", str(fixture_copy), "--format=html", "--output", str(out)])
     content = out.read_text()
-    governed = [p.parent.name for p in fixture_copy.rglob(".suzerain.toml")]
+    governed = [p.parent.name for p in fixture_copy.rglob(".intendant.toml")]
     assert governed, "fixture has no governed repos — fix the fixture"
     for repo_name in governed:
         assert repo_name in content, f"missing {repo_name} in HTML output"

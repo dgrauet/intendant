@@ -1,4 +1,4 @@
-"""E2E: suzerain report --diff --format=html."""
+"""E2E: intendant report --diff --format=html."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 FIXTURE = Path(__file__).parent.parent / "fixtures" / "portfolio_mini"
 

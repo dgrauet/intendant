@@ -6,9 +6,9 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from suzerain.audit.output.report_json import render_report_json
-from suzerain.commands.report import PortfolioReport
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.report_json import render_report_json
+from intendant.commands.report import PortfolioReport
+from intendant.core.report import Finding, Report
 
 
 def _make_clean_report(repo_path: Path) -> Report:

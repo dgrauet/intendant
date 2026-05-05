@@ -1,4 +1,4 @@
-"""Tests for the suzerain audit command."""
+"""Tests for the intendant audit command."""
 
 import json
 import shutil
@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 runner = CliRunner()
 
@@ -54,7 +54,7 @@ def test_audit_md_format(tmp_path: Path, fixtures_dir: Path) -> None:
     target = _setup_repo(tmp_path, "conformant_python_repo", fixtures_dir)
     result = runner.invoke(app, ["audit", str(target), "--format", "md"])
     assert result.exit_code == 0
-    assert "## suzerain audit" in result.stdout
+    assert "## intendant audit" in result.stdout
 
 
 def test_audit_severity_filter(tmp_path: Path, fixtures_dir: Path) -> None:

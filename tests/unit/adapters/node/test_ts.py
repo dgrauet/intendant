@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-from suzerain.adapters.node.ts import NodeTestFramework
-from suzerain.core.repo import Repo
+from intendant.adapters.node.ts import NodeTestFramework
+from intendant.core.repo import Repo
 
 
 def _write_pkg(path: Path, pkg: dict) -> None:

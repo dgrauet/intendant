@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.checks.lo import LO003DocsDirectory
-from suzerain.core.repo import Repo
+from intendant.checks.lo import LO003DocsDirectory
+from intendant.core.repo import Repo
 
 
 def _repo(tmp_path: Path) -> Repo:

@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-from suzerain.audit.output.json_format import render_json
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.json_format import render_json
+from intendant.core.report import Finding, Report
 
 
 def test_json_basic_shape(tmp_path: Path) -> None:

@@ -2,14 +2,14 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.pk import (
+from intendant.adapters.python.pk import (
     PK001PyprojectExists,
     PK002UvLock,
     PK003PythonVersion,
     PK004NoRequirementsTxt,
     _resolve_python_version,
 )
-from suzerain.core.repo import Repo
+from intendant.core.repo import Repo
 
 
 def test_pk001_pass(tmp_path: Path) -> None:

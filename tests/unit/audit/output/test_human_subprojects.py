@@ -8,8 +8,8 @@ from typing import Literal
 
 from rich.console import Console
 
-from suzerain.audit.output.human import render_human
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.human import render_human
+from intendant.core.report import Finding, Report
 
 
 def _capture(report: Report) -> str:

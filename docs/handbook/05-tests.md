@@ -24,5 +24,5 @@ reserving `regression_tests/` for nightly runs.
 **Severity:** recommended · **Stacks:** python
 
 `pytest-cov` configured (section `[tool.coverage.run]`). No strict
-threshold imposed: suzerain measures and reports, the user sets the threshold
+threshold imposed: intendant measures and reports, the user sets the threshold
 that makes sense for their project.

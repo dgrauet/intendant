@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.adapters.go.qu import GoLinter
-from suzerain.adapters.go.sa import GO_SA001GitignoreBaseline
-from suzerain.adapters.go.ts import GoTestFiles
-from suzerain.core.repo import Repo
+from intendant.adapters.go.qu import GoLinter
+from intendant.adapters.go.sa import GO_SA001GitignoreBaseline
+from intendant.adapters.go.ts import GoTestFiles
+from intendant.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:

@@ -1,4 +1,4 @@
-# suzerain-template: v1
+# intendant-template: v1
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

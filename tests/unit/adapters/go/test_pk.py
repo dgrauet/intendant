@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.go.pk import GoMod, GoSum, GoVersion
-from suzerain.core.repo import Repo
+from intendant.adapters.go.pk import GoMod, GoSum, GoVersion
+from intendant.core.repo import Repo
 
 
 def _repo(path: Path) -> Repo:

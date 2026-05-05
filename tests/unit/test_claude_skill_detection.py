@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.core.repo import detect_stacks
+from intendant.core.repo import detect_stacks
 
 
 def test_detect_skill_at_depth_1(tmp_path: Path) -> None:

@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.ts import TS001Pytest, TS003CoverageConfigured
-from suzerain.core.repo import Repo
+from intendant.adapters.python.ts import TS001Pytest, TS003CoverageConfigured
+from intendant.core.repo import Repo
 
 
 def test_ts001_pass_with_pyproject_pytest_ini_options(tmp_path: Path) -> None:

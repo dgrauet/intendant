@@ -1,4 +1,4 @@
-"""End-to-end test for `suzerain report` against the portfolio_mini fixture."""
+"""End-to-end test for `intendant report` against the portfolio_mini fixture."""
 
 from __future__ import annotations
 
@@ -22,10 +22,10 @@ def test_report_e2e_json_against_portfolio_mini(tmp_path: Path, fixtures_dir: Pa
     # Each governed repo needs git init for RL002 to pass and audit to run.
     for repo_name in ("repo_a_clean", "repo_b_partial"):
         _git_init(portfolio / repo_name)
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
-        ["uv", "run", "suzerain", "report", str(portfolio), "--format", "json"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "report", str(portfolio), "--format", "json"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -51,17 +51,17 @@ def test_report_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path) -
     shutil.copytree(fixtures_dir / "portfolio_mini", portfolio)
     for repo_name in ("repo_a_clean", "repo_b_partial"):
         _git_init(portfolio / repo_name)
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
 
     # 1. First run: save snapshot
     proc1 = subprocess.run(
-        ["uv", "run", "suzerain", "report", str(portfolio), "--save-snapshot", "--format=json"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "report", str(portfolio), "--save-snapshot", "--format=json"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
     assert proc1.returncode in (0, 1), proc1.stderr
-    snap_dir = portfolio / ".suzerain" / "snapshots"
+    snap_dir = portfolio / ".intendant" / "snapshots"
     assert snap_dir.is_dir(), "Snapshot directory was not created"
     snaps = list(snap_dir.glob("portfolio_mini-*.json"))
     assert len(snaps) == 1, f"Expected 1 snapshot file, found: {snaps}"
@@ -73,13 +73,13 @@ def test_report_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path) -
         [
             "uv",
             "run",
-            "suzerain",
+            "intendant",
             "report",
             str(portfolio),
             "--diff",
             f"--against={saved_snap}",
         ],
-        cwd=suzerain_repo,
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -91,14 +91,14 @@ def test_report_e2e_save_snapshot_and_diff(tmp_path: Path, fixtures_dir: Path) -
         [
             "uv",
             "run",
-            "suzerain",
+            "intendant",
             "report",
             str(portfolio),
             "--diff",
             f"--against={saved_snap}",
             "--format=json",
         ],
-        cwd=suzerain_repo,
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -120,10 +120,10 @@ def test_report_e2e_human_against_portfolio_mini(tmp_path: Path, fixtures_dir: P
     shutil.copytree(fixtures_dir / "portfolio_mini", portfolio)
     for repo_name in ("repo_a_clean", "repo_b_partial"):
         _git_init(portfolio / repo_name)
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
-        ["uv", "run", "suzerain", "report", str(portfolio)],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "report", str(portfolio)],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )

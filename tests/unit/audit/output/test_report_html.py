@@ -5,9 +5,9 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from suzerain.audit.output.report_html import render_html
-from suzerain.commands.report import PortfolioReport
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.report_html import render_html
+from intendant.commands.report import PortfolioReport
+from intendant.core.report import Finding, Report
 
 
 def _build_scan(tmp_path: Path) -> PortfolioReport:

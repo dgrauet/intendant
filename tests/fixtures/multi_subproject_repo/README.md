@@ -1,2 +1,2 @@
 # multi_subproject_repo
-Test fixture for the suzerain multi-subproject audit pipeline.
+Test fixture for the intendant multi-subproject audit pipeline.

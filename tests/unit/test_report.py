@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from suzerain.core.report import Finding, Report
+from intendant.core.report import Finding, Report
 
 
 def test_finding_pass() -> None:
@@ -128,7 +128,7 @@ def test_finding_carries_optional_subproject_name() -> None:
 
     None means a transverse (repo-level) finding.
     """
-    from suzerain.core.report import Finding
+    from intendant.core.report import Finding
 
     transverse = Finding(
         rule_id="DG001",

@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.ci import PYTHON_CI001MinimumSteps
-from suzerain.core.repo import Repo
+from intendant.adapters.python.ci import PYTHON_CI001MinimumSteps
+from intendant.core.repo import Repo
 
 
 def _make_workflows_dir(tmp_path: Path) -> Path:

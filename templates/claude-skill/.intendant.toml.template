@@ -1,0 +1,9 @@
+# intendant-template: v1
+[intendant]
+version = "1"
+stack = "claude-skill"
+enforcement = "advisory"            # "strict" | "recommended" | "advisory"
+
+[exemptions]
+CI003 = "fresh skill scaffold uses intendant audit alone in CI; add commitlint when ready"
+CI004 = "no deps to cache in pure skill repo; remove if you add a build step"

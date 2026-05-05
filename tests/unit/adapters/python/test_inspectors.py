@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from suzerain.adapters.python.inspectors import (
+from intendant.adapters.python.inspectors import (
     has_pyproject,
     load_pyproject,
     pyproject_tool_section,

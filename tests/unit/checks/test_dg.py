@@ -2,14 +2,14 @@
 
 from pathlib import Path
 
-from suzerain.checks.dg import (
+from intendant.checks.dg import (
     DG001Readme,
     DG002CLAUDEmd,
     DG003ADRDir,
     DG004License,
     DG005SpecsLocalOnly,
 )
-from suzerain.core.repo import Repo
+from intendant.core.repo import Repo
 
 
 def _setup_repo(tmp_path: Path) -> Repo:

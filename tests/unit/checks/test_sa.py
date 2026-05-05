@@ -2,13 +2,13 @@
 
 from pathlib import Path
 
-from suzerain.checks.sa import (
+from intendant.checks.sa import (
     SA001PreCommit,
     SA002Gitleaks,
     SA003EnvExample,
     SA004GitignoreBaseline,
 )
-from suzerain.core.repo import Repo
+from intendant.core.repo import Repo
 
 
 def _write_minimal_precommit(tmp_path: Path) -> None:

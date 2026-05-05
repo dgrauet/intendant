@@ -1,4 +1,4 @@
-"""Unit tests for suzerain.audit.snapshot."""
+"""Unit tests for intendant.audit.snapshot."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.audit.snapshot import (
+from intendant.audit.snapshot import (
     DEFAULT_SNAPSHOT_DIRNAME,
     default_snapshot_dir,
     find_latest_snapshot,
@@ -16,7 +16,7 @@ from suzerain.audit.snapshot import (
     save_snapshot,
     snapshot_filename,
 )
-from suzerain.commands.report import PortfolioReport
+from intendant.commands.report import PortfolioReport
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -33,7 +33,7 @@ def _make_minimal_scan(root: Path) -> PortfolioReport:
 # ---------------------------------------------------------------------------
 
 
-def test_default_snapshot_dir_uses_suzerain_snapshots(tmp_path: Path) -> None:
+def test_default_snapshot_dir_uses_intendant_snapshots(tmp_path: Path) -> None:
     result = default_snapshot_dir(tmp_path)
     assert result == tmp_path / DEFAULT_SNAPSHOT_DIRNAME
 
@@ -237,8 +237,8 @@ def test_find_latest_snapshot_uses_root_name_as_prefix(tmp_path: Path) -> None:
 
 def test_load_snapshot_as_portfolio_report_reconstructs_scan(tmp_path: Path) -> None:
     """load_snapshot_as_portfolio_report rebuilds a PortfolioReport from JSON."""
-    from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
-    from suzerain.core.report import Report
+    from intendant.audit.snapshot import load_snapshot_as_portfolio_report
+    from intendant.core.report import Report
 
     snapshot = {
         "schema_version": "2",
@@ -297,7 +297,7 @@ def test_load_snapshot_as_portfolio_report_reconstructs_scan(tmp_path: Path) -> 
 
 def test_load_snapshot_as_portfolio_report_rejects_unknown_schema(tmp_path: Path) -> None:
     """Unknown schema_version raises ValueError."""
-    from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
+    from intendant.audit.snapshot import load_snapshot_as_portfolio_report
 
     snapshot = {
         "schema_version": "99",
@@ -315,8 +315,8 @@ def test_load_snapshot_as_portfolio_report_rejects_unknown_schema(tmp_path: Path
 
 def test_load_snapshot_preserves_original_score(tmp_path: Path) -> None:
     """Reconstructed Report.score returns the snapshot's stored score, not a recomputed one."""
-    from suzerain.audit.snapshot import load_snapshot_as_portfolio_report
-    from suzerain.core.report import Report
+    from intendant.audit.snapshot import load_snapshot_as_portfolio_report
+    from intendant.core.report import Report
 
     snapshot = {
         "schema_version": "2",

@@ -43,6 +43,6 @@ a `docs/superpowers/` line in `.gitignore` (prevents accidental `git add`
 day-to-day) and a `docs/superpowers/ export-ignore` line in `.gitattributes`
 (excludes the directory from `git archive` release tarballs).
 
-The auto-fix (`suzerain fix`) applies the two protections in order via a
+The auto-fix (`intendant fix`) applies the two protections in order via a
 2-pass approach: the first call patches `.gitignore`; the second call patches
 `.gitattributes`. Run `--fix` twice to fully resolve a fresh violation.

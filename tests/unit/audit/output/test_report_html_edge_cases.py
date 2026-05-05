@@ -5,9 +5,9 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from suzerain.audit.output.report_html import render_html
-from suzerain.commands.report import PortfolioReport
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.report_html import render_html
+from intendant.commands.report import PortfolioReport
+from intendant.core.report import Finding, Report
 
 
 def test_status_error_repo_renders_in_table(tmp_path: Path) -> None:
@@ -33,7 +33,7 @@ def test_empty_portfolio_renders_minimal_page(tmp_path: Path) -> None:
     )
     html = render_html(scan)
     assert html.startswith("<!doctype html>") or html.startswith("<!DOCTYPE html>")
-    assert "No suzerain-governed repos found" in html
+    assert "No intendant-governed repos found" in html
     # No table rendered when empty
     assert '<table id="repos"' not in html
 

@@ -23,7 +23,7 @@ have their own `Cargo.toml` files.
 
 `Cargo.lock` must be committed at the repo root for reproducible builds.
 For pure library crates published to crates.io, this rule may be exempted
-in `.suzerain.toml` with a documented reason — but most modern guidance
+in `.intendant.toml` with a documented reason — but most modern guidance
 recommends committing the lockfile even for libraries to surface upstream
 breakage in CI.
 

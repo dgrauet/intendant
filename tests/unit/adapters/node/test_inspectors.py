@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from suzerain.adapters.node.inspectors import (
+from intendant.adapters.node.inspectors import (
     collect_dep_names,
     has_package_json,
     load_package_json,

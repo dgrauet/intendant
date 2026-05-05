@@ -1,10 +1,10 @@
-"""Unit tests for suzerain.audit.diff."""
+"""Unit tests for intendant.audit.diff."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from suzerain.audit.diff import PortfolioDiff, compute_diff
+from intendant.audit.diff import PortfolioDiff, compute_diff
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers

@@ -1,4 +1,4 @@
-"""Tests for the suzerain explain command."""
+"""Tests for the intendant explain command."""
 
 import shutil
 from pathlib import Path
@@ -6,14 +6,14 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from suzerain.cli import app
+from intendant.cli import app
 
 runner = CliRunner()
 
 
 @pytest.fixture()
 def fake_root(fixtures_dir: Path) -> Path:
-    """Build a fake suzerain root with docs/handbook + docs/adr from handbook_mini."""
+    """Build a fake intendant root with docs/handbook + docs/adr from handbook_mini."""
     root = fixtures_dir / "handbook_mini_root"
     if not root.exists():
         (root / "docs").mkdir(parents=True, exist_ok=True)
@@ -22,7 +22,7 @@ def fake_root(fixtures_dir: Path) -> Path:
 
 
 def test_explain_existing_rule(fake_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("SUZERAIN_ROOT", str(fake_root))
+    monkeypatch.setenv("INTENDANT_ROOT", str(fake_root))
     result = runner.invoke(app, ["explain", "XX001"])
     assert result.exit_code == 0
     assert "XX001" in result.stdout
@@ -32,20 +32,20 @@ def test_explain_existing_rule(fake_root: Path, monkeypatch: pytest.MonkeyPatch)
 
 
 def test_explain_unknown_rule(fake_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("SUZERAIN_ROOT", str(fake_root))
+    monkeypatch.setenv("INTENDANT_ROOT", str(fake_root))
     result = runner.invoke(app, ["explain", "ZZ999"])
     assert result.exit_code == 1
     assert "not found" in result.stdout.lower()
 
 
 def test_explain_rule_without_adr(fake_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("SUZERAIN_ROOT", str(fake_root))
+    monkeypatch.setenv("INTENDANT_ROOT", str(fake_root))
     result = runner.invoke(app, ["explain", "XX002"])
     assert result.exit_code == 0
     assert "XX002" in result.stdout
 
 
-# --- D2: suzerain explain --all ---
+# --- D2: intendant explain --all ---
 
 
 def test_explain_all_lists_every_registered_rule() -> None:

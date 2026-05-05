@@ -1,4 +1,4 @@
-"""End-to-end test: suzerain audit on a multi_subproject fixture."""
+"""End-to-end test: intendant audit on a multi_subproject fixture."""
 
 from __future__ import annotations
 
@@ -20,10 +20,10 @@ def test_audit_e2e_multi_subproject_json(tmp_path: Path, fixtures_dir: Path) -> 
     target = tmp_path / "multi_subproject_repo"
     shutil.copytree(fixtures_dir / "multi_subproject_repo", target)
     _git_init(target)
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
-        ["uv", "run", "suzerain", "audit", str(target), "--format", "json"],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "audit", str(target), "--format", "json"],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )
@@ -42,10 +42,10 @@ def test_audit_e2e_multi_subproject_human(tmp_path: Path, fixtures_dir: Path) ->
     target = tmp_path / "multi_subproject_repo"
     shutil.copytree(fixtures_dir / "multi_subproject_repo", target)
     _git_init(target)
-    suzerain_repo = Path(__file__).resolve().parents[2]
+    intendant_repo = Path(__file__).resolve().parents[2]
     proc = subprocess.run(
-        ["uv", "run", "suzerain", "audit", str(target)],
-        cwd=suzerain_repo,
+        ["uv", "run", "intendant", "audit", str(target)],
+        cwd=intendant_repo,
         capture_output=True,
         text=True,
     )

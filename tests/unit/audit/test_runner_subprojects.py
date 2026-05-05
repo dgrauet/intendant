@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.audit.runner import run_audit
-from suzerain.core.config import SuzerainConfig
-from suzerain.core.repo import Repo
-from suzerain.core.rule import CheckResult, Rule
-from suzerain.core.subproject import Subproject
+from intendant.audit.runner import run_audit
+from intendant.core.config import IntendantConfig
+from intendant.core.repo import Repo
+from intendant.core.rule import CheckResult, Rule
+from intendant.core.subproject import Subproject
 
 
 class _AlwaysPassPython(Rule):
@@ -52,7 +52,7 @@ def _make_dirs(root: Path, *paths: str) -> None:
 def test_multi_subproject_runs_transverse_at_root(tmp_path: Path) -> None:
     _make_dirs(tmp_path, "backend", "frontend")
     repo = Repo(path=tmp_path, stacks=("multi",))
-    cfg = SuzerainConfig(
+    cfg = IntendantConfig(
         version="1",
         stack=None,
         enforcement="strict",
@@ -71,7 +71,7 @@ def test_multi_subproject_runs_transverse_at_root(tmp_path: Path) -> None:
 def test_multi_subproject_runs_stack_rules_per_subproject(tmp_path: Path) -> None:
     _make_dirs(tmp_path, "backend", "frontend")
     repo = Repo(path=tmp_path, stacks=("multi",))
-    cfg = SuzerainConfig(
+    cfg = IntendantConfig(
         version="1",
         stack=None,
         enforcement="strict",
@@ -92,7 +92,7 @@ def test_multi_subproject_runs_stack_rules_per_subproject(tmp_path: Path) -> Non
 
 def test_multi_subproject_skips_when_path_missing(tmp_path: Path) -> None:
     repo = Repo(path=tmp_path, stacks=("multi",))
-    cfg = SuzerainConfig(
+    cfg = IntendantConfig(
         version="1",
         stack=None,
         enforcement="strict",
@@ -109,7 +109,7 @@ def test_multi_subproject_skips_when_path_missing(tmp_path: Path) -> None:
 def test_single_subproject_implicit_no_subprojects_block(tmp_path: Path) -> None:
     """Backward compat: config without subprojects runs as before."""
     repo = Repo(path=tmp_path, stacks=("python",))
-    cfg = SuzerainConfig(version="1", stack="python", enforcement="strict")
+    cfg = IntendantConfig(version="1", stack="python", enforcement="strict")
     rules = [_AlwaysPassTransverse(), _AlwaysPassPython()]
     report = run_audit(repo, cfg, rules)
     rule_ids = {f.rule_id for f in report.findings}

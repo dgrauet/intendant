@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from suzerain.audit.output._html_assets import (
+from intendant.audit.output._html_assets import (
     CSS_INLINE,
     JS_INLINE,
     markdown_lite_to_html,

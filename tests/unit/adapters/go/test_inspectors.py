@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.go.inspectors import find_test_files, has_go_mod, load_go_mod
+from intendant.adapters.go.inspectors import find_test_files, has_go_mod, load_go_mod
 
 
 def test_has_go_mod(tmp_path: Path) -> None:

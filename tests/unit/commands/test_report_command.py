@@ -10,17 +10,17 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from suzerain.cli import app
-from suzerain.commands.report import PortfolioReport, _scan_all, _scan_one
-from suzerain.core.report import Report
+from intendant.cli import app
+from intendant.commands.report import PortfolioReport, _scan_all, _scan_one
+from intendant.core.report import Report
 
 cli_runner = CliRunner()
 
 
 def _make_marker(parent: Path, body: str = "") -> None:
     parent.mkdir(parents=True, exist_ok=True)
-    default = '[suzerain]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
-    (parent / ".suzerain.toml").write_text(body or default)
+    default = '[intendant]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
+    (parent / ".intendant.toml").write_text(body or default)
 
 
 def test_portfolio_report_dataclass_is_frozen(tmp_path: Path) -> None:
@@ -75,8 +75,8 @@ def test_scan_all_continues_after_per_repo_exception(tmp_path: Path) -> None:
 
 def _seed_governed(target: Path) -> None:
     target.mkdir(parents=True, exist_ok=True)
-    (target / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
+    (target / ".intendant.toml").write_text(
+        '[intendant]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
     )
 
 
@@ -133,8 +133,8 @@ def test_cli_save_snapshot_writes_to_default_dir(tmp_path: Path) -> None:
     _seed_governed(tmp_path / "repo_a")
     result = cli_runner.invoke(app, ["report", str(tmp_path), "--save-snapshot"])
     assert result.exit_code in (0, 1), result.output
-    # Default dir: <root>/.suzerain/snapshots/
-    snap_dir = tmp_path / ".suzerain" / "snapshots"
+    # Default dir: <root>/.intendant/snapshots/
+    snap_dir = tmp_path / ".intendant" / "snapshots"
     assert snap_dir.is_dir(), f"Snapshot dir not created: {snap_dir}"
     snaps = list(snap_dir.glob(f"{tmp_path.name}-*.json"))
     assert len(snaps) == 1, f"Expected 1 snapshot, found: {snaps}"
@@ -291,7 +291,7 @@ def test_cli_save_and_diff_combined_handles_first_run_gracefully(tmp_path: Path)
     # Warning message present in output (CliRunner mixes stderr into stdout by default)
     assert "first snapshot" in result.output.lower() or "no previous" in result.output.lower()
     # Snapshot was still saved
-    snap_dir = tmp_path / ".suzerain" / "snapshots"
+    snap_dir = tmp_path / ".intendant" / "snapshots"
     snaps = list(snap_dir.glob("*.json"))
     assert len(snaps) == 1
 
@@ -444,7 +444,7 @@ def test_format_html_from_snapshot_writes_output(tmp_path: Path) -> None:
     result = cli_runner.invoke(app, ["report", str(tmp_path), "--save-snapshot"])
     assert result.exit_code in (0, 1)
 
-    snap_dir = tmp_path / ".suzerain" / "snapshots"
+    snap_dir = tmp_path / ".intendant" / "snapshots"
     snaps = list(snap_dir.glob("*.json"))
     assert snaps, f"snapshot file not created in {snap_dir}"
     snap_file = snaps[0]

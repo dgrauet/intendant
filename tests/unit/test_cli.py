@@ -1,9 +1,9 @@
-"""Tests for the suzerain CLI entrypoint."""
+"""Tests for the intendant CLI entrypoint."""
 
 from typer.testing import CliRunner
 
-from suzerain import __version__
-from suzerain.cli import app
+from intendant import __version__
+from intendant.cli import app
 
 runner = CliRunner()
 
@@ -17,4 +17,4 @@ def test_cli_version_flag_prints_version() -> None:
 def test_cli_no_args_shows_help() -> None:
     result = runner.invoke(app, [])
     assert result.exit_code == 0
-    assert "suzerain" in result.stdout.lower()
+    assert "intendant" in result.stdout.lower()

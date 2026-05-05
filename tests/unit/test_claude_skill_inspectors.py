@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.claude_skill.inspectors import find_skill_md, parse_frontmatter
+from intendant.adapters.claude_skill.inspectors import find_skill_md, parse_frontmatter
 
 
 def test_find_skill_md_at_depth_1(tmp_path: Path) -> None:

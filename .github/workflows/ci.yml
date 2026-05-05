@@ -43,10 +43,10 @@ jobs:
       - name: Run tests
         run: uv run pytest --cov --cov-report=term-missing
 
-      - name: Self-audit (suzerain audit on itself)
+      - name: Self-audit (intendant audit on itself)
         run: |
-          uv run suzerain audit . --format=json > suzerain-self-audit.json
-          uv run suzerain audit . --severity=required
+          uv run intendant audit . --format=json > intendant-self-audit.json
+          uv run intendant audit . --severity=required
 
   commit-lint:
     name: conventional commits

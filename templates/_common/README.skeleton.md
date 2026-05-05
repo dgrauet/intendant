@@ -1,4 +1,4 @@
-<!-- suzerain-template: v1 -->
+<!-- intendant-template: v1 -->
 # {{ project_name }}
 
 > <description en une phrase>
@@ -21,7 +21,7 @@
 
 ## Documentation
 
-- [Charte](docs/handbook/00-charter.md) (si gouverné par suzerain)
+- [Charte](docs/handbook/00-charter.md) (si gouverné par intendant)
 - <autres pointeurs vers docs/>
 
 ## Licence

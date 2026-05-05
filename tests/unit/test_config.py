@@ -1,11 +1,11 @@
-"""Tests for SuzerainConfig (parses .suzerain.toml)."""
+"""Tests for IntendantConfig (parses .intendant.toml)."""
 
 from pathlib import Path
 
-from suzerain.core.config import (
+from intendant.core.config import (
     DEFAULT_ENFORCEMENT,
     Exemption,
-    SuzerainConfig,
+    IntendantConfig,
     load_config,
 )
 
@@ -19,8 +19,8 @@ def test_default_config_when_no_file(tmp_path: Path) -> None:
 
 
 def test_load_minimal_config(tmp_path: Path) -> None:
-    (tmp_path / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
+    (tmp_path / ".intendant.toml").write_text(
+        '[intendant]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
     )
     config = load_config(tmp_path)
     assert config.version == "1"
@@ -29,8 +29,8 @@ def test_load_minimal_config(tmp_path: Path) -> None:
 
 
 def test_load_with_string_exemption(tmp_path: Path) -> None:
-    (tmp_path / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
+    (tmp_path / ".intendant.toml").write_text(
+        '[intendant]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
         "[exemptions]\n"
         'PYTHON_LO001 = "Fork upstream"\n'
     )
@@ -41,8 +41,8 @@ def test_load_with_string_exemption(tmp_path: Path) -> None:
 
 
 def test_load_with_dict_exemption(tmp_path: Path) -> None:
-    (tmp_path / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
+    (tmp_path / ".intendant.toml").write_text(
+        '[intendant]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
         "[exemptions]\n"
         'CI003 = { reason = "Private repo", until = "2026-09-01" }\n'
     )
@@ -52,7 +52,7 @@ def test_load_with_dict_exemption(tmp_path: Path) -> None:
 
 
 def test_is_rule_exempt() -> None:
-    config = SuzerainConfig(
+    config = IntendantConfig(
         version="1",
         stack="python",
         enforcement="strict",

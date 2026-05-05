@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from suzerain.mcp_server.handlers import (
+from intendant.mcp_server.handlers import (
     audit_repo,
     diff_portfolio,
     explain_rule,
@@ -21,14 +21,14 @@ def test_audit_repo_returns_schema_v2_payload() -> None:
     payload = audit_repo(str(FIXTURES / "conformant_python_repo"))
     assert payload["schema_version"] == "2"
     assert payload["stacks"] == ["python"]
-    assert payload["mode"] == "manual"  # fixture pins stack="python" in .suzerain.toml
+    assert payload["mode"] == "manual"  # fixture pins stack="python" in .intendant.toml
     assert isinstance(payload["score"], int)
     assert isinstance(payload["findings"], list)
     assert payload["findings"], "conformant repo should still produce per-rule findings"
 
 
 def test_audit_repo_unknown_path_returns_error() -> None:
-    payload = audit_repo("/tmp/this-path-does-not-exist-suzerain-mcp")
+    payload = audit_repo("/tmp/this-path-does-not-exist-intendant-mcp")
     assert payload["error"]
     assert "not found" in payload["error"].lower() or "does not exist" in payload["error"].lower()
 
@@ -86,7 +86,7 @@ def test_report_portfolio_returns_schema_v2_payload() -> None:
 
 
 def test_report_portfolio_unknown_path_returns_error() -> None:
-    payload = report_portfolio("/tmp/this-path-does-not-exist-suzerain-mcp")
+    payload = report_portfolio("/tmp/this-path-does-not-exist-intendant-mcp")
     assert payload["error"]
 
 

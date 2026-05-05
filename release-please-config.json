@@ -7,7 +7,7 @@
   "bump-patch-for-minor-pre-major": true,
   "packages": {
     ".": {
-      "package-name": "suzerain",
+      "package-name": "intendant",
       "changelog-path": "CHANGELOG.md"
     }
   }

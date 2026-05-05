@@ -1,10 +1,10 @@
-# Suzerain
+# Intendant
 
 > Multi-stack project governance framework — handbook + auditor + scaffolder + portfolio report.
 
-Suzerain materializes project management standards (workflows, CI, releases, quality,
+Intendant materializes project management standards (workflows, CI, releases, quality,
 security, architecture) in a form that is both human-readable (handbook + ADRs) and
-machine-executable (CLI). A single `.suzerain.toml` at a repo root tells the auditor
+machine-executable (CLI). A single `.intendant.toml` at a repo root tells the auditor
 which stack applies and which rules are exempted; the scaffolder bootstraps a fully
 compliant repo from scratch.
 
@@ -12,14 +12,14 @@ compliant repo from scratch.
 
 v1.0.0 — stable. 70 rules across 6 stacks (python, claude-skill, node, rust, go, swift),
 self-audit 100/100, 730 tests. Multi-language sub-projects supported via
-`[[subprojects]]` in `.suzerain.toml`. The `suzerain` CLI ships `init`, `audit`,
+`[[subprojects]]` in `.intendant.toml`. The `intendant` CLI ships `init`, `audit`,
 `explain`, `new`, `report`, `doctor`, and `mcp` (optional MCP server for agents).
 
 ## Installation
 
 ```bash
 # PyPI / uv tool (recommended)
-uv tool install suzerain
+uv tool install intendant
 
 # Editable from source
 uv tool install --editable <path-to-clone>
@@ -27,73 +27,73 @@ uv tool install --editable <path-to-clone>
 
 ## Quickstart
 
-### Adopt suzerain on an existing repo
+### Adopt intendant on an existing repo
 
 ```bash
 cd <your-repo>
-suzerain init           # writes .suzerain.toml and docs skeleton
-suzerain audit .        # human report
+intendant init           # writes .intendant.toml and docs skeleton
+intendant audit .        # human report
 ```
 
 ### Audit a single repo
 
 ```bash
-suzerain audit .                          # full report, human-readable
-suzerain audit . --severity=required      # exit 1 on required failures
-suzerain audit . --format=json            # for CI or scripting
-suzerain audit . --format=md              # for PR comments
-suzerain audit . --fix --dry-run          # preview auto-fixes
-suzerain audit . --fix                    # apply auto-fixes
+intendant audit .                          # full report, human-readable
+intendant audit . --severity=required      # exit 1 on required failures
+intendant audit . --format=json            # for CI or scripting
+intendant audit . --format=md              # for PR comments
+intendant audit . --fix --dry-run          # preview auto-fixes
+intendant audit . --fix                    # apply auto-fixes
 ```
 
 ### Bootstrap a new project
 
 ```bash
 # Python package
-suzerain new my-lib --stack=python --description="..." --author="..."
+intendant new my-lib --stack=python --description="..." --author="..."
 
 # Claude Code skill
-suzerain new my-skill --stack=claude-skill --description="..."
+intendant new my-skill --stack=claude-skill --description="..."
 
 # Node package
-suzerain new my-pkg --stack=node --description="..."
+intendant new my-pkg --stack=node --description="..."
 
 # Rust crate
-suzerain new my-crate --stack=rust --description="..."
+intendant new my-crate --stack=rust --description="..."
 
 # Go module
-suzerain new my-svc --stack=go --description="..."
+intendant new my-svc --stack=go --description="..."
 
 # Swift (SwiftPM library, package + Sources + Tests + swiftlint + CI)
-suzerain new my-pkg --stack=swift --description="..."
+intendant new my-pkg --stack=swift --description="..."
 
 # After scaffolding
 cd my-lib
 uv sync && uv run pre-commit install
-suzerain audit . --severity=required      # should exit 0
+intendant audit . --severity=required      # should exit 0
 ```
 
 ### Cross-repo portfolio report
 
 ```bash
-suzerain report <portfolio-root>               # human table
-suzerain report <portfolio-root> --format=json # machine-readable
-suzerain report <portfolio-root> --save-snapshot
-suzerain report <portfolio-root> --diff        # compare to last snapshot
-suzerain report <portfolio-root> --against snapshots/2026-04-01.json
+intendant report <portfolio-root>               # human table
+intendant report <portfolio-root> --format=json # machine-readable
+intendant report <portfolio-root> --save-snapshot
+intendant report <portfolio-root> --diff        # compare to last snapshot
+intendant report <portfolio-root> --against snapshots/2026-04-01.json
 ```
 
 ### Inspect a rule
 
 ```bash
-suzerain explain PYTHON_LO001       # handbook entry + linked ADR
-suzerain explain --all              # table of all 70 rules
+intendant explain PYTHON_LO001       # handbook entry + linked ADR
+intendant explain --all              # table of all 70 rules
 ```
 
 ### Health check
 
 ```bash
-suzerain doctor     # verify install integrity
+intendant doctor     # verify install integrity
 ```
 
 ## Coverage
@@ -150,17 +150,17 @@ swift build/test + lint), and sanitizing (`SWIFT_SA`: `.build/` and
 
 > Rule IDs were renamed in v0.2.0 (e.g. `LO001` → `PYTHON_LO001`).
 > See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
-> to update `.suzerain.toml` exemptions.
+> to update `.intendant.toml` exemptions.
 
 ## MCP server
 
-Suzerain ships an optional MCP server so any MCP-compatible agent (Claude Code,
+Intendant ships an optional MCP server so any MCP-compatible agent (Claude Code,
 Claude Desktop, Cursor, …) can query governance state directly.
 
 Install with the extra:
 
 ```bash
-uv tool install 'suzerain[mcp]'
+uv tool install 'intendant[mcp]'
 ```
 
 Then register the server in your MCP client. Example for Claude Desktop
@@ -169,8 +169,8 @@ Then register the server in your MCP client. Example for Claude Desktop
 ```json
 {
   "mcpServers": {
-    "suzerain": {
-      "command": "suzerain",
+    "intendant": {
+      "command": "intendant",
       "args": ["mcp"]
     }
   }

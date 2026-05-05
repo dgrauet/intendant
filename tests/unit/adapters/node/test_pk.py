@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from suzerain.adapters.node.pk import NodeEnginesNode, NodeLockfile, NodePackageJson
-from suzerain.core.repo import Repo
+from intendant.adapters.node.pk import NodeEnginesNode, NodeLockfile, NodePackageJson
+from intendant.core.repo import Repo
 
 # ---------------------------------------------------------------------------
 # NODE_PK001 — package.json present

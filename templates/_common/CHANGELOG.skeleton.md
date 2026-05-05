@@ -1,4 +1,4 @@
-<!-- suzerain-template: v1 -->
+<!-- intendant-template: v1 -->
 # Changelog
 
 All notable changes to this project will be documented in this file.

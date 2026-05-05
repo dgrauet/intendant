@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from suzerain.adapters.rust.inspectors import (
+from intendant.adapters.rust.inspectors import (
     find_test_annotations,
     has_cargo_toml,
     load_cargo_toml,

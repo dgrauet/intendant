@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from suzerain.core.subproject import Subproject
+from intendant.core.subproject import Subproject
 
 
 def test_subproject_has_three_fields() -> None:

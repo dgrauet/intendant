@@ -8,9 +8,9 @@ from pathlib import Path
 
 from rich.console import Console
 
-from suzerain.audit.output.report_human import render_report
-from suzerain.commands.report import PortfolioReport
-from suzerain.core.report import Finding, Report
+from intendant.audit.output.report_human import render_report
+from intendant.commands.report import PortfolioReport
+from intendant.core.report import Finding, Report
 
 
 def _capture(scan: PortfolioReport) -> str:

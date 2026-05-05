@@ -2,19 +2,19 @@
 
 from pathlib import Path
 
-import suzerain.checks.ci as ci_module
-from suzerain.checks.ci import (
+import intendant.checks.ci as ci_module
+from intendant.checks.ci import (
     CI001CIWorkflow,
     CI003CommitMessageValidation,
     CI004CacheConfigured,
 )
-from suzerain.core.repo import Repo
+from intendant.core.repo import Repo
 
 
 def test_ci_module_no_longer_exports_ci002() -> None:
     """CI002MinimumSteps must have been removed from the ci module."""
     assert not hasattr(ci_module, "CI002MinimumSteps"), (
-        "CI002MinimumSteps is still present in suzerain.checks.ci — "
+        "CI002MinimumSteps is still present in intendant.checks.ci — "
         "it should have been deleted in Palier M0"
     )
 
