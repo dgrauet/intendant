@@ -92,6 +92,6 @@ def filter_for_repo(rules: Sequence[Rule], repo: Repo, config: SuzerainConfig) -
         # Legacy single-Repo path (name=None, no subprojects): rule applies if its
         # stacks include "*" or repo.stack. Backward compat with the existing pipeline.
         applicable = [r for r in rules if r.applies(repo)]
-    if config.mode == "recommended":
+    if config.enforcement == "recommended":
         applicable = [r for r in applicable if r.severity != "optional"]
     return applicable

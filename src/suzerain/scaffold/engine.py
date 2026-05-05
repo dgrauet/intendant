@@ -38,7 +38,7 @@ def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> 
     _copy_github(troot / "github", target, context)
     _copy_stack(troot / stack, target, context)
     _create_programmatic_files(target, stack, context)
-    _strict_mode_in_suzerain_toml(target, context)
+    _strict_enforcement_in_suzerain_toml(target, context)
 
 
 def _copy_common(src: Path, dst: Path, context: SubstitutionContext) -> None:
@@ -230,13 +230,13 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
         )
 
 
-def _strict_mode_in_suzerain_toml(target: Path, context: SubstitutionContext) -> None:
+def _strict_enforcement_in_suzerain_toml(target: Path, context: SubstitutionContext) -> None:
     cfg = target / ".suzerain.toml"
     if not cfg.is_file():
         return
     data = tomllib.loads(cfg.read_text(encoding="utf-8"))
     data.setdefault("suzerain", {})
-    data["suzerain"]["mode"] = "strict"
+    data["suzerain"]["enforcement"] = "strict"
     data["suzerain"]["stack"] = context.stack
     data.setdefault("exemptions", {})
     if context.stack == "python":

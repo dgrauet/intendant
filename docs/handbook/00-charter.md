@@ -33,8 +33,11 @@ Each rule has a `severity`:
 - `recommended`: warning, does not stop the pipeline.
 - `optional`: informational.
 
-The applied mode is declared per repo in `.suzerain.toml`
-(`mode = "strict" | "recommended" | "advisory"`).
+The enforcement gate is declared per repo in `.suzerain.toml`
+(`enforcement = "strict" | "recommended" | "advisory"`). It controls
+which severities block the pipeline; it is distinct from `Repo.mode`
+(`auto` / `manual`) which describes how the stack composition was
+resolved.
 
 ## Exemptions
 

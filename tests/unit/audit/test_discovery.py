@@ -10,7 +10,7 @@ from suzerain.audit.discovery import find_suzerain_repos
 def _touch_marker(parent: Path) -> None:
     parent.mkdir(parents=True, exist_ok=True)
     (parent / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "auto"\nmode = "advisory"\n'
+        '[suzerain]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
     )
 
 
