@@ -86,7 +86,7 @@ def init(
 
     repo = Repo.from_path(target)
 
-    suzerain_block: dict[str, str] = {"version": "1", "mode": "advisory"}
+    suzerain_block: dict[str, str] = {"version": "1", "enforcement": "advisory"}
     if len(repo.stacks) == 1:
         suzerain_block["stack"] = repo.stacks[0]
     elif len(repo.stacks) > 1:

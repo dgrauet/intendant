@@ -19,7 +19,7 @@ cli_runner = CliRunner()
 
 def _make_marker(parent: Path, body: str = "") -> None:
     parent.mkdir(parents=True, exist_ok=True)
-    default = '[suzerain]\nversion = "1"\nstack = "auto"\nmode = "advisory"\n'
+    default = '[suzerain]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
     (parent / ".suzerain.toml").write_text(body or default)
 
 
@@ -76,7 +76,7 @@ def test_scan_all_continues_after_per_repo_exception(tmp_path: Path) -> None:
 def _seed_governed(target: Path) -> None:
     target.mkdir(parents=True, exist_ok=True)
     (target / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "auto"\nmode = "advisory"\n'
+        '[suzerain]\nversion = "1"\nstack = "auto"\nenforcement = "advisory"\n'
     )
 
 

@@ -2,7 +2,7 @@
 [suzerain]
 version = "1"
 stack = "{{ stack }}"
-mode = "advisory"            # "strict" | "recommended" | "advisory"
+enforcement = "advisory"            # "strict" | "recommended" | "advisory"
 
 [exemptions]
 # Exemple :

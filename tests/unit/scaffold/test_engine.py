@@ -103,7 +103,7 @@ def test_scaffold_writes_strict_mode_suzerain_toml(
     cfg = target / ".suzerain.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "python"
 
 
@@ -223,7 +223,7 @@ def test_scaffold_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(
     cfg = target / ".suzerain.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "claude-skill"
     exemptions = data.get("exemptions", {})
     # CI002 exemption removed: claude-skill CI now runs suzerain audit (CI002 passes natively)

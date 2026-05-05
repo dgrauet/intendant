@@ -34,7 +34,7 @@ def test_init_in_empty_dir_writes_config(tmp_path: Path, fixtures_dir: Path) -> 
     assert config["suzerain"]["version"] == "1"
     # Empty repo → no detection → no `stack` field written (auto-detect each run)
     assert "stack" not in config["suzerain"]
-    assert config["suzerain"]["mode"] == "advisory"
+    assert config["suzerain"]["enforcement"] == "advisory"
 
 
 def test_init_in_python_repo_detects_stack(tmp_path: Path, fixtures_dir: Path) -> None:

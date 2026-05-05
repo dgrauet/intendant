@@ -1,6 +1,6 @@
 [suzerain]
 version = "1"
-mode = "advisory"
+enforcement = "advisory"
 
 [[subprojects]]
 name = "root"

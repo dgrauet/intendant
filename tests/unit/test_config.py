@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from suzerain.core.config import (
-    DEFAULT_MODE,
+    DEFAULT_ENFORCEMENT,
     Exemption,
     SuzerainConfig,
     load_config,
@@ -13,24 +13,24 @@ from suzerain.core.config import (
 def test_default_config_when_no_file(tmp_path: Path) -> None:
     config = load_config(tmp_path)
     assert config.version == "1"
-    assert config.mode == "advisory"
+    assert config.enforcement == "advisory"
     assert config.stack is None
     assert config.exemptions == {}
 
 
 def test_load_minimal_config(tmp_path: Path) -> None:
     (tmp_path / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "python"\nmode = "strict"\n'
+        '[suzerain]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
     )
     config = load_config(tmp_path)
     assert config.version == "1"
     assert config.stack == "python"
-    assert config.mode == "strict"
+    assert config.enforcement == "strict"
 
 
 def test_load_with_string_exemption(tmp_path: Path) -> None:
     (tmp_path / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "python"\nmode = "strict"\n'
+        '[suzerain]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
         "[exemptions]\n"
         'PYTHON_LO001 = "Fork upstream"\n'
     )
@@ -42,7 +42,7 @@ def test_load_with_string_exemption(tmp_path: Path) -> None:
 
 def test_load_with_dict_exemption(tmp_path: Path) -> None:
     (tmp_path / ".suzerain.toml").write_text(
-        '[suzerain]\nversion = "1"\nstack = "python"\nmode = "strict"\n'
+        '[suzerain]\nversion = "1"\nstack = "python"\nenforcement = "strict"\n'
         "[exemptions]\n"
         'CI003 = { reason = "Private repo", until = "2026-09-01" }\n'
     )
@@ -55,7 +55,7 @@ def test_is_rule_exempt() -> None:
     config = SuzerainConfig(
         version="1",
         stack="python",
-        mode="strict",
+        enforcement="strict",
         exemptions={"PYTHON_LO001": Exemption(reason="Fork upstream", until=None)},
     )
     assert config.is_rule_exempt("PYTHON_LO001") is True
@@ -63,4 +63,4 @@ def test_is_rule_exempt() -> None:
 
 
 def test_default_mode_constant() -> None:
-    assert DEFAULT_MODE == "advisory"
+    assert DEFAULT_ENFORCEMENT == "advisory"

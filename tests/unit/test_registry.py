@@ -48,7 +48,7 @@ def test_collect_rules_finds_all() -> None:
 
 def test_filter_applies_stack_filter(tmp_path: Path) -> None:
     rules = [_RuleA(), _RuleB(), _RuleC()]
-    config = SuzerainConfig(version="1", stack="python", mode="strict")
+    config = SuzerainConfig(version="1", stack="python", enforcement="strict")
     repo = Repo(path=tmp_path, stacks=("python",))
     filtered = filter_for_repo(rules, repo, config)
     rule_ids = {r.id for r in filtered}
@@ -57,7 +57,7 @@ def test_filter_applies_stack_filter(tmp_path: Path) -> None:
 
 def test_filter_excludes_non_applicable_stacks(tmp_path: Path) -> None:
     rules = [_RuleA(), _RuleB(), _RuleC()]
-    config = SuzerainConfig(version="1", stack="node", mode="strict")
+    config = SuzerainConfig(version="1", stack="node", enforcement="strict")
     repo = Repo(path=tmp_path, stacks=("node",))
     filtered = filter_for_repo(rules, repo, config)
     rule_ids = {r.id for r in filtered}
@@ -66,7 +66,7 @@ def test_filter_excludes_non_applicable_stacks(tmp_path: Path) -> None:
 
 def test_filter_strict_mode_includes_optional(tmp_path: Path) -> None:
     rules = [_RuleA(), _RuleB(), _RuleC()]
-    config = SuzerainConfig(version="1", stack="python", mode="strict")
+    config = SuzerainConfig(version="1", stack="python", enforcement="strict")
     repo = Repo(path=tmp_path, stacks=("python",))
     filtered = filter_for_repo(rules, repo, config)
     severities = {r.severity for r in filtered}
@@ -75,7 +75,7 @@ def test_filter_strict_mode_includes_optional(tmp_path: Path) -> None:
 
 def test_filter_recommended_mode_excludes_optional(tmp_path: Path) -> None:
     rules = [_RuleA(), _RuleB(), _RuleC()]
-    config = SuzerainConfig(version="1", stack="python", mode="recommended")
+    config = SuzerainConfig(version="1", stack="python", enforcement="recommended")
     repo = Repo(path=tmp_path, stacks=("python",))
     filtered = filter_for_repo(rules, repo, config)
     severities = {r.severity for r in filtered}
@@ -84,7 +84,7 @@ def test_filter_recommended_mode_excludes_optional(tmp_path: Path) -> None:
 
 def test_filter_advisory_mode_keeps_all_for_reporting(tmp_path: Path) -> None:
     rules = [_RuleA(), _RuleB(), _RuleC()]
-    config = SuzerainConfig(version="1", stack="python", mode="advisory")
+    config = SuzerainConfig(version="1", stack="python", enforcement="advisory")
     repo = Repo(path=tmp_path, stacks=("python",))
     filtered = filter_for_repo(rules, repo, config)
     assert len(filtered) == 3
@@ -95,7 +95,7 @@ def test_filter_does_not_remove_exempt_rules(tmp_path: Path) -> None:
     config = SuzerainConfig(
         version="1",
         stack="python",
-        mode="strict",
+        enforcement="strict",
         exemptions={"TST001": Exemption(reason="test")},
     )
     repo = Repo(path=tmp_path, stacks=("python",))
@@ -133,7 +133,7 @@ def test_filter_for_repo_with_named_subproject_returns_only_stack_specific(tmp_p
     from suzerain.core.repo import Repo
 
     repo = Repo(path=Path("/tmp"), stacks=("python",), mode="manual", name="backend")
-    cfg = SuzerainConfig(version="1", stack="python", mode="strict")
+    cfg = SuzerainConfig(version="1", stack="python", enforcement="strict")
     rules = filter_for_repo(collect_rules(), repo, cfg)
     for r in rules:
         assert "*" not in r.stacks, f"{r.id} is transverse but ran on subproject scope"
@@ -151,7 +151,7 @@ def test_filter_for_repo_with_no_name_returns_only_transverse(tmp_path: Path) ->
     cfg = SuzerainConfig(
         version="1",
         stack=None,
-        mode="strict",
+        enforcement="strict",
         subprojects=[Subproject(name="x", path="x", stack="python")],
     )
     rules = filter_for_repo(collect_rules(), repo, cfg)

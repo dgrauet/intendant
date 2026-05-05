@@ -1,7 +1,7 @@
 [suzerain]
 version = "1"
 stack = "go"
-mode = "strict"
+enforcement = "strict"
 
 [exemptions]
 GO_PK002 = "fresh scaffold; run `go mod tidy` to generate go.sum, then remove this exemption"

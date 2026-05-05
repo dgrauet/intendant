@@ -1,6 +1,6 @@
 [suzerain]
 version = "1"
 stack = "python"
-mode = "strict"
+enforcement = "strict"
 
 [exemptions]

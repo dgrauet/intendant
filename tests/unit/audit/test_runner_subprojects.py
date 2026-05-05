@@ -55,7 +55,7 @@ def test_multi_subproject_runs_transverse_at_root(tmp_path: Path) -> None:
     cfg = SuzerainConfig(
         version="1",
         stack=None,
-        mode="strict",
+        enforcement="strict",
         subprojects=[
             Subproject(name="backend", path="backend", stack="python"),
             Subproject(name="frontend", path="frontend", stack="node"),
@@ -74,7 +74,7 @@ def test_multi_subproject_runs_stack_rules_per_subproject(tmp_path: Path) -> Non
     cfg = SuzerainConfig(
         version="1",
         stack=None,
-        mode="strict",
+        enforcement="strict",
         subprojects=[
             Subproject(name="backend", path="backend", stack="python"),
             Subproject(name="frontend", path="frontend", stack="node"),
@@ -95,7 +95,7 @@ def test_multi_subproject_skips_when_path_missing(tmp_path: Path) -> None:
     cfg = SuzerainConfig(
         version="1",
         stack=None,
-        mode="strict",
+        enforcement="strict",
         subprojects=[Subproject(name="backend", path="backend", stack="python")],
     )
     rules = [_AlwaysPassPython()]
@@ -109,7 +109,7 @@ def test_multi_subproject_skips_when_path_missing(tmp_path: Path) -> None:
 def test_single_subproject_implicit_no_subprojects_block(tmp_path: Path) -> None:
     """Backward compat: config without subprojects runs as before."""
     repo = Repo(path=tmp_path, stacks=("python",))
-    cfg = SuzerainConfig(version="1", stack="python", mode="strict")
+    cfg = SuzerainConfig(version="1", stack="python", enforcement="strict")
     rules = [_AlwaysPassTransverse(), _AlwaysPassPython()]
     report = run_audit(repo, cfg, rules)
     rule_ids = {f.rule_id for f in report.findings}

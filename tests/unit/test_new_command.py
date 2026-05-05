@@ -157,7 +157,7 @@ def test_new_claude_skill_suzerain_toml_has_strict_mode_and_exemptions(tmp_path:
     cfg = tmp_path / "test-skill" / ".suzerain.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "claude-skill"
     # CI002 exemption removed: claude-skill CI now runs suzerain audit (CI002 passes natively)
     assert "CI003" in data.get("exemptions", {})
@@ -265,7 +265,7 @@ def test_new_node_suzerain_toml_has_strict_mode_and_exemptions(tmp_path: Path) -
     cfg = target / ".suzerain.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "node"
     exemptions = data.get("exemptions", {})
     assert "NODE_PK002" in exemptions
@@ -348,7 +348,7 @@ def test_new_rust_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) ->
     cfg = target / ".suzerain.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "rust"
     assert "RUST_PK002" in data.get("exemptions", {})
 
@@ -420,6 +420,6 @@ def test_new_go_suzerain_toml_has_strict_mode_and_exemption(tmp_path: Path) -> N
     cfg = target / ".suzerain.toml"
     assert cfg.is_file()
     data = tomllib.loads(cfg.read_text())
-    assert data["suzerain"]["mode"] == "strict"
+    assert data["suzerain"]["enforcement"] == "strict"
     assert data["suzerain"]["stack"] == "go"
     assert "GO_PK002" in data.get("exemptions", {})

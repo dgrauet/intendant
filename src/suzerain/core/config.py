@@ -10,7 +10,7 @@ from typing import Literal
 
 from suzerain.core.subproject import Subproject
 
-DEFAULT_MODE: Literal["advisory"] = "advisory"
+DEFAULT_ENFORCEMENT: Literal["advisory"] = "advisory"
 
 _SUBPROJECT_NAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
 
@@ -28,14 +28,15 @@ class SuzerainConfig:
     """Parsed .suzerain.toml content.
 
     ``stack`` is the user's manual pin, or ``None`` to leave detection to
-    ``detect_stacks``. ``mode`` is the audit-mode (strict/recommended/advisory),
-    *not* the stack-resolution mode (auto/manual) — that distinction lives on
-    ``Repo``.
+    ``detect_stacks``. ``enforcement`` is the audit gate
+    (``strict``/``recommended``/``advisory``) controlling which severities
+    are enforced; not to be confused with ``Repo.mode`` (``auto``/``manual``)
+    which describes how the stack composition was resolved.
     """
 
     version: str
     stack: str | None
-    mode: Literal["strict", "recommended", "advisory"]
+    enforcement: Literal["strict", "recommended", "advisory"]
     subprojects: list[Subproject] = field(default_factory=list)
     exemptions: dict[str, Exemption] = field(default_factory=dict)
     subproject_exemptions: dict[str, dict[str, Exemption]] = field(default_factory=dict)
@@ -61,12 +62,19 @@ def load_config(repo_path: Path) -> SuzerainConfig:
     """Load .suzerain.toml from `repo_path`. Returns defaults if no file.
 
     ``stack = "auto"`` (legacy sentinel) is treated as no pin (``None``).
+    The ``enforcement`` field replaces the old ``mode`` key; the parser
+    rejects ``mode`` so the user is forced to migrate.
     """
     cfg_path = repo_path / ".suzerain.toml"
     if not cfg_path.is_file():
-        return SuzerainConfig(version="1", stack=None, mode=DEFAULT_MODE)
+        return SuzerainConfig(version="1", stack=None, enforcement=DEFAULT_ENFORCEMENT)
     raw = tomllib.loads(cfg_path.read_text())
     suz = raw.get("suzerain", {})
+    if "mode" in suz:
+        raise ValueError(
+            f"{cfg_path}: legacy `mode` key is no longer supported — "
+            "rename it to `enforcement` (same values: strict/recommended/advisory)"
+        )
     raw_exemptions = raw.get("exemptions", {})
     exemptions = _parse_exemptions(raw_exemptions)
     subprojects = _parse_subprojects(raw.get("subprojects", []))
@@ -76,7 +84,7 @@ def load_config(repo_path: Path) -> SuzerainConfig:
     return SuzerainConfig(
         version=str(suz.get("version", "1")),
         stack=stack,
-        mode=suz.get("mode", DEFAULT_MODE),
+        enforcement=suz.get("enforcement", DEFAULT_ENFORCEMENT),
         subprojects=subprojects,
         exemptions=exemptions,
         subproject_exemptions=subproject_exemptions,
