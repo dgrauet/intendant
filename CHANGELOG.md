@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0](https://github.com/dgrauet/intendant/compare/v3.1.0...v4.0.0) (2026-05-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* the CLI is now `intendant` (was `suzerain`), the Python package is `intendant`, the configuration filename is `.intendant.toml` (was `.suzerain.toml`), and the MCP server registers as `intendant`.
+
+### Features
+
+* rename project from suzerain to intendant ([24a6748](https://github.com/dgrauet/intendant/commit/24a674845a6ec5727632ea75799669e1b787a51f))
+
+
+### Documentation
+
+* document multi-stack repository declaration ([2a09053](https://github.com/dgrauet/intendant/commit/2a09053e0cd9581cd6d5d86afa348cbb03d2e67d))
+
 ## [3.1.0](https://github.com/dgrauet/suzerain/compare/v3.0.0...v3.1.0) (2026-05-05)
 
 
