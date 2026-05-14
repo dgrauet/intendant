@@ -10,8 +10,8 @@ compliant repo from scratch.
 
 ## Status
 
-v1.0.0 — stable. 70 rules across 6 stacks (python, claude-skill, node, rust, go, swift),
-self-audit 100/100, 730 tests. Multi-language sub-projects supported via
+v4.0.0 — stable. 70 rules across 6 stacks (python, claude-skill, node, rust, go, swift),
+795 tests. Multi-language sub-projects supported via
 `[[subprojects]]` in `.intendant.toml` (see [Multi-stack repositories](#multi-stack-repositories)).
 The `intendant` CLI ships `init`, `audit`, `explain`, `new`, `report`, `doctor`, and
 `mcp` (optional MCP server for agents).
@@ -142,14 +142,14 @@ intendant doctor     # verify install integrity
 70 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
-### Transverse (18 rules)
+### Transverse (19 rules)
 
 | Family | Prefix | Count | Examples |
 |---|---|---|---|
 | Docs & governance | `DG` | 5 | README, CLAUDE.md, ADRs, LICENSE, specs local-only |
 | Layout | `LO` | 1 | docs/ directory |
-| Releases | `RL` | 4 | CHANGELOG, conventional commits, release-please, SemVer |
-| CI | `CI` | 4 | workflow present, minimum steps, commit-msg check, caching |
+| Releases | `RL` | 5 | CHANGELOG, conventional commits, release-please, SemVer, branch protection |
+| CI | `CI` | 3 | workflow present, commit-msg check, caching |
 | Sanitizing | `SA` | 4 | pre-commit baseline, gitleaks, .env.example, .gitignore |
 | Tests | `TS` | 1 | regression_tests/ (when applicable) |
 

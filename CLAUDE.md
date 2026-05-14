@@ -12,7 +12,7 @@ that govern the projects it is configured to scan.
 - **Specs and plans local-only**: `docs/superpowers/specs/` and `docs/superpowers/plans/` are NEVER pushed to the public remote. Rebase the branch onto `origin/main` before pushing.
 - **Strict TDD** on the CLI Python code (`src/intendant/`). Every new engine component comes with its failing test first.
 - **Strict conventional commits**. The `commit-msg` hook rejects non-conformant commits.
-- **Intendant eats its own dog food**: intendant is governed by its own `.intendant.toml` (`mode = "strict"`).
+- **Intendant eats its own dog food**: intendant is governed by its own `.intendant.toml` (`enforcement = "strict"`).
 - **Type-checker**: `ty` (Astral) in V1. `pyright` documented as fallback (ADR-0003).
 
 ## Stack
