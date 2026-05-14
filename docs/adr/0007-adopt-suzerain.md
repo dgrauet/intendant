@@ -1,8 +1,15 @@
 # ADR-0007 : Adopt suzerain
 
-- **Status** : accepted
+- **Status** : accepted — amended by [ADR-0008](0008-rename-suzerain-to-intendant.md) (project renamed `suzerain` → `intendant`)
 - **Date** : 2026-04-30
 - **Stacks** : * (transverse)
+
+> **Historical note.** This ADR documents the decision to adopt the
+> governance framework at the time it was still called `suzerain`. The
+> project has since been renamed to `intendant` (see ADR-0008). The
+> *adoption* decision itself stands; every reference to `suzerain` or
+> `.suzerain.toml` below should be read as `intendant` /
+> `.intendant.toml` in the current codebase.
 
 ## Context
 
