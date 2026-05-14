@@ -12,8 +12,9 @@ compliant repo from scratch.
 
 v1.0.0 — stable. 70 rules across 6 stacks (python, claude-skill, node, rust, go, swift),
 self-audit 100/100, 730 tests. Multi-language sub-projects supported via
-`[[subprojects]]` in `.intendant.toml`. The `intendant` CLI ships `init`, `audit`,
-`explain`, `new`, `report`, `doctor`, and `mcp` (optional MCP server for agents).
+`[[subprojects]]` in `.intendant.toml` (see [Multi-stack repositories](#multi-stack-repositories)).
+The `intendant` CLI ships `init`, `audit`, `explain`, `new`, `report`, `doctor`, and
+`mcp` (optional MCP server for agents).
 
 ## Installation
 
@@ -72,6 +73,46 @@ cd my-lib
 uv sync && uv run pre-commit install
 intendant audit . --severity=required      # should exit 0
 ```
+
+### Multi-stack repositories
+
+A repo can host several sub-projects in different languages. Declare each one via
+`[[subprojects]]` in `.intendant.toml`:
+
+```toml
+[intendant]
+version = "1"
+enforcement = "strict"
+
+[[subprojects]]
+name = "backend"
+path = "services/api"
+stack = "python"
+
+[[subprojects]]
+name = "frontend"
+path = "apps/web"
+stack = "node"
+
+[[subprojects]]
+name = "agent-skill"
+path = "skills/triage"
+stack = "claude-skill"
+```
+
+Each sub-project is audited independently — only transverse rules and its own
+stack's rules apply. Exemptions can be scoped to a single sub-project with
+`[exemptions.<name>]`:
+
+```toml
+[exemptions.backend]
+PYTHON_QU002 = "Ruff config inherited from monorepo root, not duplicated here"
+```
+
+For single-stack repos, prefer auto-detection (omit `stack`) or pin once with
+`[intendant] stack = "<name>"`. See the [Multi-stack handbook
+page](docs/handbook/14-multi-stack.md) for the resolution model, field
+constraints, and scoped-exemption semantics.
 
 ### Cross-repo portfolio report
 
@@ -184,6 +225,7 @@ matching the schemas of the corresponding CLI commands.
 ## Documentation
 
 - [Handbook](docs/handbook/) — charter + all 70 rules with rationale.
+- [Multi-stack repositories](docs/handbook/14-multi-stack.md) — `[[subprojects]]` syntax and scoped exemptions.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.
 
