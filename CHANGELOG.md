@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1](https://github.com/dgrauet/intendant/compare/v4.0.0...v4.0.1) (2026-05-14)
+
+
+### Documentation
+
+* add migration guide for v4.0.0 suzerain → intendant rename ([99d4968](https://github.com/dgrauet/intendant/commit/99d4968eadd02e618e6e276d943a92350c6826dd))
+* mark ADR-0007 as amended by the rename ADR-0008 ([3da32dd](https://github.com/dgrauet/intendant/commit/3da32dd07b7145baad5fc7e60062a19a541b71ea))
+* refresh stale counts in README + fix CLAUDE.md mode→enforcement ([a6495da](https://github.com/dgrauet/intendant/commit/a6495da495234a8b8e1c8072d704b230acd093aa))
+
 ## [4.0.0](https://github.com/dgrauet/intendant/compare/v3.1.0...v4.0.0) (2026-05-14)
 
 
