@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: relock-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   relock:
     if: startsWith(github.head_ref, 'release-please--')
