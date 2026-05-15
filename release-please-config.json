@@ -8,14 +8,7 @@
   "packages": {
     ".": {
       "package-name": "intendant",
-      "changelog-path": "CHANGELOG.md",
-      "extra-files": [
-        {
-          "type": "toml",
-          "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name=='intendant')].version"
-        }
-      ]
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }
