@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from intendant.core.repo import Repo
 from intendant.core.rule import CheckResult, Rule
 
@@ -57,22 +59,33 @@ class CI003CommitMessageValidation(Rule):
         )
 
 
+# Markers that configure caching by their mere presence — either dedicated
+# cache actions or setup-* actions whose cache is on by default. Each is
+# documented; we only list ones that genuinely cache without an extra input.
 _CACHE_MARKERS = (
-    # Generic / opt-in caching primitives.
     "enable-cache",  # astral-sh/setup-uv, oven-sh/setup-bun, … with caching turned on
     "actions/cache",  # the canonical low-level GitHub Actions cache
-    # setup-* actions that wire up a language/package-manager cache via a `cache:`
-    # (or equivalent) input. Presence of the action is treated as a cache signal,
-    # consistent with how setup-python / setup-node were already handled.
-    "actions/setup-python",  # pip / poetry / pipenv cache via `cache:`
-    "actions/setup-node",  # npm / yarn / pnpm cache via `cache:`
     "actions/setup-go",  # Go module + build cache (on by default since v4)
-    "actions/setup-java",  # maven / gradle / sbt cache via `cache:`
-    "actions/setup-dotnet",  # NuGet cache via `cache: true`
-    # Dedicated compiler / build caches.
+    "gradle/actions/setup-gradle",  # caches the Gradle user home by default
     "Swatinem/rust-cache",  # the de-facto standard cargo registry + target cache
     "mozilla-actions/sccache-action",  # sccache shared compilation cache
-    "gradle/actions/setup-gradle",  # caches the Gradle user home by default
+)
+
+# Setup actions such as actions/setup-python, setup-node, setup-java and
+# setup-dotnet only cache when given an explicit `cache:` input — their bare
+# presence is NOT a cache signal. Match an actual `cache:` mapping key whose
+# value is non-empty and not a disabled sentinel (false / none / null / ~ /
+# no / off / 0 / empty), so `cache: pip` counts but `cache: false` does not.
+_CACHE_INPUT_RE = re.compile(
+    r"""^[ \t]*cache:[ \t]*
+        (?!
+            (?:false|none|null|no|off|0|~)\s*(?:\#.*)?$  # cache: false / none / ~ / …
+            |['"]{2}\s*(?:\#.*)?$                        # cache: '' or ""
+            |\s*(?:\#.*)?$                               # cache: (empty / block follows)
+        )
+        \S
+    """,
+    re.MULTILINE | re.VERBOSE,
 )
 
 
@@ -80,7 +93,7 @@ class CI004CacheConfigured(Rule):
     id = "CI004"
     title = (
         "at least one workflow configures caching"
-        " (enable-cache / actions/cache / actions/setup-node)"
+        " (enable-cache / actions/cache / a non-disabled cache: input)"
     )
     severity = "recommended"
     stacks = ("*",)
@@ -93,12 +106,13 @@ class CI004CacheConfigured(Rule):
         workflows = list(wf_dir.glob("*.yml")) + list(wf_dir.glob("*.yaml"))
         for wf in workflows:
             text = wf.read_text()
-            if any(marker in text for marker in _CACHE_MARKERS):
+            if any(marker in text for marker in _CACHE_MARKERS) or _CACHE_INPUT_RE.search(text):
                 return CheckResult(passing=True)
         return CheckResult(
             passing=False,
             evidence=(
-                "no workflow mentions enable-cache, actions/cache, actions/setup-python,"
-                " or actions/setup-node with cache config"
+                "no workflow configures caching (looked for enable-cache, actions/cache,"
+                " setup-go / setup-gradle, Swatinem/rust-cache, sccache, or a non-disabled"
+                " cache: input)"
             ),
         )
