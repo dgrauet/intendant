@@ -35,6 +35,14 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/intendant"]
 
+# Bundle the handbook, ADRs, and scaffold templates inside the wheel so an
+# installed copy (no source checkout) can still run `explain`, `doctor`, and
+# the scaffold engine. Resolved at runtime via intendant/_assets/ (see paths.py).
+[tool.hatch.build.targets.wheel.force-include]
+"docs/handbook" = "intendant/_assets/handbook"
+"docs/adr" = "intendant/_assets/adr"
+"templates" = "intendant/_assets/templates"
+
 [dependency-groups]
 dev = [
     "pytest>=8.3",
