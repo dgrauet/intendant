@@ -113,6 +113,64 @@ def test_ci004_pass_actions_cache(tmp_path: Path) -> None:
     assert CI004CacheConfigured().check(repo).passing is True
 
 
+_WORKFLOW_WITH_RUST_CACHE = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test
+"""
+
+_WORKFLOW_WITH_SCCACHE = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mozilla-actions/sccache-action@v0.0.5
+      - run: cargo build
+"""
+
+_WORKFLOW_WITH_SETUP_GO = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test ./...
+"""
+
+
+def test_ci004_pass_swatinem_rust_cache(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_RUST_CACHE)
+    repo = Repo(path=tmp_path, stacks=("rust",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
+def test_ci004_pass_sccache_action(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_SCCACHE)
+    repo = Repo(path=tmp_path, stacks=("rust",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
+def test_ci004_pass_setup_go(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_SETUP_GO)
+    repo = Repo(path=tmp_path, stacks=("go",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
 def test_ci004_fail_no_cache(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_NO_CACHE)

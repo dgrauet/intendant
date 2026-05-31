@@ -57,7 +57,23 @@ class CI003CommitMessageValidation(Rule):
         )
 
 
-_CACHE_MARKERS = ("enable-cache", "actions/cache", "actions/setup-python", "actions/setup-node")
+_CACHE_MARKERS = (
+    # Generic / opt-in caching primitives.
+    "enable-cache",  # astral-sh/setup-uv, oven-sh/setup-bun, … with caching turned on
+    "actions/cache",  # the canonical low-level GitHub Actions cache
+    # setup-* actions that wire up a language/package-manager cache via a `cache:`
+    # (or equivalent) input. Presence of the action is treated as a cache signal,
+    # consistent with how setup-python / setup-node were already handled.
+    "actions/setup-python",  # pip / poetry / pipenv cache via `cache:`
+    "actions/setup-node",  # npm / yarn / pnpm cache via `cache:`
+    "actions/setup-go",  # Go module + build cache (on by default since v4)
+    "actions/setup-java",  # maven / gradle / sbt cache via `cache:`
+    "actions/setup-dotnet",  # NuGet cache via `cache: true`
+    # Dedicated compiler / build caches.
+    "Swatinem/rust-cache",  # the de-facto standard cargo registry + target cache
+    "mozilla-actions/sccache-action",  # sccache shared compilation cache
+    "gradle/actions/setup-gradle",  # caches the Gradle user home by default
+)
 
 
 class CI004CacheConfigured(Rule):
