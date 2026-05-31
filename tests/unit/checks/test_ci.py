@@ -113,6 +113,169 @@ def test_ci004_pass_actions_cache(tmp_path: Path) -> None:
     assert CI004CacheConfigured().check(repo).passing is True
 
 
+_WORKFLOW_WITH_RUST_CACHE = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test
+"""
+
+_WORKFLOW_WITH_SCCACHE = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mozilla-actions/sccache-action@v0.0.5
+      - run: cargo build
+"""
+
+_WORKFLOW_WITH_SETUP_GO = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test ./...
+"""
+
+
+def test_ci004_pass_swatinem_rust_cache(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_RUST_CACHE)
+    repo = Repo(path=tmp_path, stacks=("rust",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
+def test_ci004_pass_sccache_action(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_SCCACHE)
+    repo = Repo(path=tmp_path, stacks=("rust",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
+def test_ci004_pass_setup_go(tmp_path: Path) -> None:
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_WITH_SETUP_GO)
+    repo = Repo(path=tmp_path, stacks=("go",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
+_WORKFLOW_SETUP_PYTHON_NO_CACHE = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+"""
+
+_WORKFLOW_SETUP_PYTHON_WITH_CACHE = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+"""
+
+_WORKFLOW_SETUP_JAVA_NO_CACHE = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+"""
+
+_WORKFLOW_CACHE_INPUT_DISABLED = """\
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: false
+"""
+
+_WORKFLOW_CACHE_INPUT_ON_UNLISTED_ACTION = """\
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '27'
+          cache: rebar
+"""
+
+
+def test_ci004_fail_setup_python_without_cache_input(tmp_path: Path) -> None:
+    """Bare setup-python configures no cache (cache: input absent) → fail."""
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_SETUP_PYTHON_NO_CACHE)
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert CI004CacheConfigured().check(repo).passing is False
+
+
+def test_ci004_fail_setup_java_without_cache_input(tmp_path: Path) -> None:
+    """setup-java does not cache by default; bare presence must not pass."""
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_SETUP_JAVA_NO_CACHE)
+    repo = Repo(path=tmp_path, stacks=("java",))
+    assert CI004CacheConfigured().check(repo).passing is False
+
+
+def test_ci004_fail_cache_input_disabled(tmp_path: Path) -> None:
+    """`cache: false` explicitly disables caching → must not count."""
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_CACHE_INPUT_DISABLED)
+    repo = Repo(path=tmp_path, stacks=("node",))
+    assert CI004CacheConfigured().check(repo).passing is False
+
+
+def test_ci004_pass_setup_python_with_cache_input(tmp_path: Path) -> None:
+    """setup-python WITH `cache: pip` does configure a cache → pass."""
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_SETUP_PYTHON_WITH_CACHE)
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
+def test_ci004_pass_cache_input_on_any_setup_action(tmp_path: Path) -> None:
+    """A non-default `cache:` input counts regardless of which action sets it."""
+    wf = _make_workflows_dir(tmp_path)
+    (wf / "ci.yml").write_text(_WORKFLOW_CACHE_INPUT_ON_UNLISTED_ACTION)
+    repo = Repo(path=tmp_path, stacks=("*",))
+    assert CI004CacheConfigured().check(repo).passing is True
+
+
 def test_ci004_fail_no_cache(tmp_path: Path) -> None:
     wf = _make_workflows_dir(tmp_path)
     (wf / "ci.yml").write_text(_WORKFLOW_NO_CACHE)
