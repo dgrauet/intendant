@@ -20,6 +20,7 @@ from intendant.checks.rl import (
     RL004SemverStrict,
 )
 from intendant.checks.rl005 import RL005BranchProtection
+from intendant.checks.rl006 import RL006ReleasePleaseGitHubApp
 from intendant.checks.sa import (
     SA001PreCommit,
     SA002Gitleaks,
@@ -41,6 +42,7 @@ RULES: list[Rule] = [
     RL003ReleasePlease(),
     RL004SemverStrict(),
     RL005BranchProtection(),
+    RL006ReleasePleaseGitHubApp(),
     TS002RegressionTestsLayout(),
     CI001CIWorkflow(),
     CI003CommitMessageValidation(),

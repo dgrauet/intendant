@@ -65,3 +65,26 @@ The rule **skips silently** when:
 The rule does NOT enforce protection itself — branch protection is
 configured server-side via the GitHub API or repo settings UI. RL005
 just audits that it is in place.
+
+### RL006 — release-please câblé via une GitHub App
+
+**Severity:** recommended · **Stacks:** * · **ADR:** [0005-release-please](../adr/0005-release-please.md)
+
+Quand le repo utilise `release-please`, le workflow doit minter et utiliser
+un token de **GitHub App** (`actions/create-github-app-token`) plutôt que le
+`GITHUB_TOKEN` par défaut. Une PR de release créée avec le token par défaut ne
+déclenche pas les autres workflows (prévention de boucle GitHub), laissant les
+checks requis non exécutés et la PR non-mergeable.
+
+La règle vérifie, dans le seul workflow utilisant `googleapis/release-please-action` :
+
+- une étape `actions/create-github-app-token` est présente ;
+- le `token:` de l'action référence la sortie de cette étape (`...outputs.token`) ;
+- aucun token par défaut (`secrets.GITHUB_TOKEN` / `github.token`) n'est utilisé ;
+- les inputs `config-file:` et `manifest-file:` sont renseignés.
+
+Cette vérification est **statique** (lecture du YAML, pas de réseau).
+
+La règle **skip silencieusement** quand il n'y a pas de `.github/workflows/`
+(couvert par CI001) ou qu'aucun workflow n'utilise release-please (la présence
+des fichiers JSON est couverte par RL003).
