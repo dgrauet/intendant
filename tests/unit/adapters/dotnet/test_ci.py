@@ -48,3 +48,30 @@ def test_ci001_metadata() -> None:
     assert rule.id == "DOTNET_CI001"
     assert rule.severity == "required"
     assert "dotnet" in rule.stacks
+
+
+def test_ci001_subproject_inspects_root_workflows(tmp_path: Path) -> None:
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text("jobs:\n  win:\n    steps:\n      - run: dotnet build\n")
+    sub = tmp_path / "apps" / "windows"
+    sub.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("dotnet",), name="windows-app", root=tmp_path)
+    result = DOTNET_CI001MinimumSteps().check(repo)
+    assert result.skipped is False
+    assert result.passing is False
+    assert "format" in result.evidence
+
+
+def test_ci001_frontend_role_drops_test_requirement(tmp_path: Path) -> None:
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "jobs:\n  win:\n    steps:\n"
+        "      - run: dotnet format --verify-no-changes\n"
+        "      - run: dotnet build\n"
+    )
+    sub = tmp_path / "apps" / "windows"
+    sub.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("dotnet",), name="windows-app", root=tmp_path, role="frontend")
+    assert DOTNET_CI001MinimumSteps().check(repo).passing is True

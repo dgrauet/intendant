@@ -14,20 +14,18 @@ class GO_CI001MinimumSteps(Rule):  # noqa: N801
     handbook_ref = "docs/handbook/03-ci.md#go_ci001"
 
     def check(self, repo: Repo) -> CheckResult:
-        wf_dir = repo.path / ".github" / "workflows"
-        if not wf_dir.is_dir():
+        contents = repo.workflows_text()
+        if contents is None:
             return CheckResult(
                 passing=True,
                 skipped=True,
-                evidence="no .github/workflows/ directory (covered by CI001)",
+                evidence="no .github/workflows/ at the subproject or repo root (covered by CI001)",
             )
-        contents = "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yml"))
-        contents += "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yaml"))
         missing: list[str] = []
         build_markers = ("go vet", "go build")
         if not any(m in contents for m in build_markers):
             missing.append("build (go vet / go build)")
-        if "go test" not in contents:
+        if repo.role != "frontend" and "go test" not in contents:
             missing.append("test (go test)")
         lint_markers = ("golangci-lint", "gofmt", "staticcheck", "revive")
         if not any(m in contents for m in lint_markers):

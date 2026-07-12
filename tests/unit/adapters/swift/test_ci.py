@@ -59,3 +59,30 @@ def test_ci001_metadata() -> None:
     assert rule.id == "SWIFT_CI001"
     assert rule.severity == "required"
     assert "swift" in rule.stacks
+
+
+def test_ci001_subproject_inspects_root_workflows(tmp_path: Path) -> None:
+    """The champinium case: workflows live at the repo root, not under apps/macos."""
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text("jobs:\n  mac:\n    steps:\n      - run: swift build\n")
+    sub = tmp_path / "apps" / "macos"
+    sub.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("swift",), name="macos-app", root=tmp_path)
+    result = SWIFT_CI001MinimumSteps().check(repo)
+    assert result.skipped is False
+    assert result.passing is False
+    assert "swift test" in result.evidence
+
+
+def test_ci001_frontend_role_drops_test_requirement(tmp_path: Path) -> None:
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "jobs:\n  mac:\n    steps:\n      - run: swiftformat --lint .\n      - run: swift build\n"
+    )
+    sub = tmp_path / "apps" / "macos"
+    sub.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("swift",), name="macos-app", root=tmp_path, role="frontend")
+    result = SWIFT_CI001MinimumSteps().check(repo)
+    assert result.passing is True

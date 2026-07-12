@@ -108,7 +108,12 @@ def run_audit(
                     )
             continue
         sub_repo = Repo(
-            path=sub_path, stacks=(sp.stack,), mode="manual", name=sp.name, role=sp.role
+            path=sub_path,
+            stacks=(sp.stack,),
+            mode="manual",
+            name=sp.name,
+            role=sp.role,
+            root=repo.path,
         )
         for rule in stack_rules:
             if not rule.applies(sub_repo):

@@ -113,6 +113,34 @@ class Repo:
     mode: Literal["auto", "manual"] = "auto"
     name: str | None = None  # subproject name; None for root meta-Repo or single-subproject
     role: str | None = None  # subproject role ("frontend"); None = standard
+    root: Path | None = None  # enclosing repo root when this Repo is a subproject
+
+    def workflows_dir(self) -> Path | None:
+        """The `.github/workflows/` directory governing this Repo, or None.
+
+        Subprojects rarely ship their own workflows: when the local directory
+        is absent, fall back to the enclosing repo root's (CI for the whole
+        repo lives there). None when neither exists.
+        """
+        local = self.path / ".github" / "workflows"
+        if local.is_dir():
+            return local
+        if self.root is not None:
+            root_wf = self.root / ".github" / "workflows"
+            if root_wf.is_dir():
+                return root_wf
+        return None
+
+    def workflows_text(self) -> str | None:
+        """Concatenated text of every workflow YAML, or None without workflows."""
+        wf_dir = self.workflows_dir()
+        if wf_dir is None:
+            return None
+        return "\n".join(
+            p.read_text(errors="replace")
+            for pattern in ("*.yml", "*.yaml")
+            for p in sorted(wf_dir.glob(pattern))
+        )
 
     @classmethod
     def from_path(cls, path: Path) -> Repo:

@@ -160,3 +160,26 @@ def test_no_role_still_runs_test_presence_rules(tmp_path: Path) -> None:
     report = run_audit(resolve_repo(tmp_path, config), config, collect_rules())
     by_id = {f.rule_id: f for f in report.findings if f.subproject == "macos-app"}
     assert by_id["SWIFT_TS001"].status == "fail"
+
+
+def test_subproject_ci_rules_inspect_root_workflows(tmp_path: Path) -> None:
+    """Stack *_CI001 rules must see the root workflows, not skip (champinium case)."""
+    (tmp_path / ".intendant.toml").write_text(
+        "[intendant]\n"
+        'version = "1"\n\n'
+        "[[subprojects]]\n"
+        'name = "macos-app"\npath = "apps/macos"\nstack = "swift"\n'
+    )
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text("jobs:\n  mac:\n    steps:\n      - run: swift build\n")
+    mac = tmp_path / "apps" / "macos"
+    mac.mkdir(parents=True)
+    (mac / "Package.swift").write_text(
+        '// swift-tools-version:5.9\nlet package = Package(name: "App")\n'
+    )
+    config = load_config(tmp_path)
+    report = run_audit(resolve_repo(tmp_path, config), config, collect_rules())
+    by_id = {f.rule_id: f for f in report.findings if f.subproject == "macos-app"}
+    assert by_id["SWIFT_CI001"].status == "fail"
+    assert "swift test" in by_id["SWIFT_CI001"].evidence

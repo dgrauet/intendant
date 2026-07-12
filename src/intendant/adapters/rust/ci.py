@@ -14,21 +14,21 @@ class RUST_CI001MinimumSteps(Rule):  # noqa: N801
     handbook_ref = "docs/handbook/03-ci.md#rust_ci001"
 
     def check(self, repo: Repo) -> CheckResult:
-        wf_dir = repo.path / ".github" / "workflows"
-        if not wf_dir.is_dir():
+        contents = repo.workflows_text()
+        if contents is None:
             return CheckResult(
                 passing=True,
                 skipped=True,
-                evidence="no .github/workflows/ directory (covered by CI001)",
+                evidence="no .github/workflows/ at the subproject or repo root (covered by CI001)",
             )
-        contents = "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yml"))
-        contents += "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yaml"))
         missing: list[str] = []
         if not any(m in contents for m in ("cargo fmt", "rustfmt")):
             missing.append("fmt (cargo fmt)")
         if "cargo clippy" not in contents:
             missing.append("lint (cargo clippy)")
-        if "cargo test" not in contents and "cargo nextest" not in contents:
+        if repo.role != "frontend" and (
+            "cargo test" not in contents and "cargo nextest" not in contents
+        ):
             missing.append("test (cargo test / nextest)")
         if missing:
             return CheckResult(
