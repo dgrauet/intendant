@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0](https://github.com/dgrauet/intendant/compare/v4.0.3...v4.1.0) (2026-07-12)
+
+
+### Features
+
+* **adapters:** add dotnet adapter (7 rules, scaffold, handbook) ([#63](https://github.com/dgrauet/intendant/issues/63)) ([5d3e06b](https://github.com/dgrauet/intendant/commit/5d3e06b350c4dd78a8514e1b4aa1447924b772d3))
+* **checks:** add DG006 verifying doc version claims against the manifest ([#71](https://github.com/dgrauet/intendant/issues/71)) ([5484f2a](https://github.com/dgrauet/intendant/commit/5484f2afe130a63e491773baa5fb3b48df378a2a))
+* **checks:** add LO004 detecting orphan nested stack roots ([#67](https://github.com/dgrauet/intendant/issues/67)) ([74293eb](https://github.com/dgrauet/intendant/commit/74293eb87f521bf2d6c56c83843deb747ed4d82d))
+* **checks:** add QU001 flagging quality-tool configs never run in CI ([#69](https://github.com/dgrauet/intendant/issues/69)) ([bcec808](https://github.com/dgrauet/intendant/commit/bcec8089151db51b052bc9051b03f67d0436345e))
+* **checks:** add RL006 verifying release-please uses a GitHub App token ([#65](https://github.com/dgrauet/intendant/issues/65)) ([0788c01](https://github.com/dgrauet/intendant/commit/0788c0195bf35331f3093adbaaa2b346e92df19e))
+* **checks:** add supply-chain rules CI005, SA005, RUST_SA002 ([#66](https://github.com/dgrauet/intendant/issues/66)) ([277dfc0](https://github.com/dgrauet/intendant/commit/277dfc0ab7a2dbfeb39e961d8df0dd15407f17c1))
+* **ci-rules:** stack *_CI001 rules inspect root workflows for subprojects ([#72](https://github.com/dgrauet/intendant/issues/72)) ([e096925](https://github.com/dgrauet/intendant/commit/e096925222fb27ebcbb667d7d8e68e17ccd171a4))
+* **config:** add subproject role="frontend" skipping test-presence rules ([#70](https://github.com/dgrauet/intendant/issues/70)) ([678bb42](https://github.com/dgrauet/intendant/commit/678bb42a8eb9c9a02d9fe8f981c25ffc91418653))
+* **rust:** make RUST_PK003 workspace-aware (edition across all crates) ([#68](https://github.com/dgrauet/intendant/issues/68)) ([6139820](https://github.com/dgrauet/intendant/commit/61398202fb74d0e7b715355219ca057e604e9922))
+
 ## [4.0.3](https://github.com/dgrauet/intendant/compare/v4.0.2...v4.0.3) (2026-05-31)
 
 
