@@ -87,6 +87,7 @@ son stack lui sont appliquées.
 | `path`  | oui       | Chemin relatif depuis la racine du repo. `"."` désigne la racine.  |
 | `stack` | oui       | Un des stacks supportés : `python`, `node`, `claude-skill`, `rust`, `go`, `swift`, `dotnet`. |
 | `name`  | optionnel | Identifiant du sous-projet. Défaut : `basename(path)`, ou `"root"` si `path = "."`. |
+| `role`  | optionnel | `"frontend"` : sous-projet de présentation pure (logique testée ailleurs) — les règles de présence de tests (`*_TS*`) sont automatiquement *skip*, sans exemption à écrire. |
 
 ### Constraints
 

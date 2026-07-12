@@ -14,6 +14,7 @@ class DotnetTestProject(Rule):
     title = "at least one test project (xunit / NUnit / MSTest)"
     severity = "recommended"
     stacks = ("dotnet",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/15-dotnet.md#dotnet_ts001"
 
     def check(self, repo: Repo) -> CheckResult:

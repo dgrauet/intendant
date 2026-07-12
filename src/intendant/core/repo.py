@@ -112,6 +112,7 @@ class Repo:
     stacks: tuple[str, ...] = ()
     mode: Literal["auto", "manual"] = "auto"
     name: str | None = None  # subproject name; None for root meta-Repo or single-subproject
+    role: str | None = None  # subproject role ("frontend"); None = standard
 
     @classmethod
     def from_path(cls, path: Path) -> Repo:

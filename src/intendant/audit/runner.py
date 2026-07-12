@@ -107,7 +107,9 @@ def run_audit(
                         )
                     )
             continue
-        sub_repo = Repo(path=sub_path, stacks=(sp.stack,), mode="manual", name=sp.name)
+        sub_repo = Repo(
+            path=sub_path, stacks=(sp.stack,), mode="manual", name=sp.name, role=sp.role
+        )
         for rule in stack_rules:
             if not rule.applies(sub_repo):
                 continue
@@ -133,6 +135,15 @@ def _run_one(
             severity=rule.severity,
             status="skip",
             evidence=f"rule does not apply to stacks {list(repo.stacks)!r}",
+            fix_available=False,
+            subproject=sp,
+        )
+    if repo.role is not None and repo.role in rule.skipped_for_roles:
+        return Finding(
+            rule_id=rule.id,
+            severity=rule.severity,
+            status="skip",
+            evidence=f'skipped for role "{repo.role}" (declared in [[subprojects]])',
             fix_available=False,
             subproject=sp,
         )

@@ -11,4 +11,5 @@ class Subproject:
 
     name: str
     path: str  # repo-relative; "." means root
-    stack: str  # one of the supported stacks: python | node | claude-skill | rust | go | swift
+    stack: str  # one of the supported stacks (python, node, rust, go, swift, dotnet, claude-skill)
+    role: str | None = None  # "frontend" = presentation-only; test-presence rules skip

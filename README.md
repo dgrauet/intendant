@@ -96,6 +96,7 @@ stack = "python"
 name = "frontend"
 path = "apps/web"
 stack = "node"
+role = "frontend"   # presentation-only: test-presence rules auto-skip
 
 [[subprojects]]
 name = "agent-skill"

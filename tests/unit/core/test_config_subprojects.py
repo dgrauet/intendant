@@ -192,3 +192,36 @@ def test_is_rule_exempt_for_subproject_with_none_subproject_uses_top_level_only(
     result = cfg.is_rule_exempt_for_subproject("X", None)
     assert result is not None
     assert result.reason == "top-level"
+
+
+# --- role attribute ---
+
+
+def test_subproject_role_parsed(tmp_path: Path) -> None:
+    (tmp_path / ".intendant.toml").write_text(
+        "[intendant]\n"
+        'version = "1"\n\n'
+        "[[subprojects]]\n"
+        'name = "macos-app"\npath = "apps/macos"\nstack = "swift"\nrole = "frontend"\n'
+    )
+    config = load_config(tmp_path)
+    assert config.subprojects[0].role == "frontend"
+
+
+def test_subproject_role_defaults_to_none(tmp_path: Path) -> None:
+    (tmp_path / ".intendant.toml").write_text(
+        '[intendant]\nversion = "1"\n\n[[subprojects]]\nname = "core"\npath = "."\nstack = "rust"\n'
+    )
+    config = load_config(tmp_path)
+    assert config.subprojects[0].role is None
+
+
+def test_subproject_unknown_role_rejected(tmp_path: Path) -> None:
+    (tmp_path / ".intendant.toml").write_text(
+        "[intendant]\n"
+        'version = "1"\n\n'
+        "[[subprojects]]\n"
+        'name = "x"\npath = "x"\nstack = "swift"\nrole = "fronted"\n'
+    )
+    with pytest.raises(ValueError, match="role"):
+        load_config(tmp_path)

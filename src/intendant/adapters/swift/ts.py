@@ -12,6 +12,7 @@ class SwiftTestFiles(Rule):
     title = "at least one Tests/**/*.swift file with a Test* function or @Test"
     severity = "recommended"
     stacks = ("swift",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/13-swift.md#swift_ts001"
 
     def check(self, repo: Repo) -> CheckResult:

@@ -12,6 +12,7 @@ class RustTestAnnotations(Rule):
     title = "at least one #[test] annotation under src/ or tests/"
     severity = "recommended"
     stacks = ("rust",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/11-rust.md#rust_ts001"
 
     def check(self, repo: Repo) -> CheckResult:

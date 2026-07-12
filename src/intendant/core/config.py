@@ -135,6 +135,9 @@ def _parse_subproject_exemptions(raw: dict) -> dict[str, dict[str, Exemption]]:
     return out
 
 
+_KNOWN_ROLES = {"frontend"}
+
+
 def _parse_subprojects(raw: list) -> list[Subproject]:
     """Parse [[subprojects]] array. Validates all required fields and constraints."""
     if not isinstance(raw, list):
@@ -168,7 +171,14 @@ def _parse_subprojects(raw: list) -> list[Subproject]:
             raise ValueError(f"duplicate subproject name: {name}")
         if path in seen_paths:
             raise ValueError(f"duplicate subproject path: {path}")
+        role = None
+        if "role" in entry:
+            role = str(entry["role"])
+            if role not in _KNOWN_ROLES:
+                raise ValueError(
+                    f"unknown subproject role: {role!r} (supported: {sorted(_KNOWN_ROLES)})"
+                )
         seen_names.add(name)
         seen_paths.add(path)
-        out.append(Subproject(name=name, path=path, stack=stack))
+        out.append(Subproject(name=name, path=path, stack=stack, role=role))
     return out
