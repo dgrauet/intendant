@@ -12,7 +12,6 @@ from intendant.checks.dg import (
     DG003ADRDir,
     DG004License,
     DG005SpecsLocalOnly,
-    DG006VersionClaimsFresh,
 )
 from intendant.checks.lo import LO003DocsDirectory, LO004NestedStackCoverage
 from intendant.checks.qu import QU001ConfiguredToolsRunInCI
@@ -40,7 +39,6 @@ RULES: list[Rule] = [
     DG003ADRDir(),
     DG004License(),
     DG005SpecsLocalOnly(),
-    DG006VersionClaimsFresh(),
     LO003DocsDirectory(),
     LO004NestedStackCoverage(),
     QU001ConfiguredToolsRunInCI(),

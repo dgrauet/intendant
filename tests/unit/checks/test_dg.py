@@ -8,7 +8,6 @@ from intendant.checks.dg import (
     DG003ADRDir,
     DG004License,
     DG005SpecsLocalOnly,
-    DG006VersionClaimsFresh,
 )
 from intendant.core.repo import Repo
 
@@ -181,61 +180,3 @@ def test_dg002_metadata(tmp_path: Path) -> None:
     assert rule.id == "DG002"
     assert rule.severity == "recommended"
     assert "*" in rule.stacks
-
-
-# --- DG006: doc version claims match the release manifest ---
-
-
-def _manifest(path: Path, version: str) -> None:
-    (path / ".release-please-manifest.json").write_text(f'{{\n  ".": "{version}"\n}}\n')
-
-
-def test_dg006_fail_stale_claude_md_claim(tmp_path: Path) -> None:
-    """The champinium case: CLAUDE.md claims an old release."""
-    _manifest(tmp_path, "0.6.0")
-    (tmp_path / "CLAUDE.md").write_text("**Dernière release : v0.2.0** (release-please)\n")
-    result = DG006VersionClaimsFresh().check(Repo(path=tmp_path, stacks=("rust",)))
-    assert result.passing is False
-    assert "v0.2.0" in result.evidence
-    assert "0.6.0" in result.evidence
-
-
-def test_dg006_fail_stale_readme_status_line(tmp_path: Path) -> None:
-    """The intendant case: README status line pins an old version."""
-    _manifest(tmp_path, "4.0.3")
-    (tmp_path / "README.md").write_text("## Status\n\nv4.0.0 — stable. 83 rules.\n")
-    result = DG006VersionClaimsFresh().check(Repo(path=tmp_path, stacks=("python",)))
-    assert result.passing is False
-    assert "v4.0.0" in result.evidence
-
-
-def test_dg006_pass_matching_claim(tmp_path: Path) -> None:
-    _manifest(tmp_path, "1.2.3")
-    (tmp_path / "README.md").write_text("Last release v1.2.3.\n")
-    assert DG006VersionClaimsFresh().check(Repo(path=tmp_path, stacks=("python",))).passing is True
-
-
-def test_dg006_pass_no_claims(tmp_path: Path) -> None:
-    _manifest(tmp_path, "1.2.3")
-    (tmp_path / "README.md").write_text("A project. Uses libp2p 0.53.1 and uniffi v0.28.3.\n")
-    assert DG006VersionClaimsFresh().check(Repo(path=tmp_path, stacks=("python",))).passing is True
-
-
-def test_dg006_ignores_dependency_mentions(tmp_path: Path) -> None:
-    """Bare `vX.Y.Z` tokens without a release/version/status context are not claims."""
-    _manifest(tmp_path, "2.0.0")
-    (tmp_path / "README.md").write_text("Pin actions like actions/checkout@abc  # v4.3.1\n")
-    assert DG006VersionClaimsFresh().check(Repo(path=tmp_path, stacks=("python",))).passing is True
-
-
-def test_dg006_skipped_without_manifest(tmp_path: Path) -> None:
-    (tmp_path / "README.md").write_text("Last release v1.0.0\n")
-    result = DG006VersionClaimsFresh().check(Repo(path=tmp_path, stacks=("python",)))
-    assert result.skipped is True
-
-
-def test_dg006_metadata() -> None:
-    rule = DG006VersionClaimsFresh()
-    assert rule.id == "DG006"
-    assert rule.severity == "optional"
-    assert rule.stacks == ("*",)
