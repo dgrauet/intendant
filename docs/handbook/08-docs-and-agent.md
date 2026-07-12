@@ -46,3 +46,17 @@ day-to-day) and a `docs/superpowers/ export-ignore` line in `.gitattributes`
 The auto-fix (`intendant fix`) applies the two protections in order via a
 2-pass approach: the first call patches `.gitignore`; the second call patches
 `.gitattributes`. Run `--fix` twice to fully resolve a fresh violation.
+
+### DG006 — doc version claims match the release manifest
+
+**Severity:** optional · **Stacks:** *
+
+When `README.md` or `CLAUDE.md` asserts the project's own version — a
+"last release vX.Y.Z" statement, a `version: vX.Y.Z` field, or a status
+line opening with `vX.Y.Z —` — the claim must match the current version
+in `.release-please-manifest.json`. Stale claims mislead agents and
+contributors (champinium's CLAUDE.md announced v0.2.0 four releases
+late). Bare `vX.Y.Z` tokens without a release/version context (dependency
+pins, SHA-pin comments) are not claims. The durable fix is usually to
+drop the hardcoded version rather than chase it at every release.
+Skipped when no release manifest exists (covered by `RL003`).
