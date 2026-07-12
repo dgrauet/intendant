@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import re
 from pathlib import Path
 
 from intendant.core.patch import Patch
@@ -183,3 +185,69 @@ class DG005SpecsLocalOnly(Rule):
                 safe=True,
             )
         return None
+
+
+# A "claim" is a version the docs assert about THIS project: either a
+# release/version statement, or a status line opening with the version.
+# Bare `vX.Y.Z` tokens (dependency pins, action comments) are not claims.
+_VERSION_CLAIM_RES = (
+    re.compile(
+        r"(?i)(?:derni[eè]re|last|current|latest)\s+(?:release|version)\s*[:=\u2014\u2013-]?\s*"
+        r"\**v(\d+\.\d+\.\d+)"
+    ),
+    re.compile(r"(?i)\brelease\s*[:=]\s*\**v(\d+\.\d+\.\d+)"),
+    re.compile(r"(?i)\bversion\s*[:=]\s*\**v(\d+\.\d+\.\d+)"),
+    re.compile(r"^\**v(\d+\.\d+\.\d+)\**\s*[\u2014\u2013-]", re.MULTILINE),
+)
+_CLAIM_DOC_FILES = ("README.md", "CLAUDE.md")
+
+
+class DG006VersionClaimsFresh(Rule):
+    id = "DG006"
+    title = "doc version claims match the release manifest"
+    severity = "optional"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/08-docs-and-agent.md#dg006"
+
+    def check(self, repo: Repo) -> CheckResult:
+        manifest_path = repo.path / ".release-please-manifest.json"
+        if not manifest_path.is_file():
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no .release-please-manifest.json (covered by RL003)",
+            )
+        try:
+            manifest = json.loads(manifest_path.read_text())
+            current = manifest.get(".")
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            current = None
+        if not isinstance(current, str):
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence='manifest has no "." version entry (covered by RL003)',
+            )
+        stale: list[str] = []
+        claims = 0
+        for name in _CLAIM_DOC_FILES:
+            doc = repo.path / name
+            if not doc.is_file():
+                continue
+            text = doc.read_text(errors="replace")
+            for pattern in _VERSION_CLAIM_RES:
+                for match in pattern.finditer(text):
+                    claims += 1
+                    if match.group(1) != current:
+                        stale.append(f"{name}: v{match.group(1)}")
+        if stale:
+            return CheckResult(
+                passing=False,
+                evidence=(
+                    f"doc version claim(s) contradict the release manifest ({current}): "
+                    f"{stale[:5]} — update the claim or drop the hardcoded version"
+                ),
+            )
+        if claims:
+            return CheckResult(passing=True, evidence=f"{claims} claim(s) match {current}")
+        return CheckResult(passing=True, evidence="no version claims in README.md/CLAUDE.md")
