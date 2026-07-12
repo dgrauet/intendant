@@ -7,6 +7,7 @@ from intendant.checks.ci import (
     CI001CIWorkflow,
     CI003CommitMessageValidation,
     CI004CacheConfigured,
+    CI005ActionsPinnedToSHA,
 )
 from intendant.core.repo import Repo
 
@@ -381,3 +382,66 @@ def test_ci003_fails_when_no_commit_validation(tmp_path: Path) -> None:
     result = CI003CommitMessageValidation().check(repo)
     assert result.passing is False
     assert "commit" in result.evidence.lower()
+
+
+# --- CI005: actions pinned to commit SHAs ---
+
+
+def _write_wf(tmp_path: Path, body: str) -> None:
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True, exist_ok=True)
+    (wf / "ci.yml").write_text(body)
+
+
+def test_ci005_pass_all_sha_pinned(tmp_path: Path) -> None:
+    _write_wf(
+        tmp_path,
+        "jobs:\n  a:\n    steps:\n"
+        "      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2\n"
+        "      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990  # v8.3.2\n",
+    )
+    repo = Repo(path=tmp_path, stacks=("python",))
+    result = CI005ActionsPinnedToSHA().check(repo)
+    assert result.passing is True
+
+
+def test_ci005_fail_tag_pinned(tmp_path: Path) -> None:
+    _write_wf(
+        tmp_path,
+        "jobs:\n  a:\n    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990\n",
+    )
+    repo = Repo(path=tmp_path, stacks=("python",))
+    result = CI005ActionsPinnedToSHA().check(repo)
+    assert result.passing is False
+    assert "actions/checkout@v4" in result.evidence
+
+
+def test_ci005_fail_unpinned(tmp_path: Path) -> None:
+    _write_wf(tmp_path, "jobs:\n  a:\n    steps:\n      - uses: actions/checkout\n")
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert CI005ActionsPinnedToSHA().check(repo).passing is False
+
+
+def test_ci005_ignores_local_and_docker_uses(tmp_path: Path) -> None:
+    _write_wf(
+        tmp_path,
+        "jobs:\n  a:\n    steps:\n"
+        "      - uses: ./.github/actions/local-thing\n"
+        "      - uses: docker://alpine:3.20\n",
+    )
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert CI005ActionsPinnedToSHA().check(repo).passing is True
+
+
+def test_ci005_skipped_when_no_workflows_dir(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert CI005ActionsPinnedToSHA().check(repo).skipped is True
+
+
+def test_ci005_metadata() -> None:
+    rule = CI005ActionsPinnedToSHA()
+    assert rule.id == "CI005"
+    assert rule.severity == "required"
+    assert rule.stacks == ("*",)

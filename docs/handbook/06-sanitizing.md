@@ -48,3 +48,13 @@ The root `.gitignore` must contain the Python-specific baseline patterns:
 The root `.gitignore` must contain the Node-specific baseline patterns:
 `node_modules/` and `dist/`. Skipped when `.gitignore` does not exist
 (covered by SA004).
+
+### SA005 — dependency update automation configured (Dependabot or Renovate)
+
+**Severity:** recommended · **Stacks:** *
+
+The repository should automate dependency updates via
+`.github/dependabot.yml` (or a Renovate config: `renovate.json`,
+`.renovaterc`, …). This keeps lockfiles and SHA-pinned actions (`CI005`)
+fresh without manual sweeps, shrinking the window during which a known
+vulnerability stays in the dependency tree.

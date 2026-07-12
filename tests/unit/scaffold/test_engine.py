@@ -241,3 +241,11 @@ def test_scaffold_claude_skill_skill_md_has_valid_frontmatter(
     text = skill_md.read_text()
     assert "name: my-skill" in text
     assert "description:" in text
+
+
+def test_scaffold_writes_dependabot_config(tmp_path: Path, context: SubstitutionContext) -> None:
+    target = tmp_path / "proj"
+    scaffold_project(target, "python", context)
+    dependabot = target / ".github" / "dependabot.yml"
+    assert dependabot.is_file()
+    assert "github-actions" in dependabot.read_text()

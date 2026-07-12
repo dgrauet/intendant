@@ -4,6 +4,7 @@ from intendant.checks.ci import (
     CI001CIWorkflow,
     CI003CommitMessageValidation,
     CI004CacheConfigured,
+    CI005ActionsPinnedToSHA,
 )
 from intendant.checks.dg import (
     DG001Readme,
@@ -26,6 +27,7 @@ from intendant.checks.sa import (
     SA002Gitleaks,
     SA003EnvExample,
     SA004GitignoreBaseline,
+    SA005DependencyUpdateAutomation,
 )
 from intendant.checks.ts import TS002RegressionTestsLayout
 from intendant.core.rule import Rule
@@ -47,8 +49,10 @@ RULES: list[Rule] = [
     CI001CIWorkflow(),
     CI003CommitMessageValidation(),
     CI004CacheConfigured(),
+    CI005ActionsPinnedToSHA(),
     SA001PreCommit(),
     SA002Gitleaks(),
     SA003EnvExample(),
     SA004GitignoreBaseline(),
+    SA005DependencyUpdateAutomation(),
 ]

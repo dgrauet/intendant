@@ -59,7 +59,9 @@ def _copy_github(src: Path, dst: Path, context: SubstitutionContext) -> None:
     for entry in sorted(src.iterdir()):
         if not entry.is_file():
             continue
-        if entry.suffix == ".yml":
+        if entry.name == "dependabot.yml":
+            target = dst / ".github" / "dependabot.yml"
+        elif entry.suffix == ".yml":
             target = workflows / entry.name
         elif entry.name.endswith(".json.template"):
             target = dst / entry.name.removesuffix(".template")

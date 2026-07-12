@@ -7,6 +7,7 @@ from intendant.checks.sa import (
     SA002Gitleaks,
     SA003EnvExample,
     SA004GitignoreBaseline,
+    SA005DependencyUpdateAutomation,
 )
 from intendant.core.repo import Repo
 
@@ -307,3 +308,36 @@ def test_sa003_fix_returns_none_when_already_present(tmp_path: Path) -> None:
     assert result.passing is True
     patch = rule.fix(repo, result)
     assert patch is None
+
+
+# --- SA005: dependency update automation ---
+
+
+def test_sa005_pass_dependabot(tmp_path: Path) -> None:
+    gh = tmp_path / ".github"
+    gh.mkdir()
+    (gh / "dependabot.yml").write_text("version: 2\nupdates: []\n")
+    repo = Repo(path=tmp_path, stacks=("python",))
+    result = SA005DependencyUpdateAutomation().check(repo)
+    assert result.passing is True
+    assert "dependabot" in result.evidence
+
+
+def test_sa005_pass_renovate(tmp_path: Path) -> None:
+    (tmp_path / "renovate.json").write_text("{}\n")
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert SA005DependencyUpdateAutomation().check(repo).passing is True
+
+
+def test_sa005_fail(tmp_path: Path) -> None:
+    repo = Repo(path=tmp_path, stacks=("python",))
+    result = SA005DependencyUpdateAutomation().check(repo)
+    assert result.passing is False
+    assert "dependabot" in result.evidence.lower()
+
+
+def test_sa005_metadata() -> None:
+    rule = SA005DependencyUpdateAutomation()
+    assert rule.id == "SA005"
+    assert rule.severity == "recommended"
+    assert rule.stacks == ("*",)
