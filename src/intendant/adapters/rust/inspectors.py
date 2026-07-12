@@ -90,3 +90,21 @@ def find_test_annotations(repo_path: Path) -> list[Path]:
                 except OSError:
                     continue
     return hits
+
+
+def workspace_member_manifests(repo_path: Path) -> list[tuple[str, dict[str, Any]]]:
+    """Return ``(repo-relative dir, parsed Cargo.toml)`` for each workspace member.
+
+    Member globs are expanded against the repo root; directories matched by a
+    glob but holding no parseable ``Cargo.toml`` are skipped (not crates).
+    Empty when the root manifest declares no workspace.
+    """
+    manifests: list[tuple[str, dict[str, Any]]] = []
+    for member_dir in _crate_dirs(repo_path):
+        if member_dir == repo_path:
+            continue
+        cargo = load_cargo_toml(member_dir)
+        if cargo is None:
+            continue
+        manifests.append((member_dir.relative_to(repo_path).as_posix(), cargo))
+    return manifests

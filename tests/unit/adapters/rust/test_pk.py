@@ -79,10 +79,67 @@ def test_pk003_skipped_when_cargo_missing(tmp_path: Path) -> None:
     assert result.skipped is True
 
 
-def test_pk003_skipped_when_no_package_section(tmp_path: Path) -> None:
-    (tmp_path / "Cargo.toml").write_text("[workspace]\nmembers = []\n")
+def test_pk003_skipped_when_neither_package_nor_workspace(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text("[dependencies]\n")
     result = RustEdition().check(_repo(tmp_path))
     assert result.skipped is True
+
+
+def test_pk003_workspace_empty_members_passes(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text("[workspace]\nmembers = []\n")
+    result = RustEdition().check(_repo(tmp_path))
+    assert result.passing is True
+    assert result.skipped is False
+
+
+def _write_member(root: Path, rel: str, manifest: str) -> None:
+    d = root / rel
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "Cargo.toml").write_text(manifest)
+
+
+def test_pk003_workspace_member_inherits_edition(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text(
+        '[workspace]\nmembers = ["crates/*"]\n\n[workspace.package]\nedition = "2021"\n'
+    )
+    _write_member(tmp_path, "crates/foo", '[package]\nname = "foo"\nedition.workspace = true\n')
+    result = RustEdition().check(_repo(tmp_path))
+    assert result.passing is True
+    assert "2021" in result.evidence
+
+
+def test_pk003_workspace_member_pins_own_edition(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text('[workspace]\nmembers = ["app"]\n')
+    _write_member(tmp_path, "app", '[package]\nname = "app"\nedition = "2024"\n')
+    result = RustEdition().check(_repo(tmp_path))
+    assert result.passing is True
+
+
+def test_pk003_workspace_member_without_edition_fails(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text(
+        '[workspace]\nmembers = ["crates/*"]\n\n[workspace.package]\nedition = "2021"\n'
+    )
+    _write_member(tmp_path, "crates/foo", '[package]\nname = "foo"\nedition.workspace = true\n')
+    _write_member(tmp_path, "crates/bar", '[package]\nname = "bar"\nversion = "0.1.0"\n')
+    result = RustEdition().check(_repo(tmp_path))
+    assert result.passing is False
+    assert "crates/bar" in result.evidence
+
+
+def test_pk003_workspace_inheritance_without_workspace_edition_fails(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text('[workspace]\nmembers = ["app"]\n')
+    _write_member(tmp_path, "app", '[package]\nname = "app"\nedition.workspace = true\n')
+    result = RustEdition().check(_repo(tmp_path))
+    assert result.passing is False
+    assert "app" in result.evidence
+
+
+def test_pk003_hybrid_root_package_without_edition_fails(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text(
+        '[workspace]\nmembers = []\n\n[package]\nname = "root"\nversion = "0.1.0"\n'
+    )
+    result = RustEdition().check(_repo(tmp_path))
+    assert result.passing is False
 
 
 def test_pk003_metadata() -> None:
