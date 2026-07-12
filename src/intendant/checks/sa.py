@@ -248,3 +248,35 @@ class SA004GitignoreBaseline(Rule):
                 evidence=f"missing baseline patterns in .gitignore: {missing}",
             )
         return CheckResult(passing=True, evidence="generic baseline present")
+
+
+_UPDATE_AUTOMATION_CONFIGS = (
+    ".github/dependabot.yml",
+    ".github/dependabot.yaml",
+    "renovate.json",
+    "renovate.json5",
+    ".github/renovate.json",
+    ".github/renovate.json5",
+    ".renovaterc",
+    ".renovaterc.json",
+)
+
+
+class SA005DependencyUpdateAutomation(Rule):
+    id = "SA005"
+    title = "dependency update automation configured (Dependabot or Renovate)"
+    severity = "recommended"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/06-sanitizing.md#sa005"
+
+    def check(self, repo: Repo) -> CheckResult:
+        present = [name for name in _UPDATE_AUTOMATION_CONFIGS if (repo.path / name).is_file()]
+        if present:
+            return CheckResult(passing=True, evidence=f"update automation config: {present}")
+        return CheckResult(
+            passing=False,
+            evidence=(
+                "no dependency update automation found "
+                "(looked for .github/dependabot.yml or a Renovate config)"
+            ),
+        )

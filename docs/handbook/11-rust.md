@@ -62,6 +62,16 @@ The CI workflow(s) under `.github/workflows/` must invoke `cargo fmt`
 Skipped when no workflows directory exists (covered by transverse
 `CI001`).
 
+### RUST_SA002 — dependency vulnerability/license scanning (cargo-deny or cargo-audit)
+
+**Severity:** recommended · **Stacks:** rust
+
+The repository should scan its dependency tree for known vulnerabilities
+(RustSec advisories) and license issues: a `deny.toml` (cargo-deny) or
+`.cargo/audit.toml` (cargo-audit) config, or a CI step running
+`cargo deny check` / `cargo audit` (including `EmbarkStudios/cargo-deny-action`
+or `rustsec/audit-check`).
+
 ### RUST_SA001 — Rust .gitignore baseline (target/)
 
 **Severity:** required · **Stacks:** rust

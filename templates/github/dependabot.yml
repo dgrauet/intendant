@@ -1,0 +1,12 @@
+# Keeps SHA-pinned GitHub Actions fresh (CI005) — Dependabot updates the pin
+# and the version comment together.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

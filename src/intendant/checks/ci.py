@@ -116,3 +116,46 @@ class CI004CacheConfigured(Rule):
                 " cache: input)"
             ),
         )
+
+
+# `uses:` reference — capture everything up to whitespace or an inline comment.
+_USES_RE = re.compile(r"^\s*-?\s*uses:\s*[\"']?([^\s\"'#]+)", re.MULTILINE)
+_FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+
+
+class CI005ActionsPinnedToSHA(Rule):
+    id = "CI005"
+    title = "GitHub Actions pinned to full commit SHAs"
+    severity = "required"
+    stacks = ("*",)
+    handbook_ref = "docs/handbook/03-ci.md#ci005"
+
+    def check(self, repo: Repo) -> CheckResult:
+        wf_dir = repo.path / ".github" / "workflows"
+        if not wf_dir.is_dir():
+            return CheckResult(
+                passing=True,
+                skipped=True,
+                evidence="no .github/workflows/ directory (covered by CI001)",
+            )
+        offenders: list[str] = []
+        workflows = sorted(wf_dir.glob("*.yml")) + sorted(wf_dir.glob("*.yaml"))
+        for wf in workflows:
+            text = wf.read_text(errors="replace")
+            for ref in _USES_RE.findall(text):
+                # Local composite actions and docker images are out of scope:
+                # they are not fetched from a mutable git tag.
+                if ref.startswith(("./", "docker://")):
+                    continue
+                _, _, version = ref.rpartition("@")
+                if not _FULL_SHA_RE.match(version):
+                    offenders.append(f"{wf.name}: {ref}")
+        if offenders:
+            return CheckResult(
+                passing=False,
+                evidence=(
+                    f"{len(offenders)} action ref(s) not pinned to a commit SHA: "
+                    f"{offenders[:5]} (pin with `uses: owner/repo@<sha>  # vX.Y.Z`)"
+                ),
+            )
+        return CheckResult(passing=True, evidence="all action refs pinned to commit SHAs")

@@ -86,3 +86,11 @@ def test_explain_dotnet_rule_from_real_handbook() -> None:
     result = runner.invoke(app, ["explain", "DOTNET_PK001"])
     assert result.exit_code == 0
     assert "DOTNET_PK001" in result.stdout
+
+
+def test_explain_supply_chain_rules_from_real_handbook() -> None:
+    """CI005, SA005, and RUST_SA002 must have sections in the shipped handbook."""
+    for rule_id in ("CI005", "SA005", "RUST_SA002"):
+        result = runner.invoke(app, ["explain", rule_id])
+        assert result.exit_code == 0, f"{rule_id} missing from handbook"
+        assert rule_id in result.stdout
