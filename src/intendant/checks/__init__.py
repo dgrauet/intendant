@@ -14,6 +14,7 @@ from intendant.checks.dg import (
     DG005SpecsLocalOnly,
 )
 from intendant.checks.lo import LO003DocsDirectory, LO004NestedStackCoverage
+from intendant.checks.qu import QU001ConfiguredToolsRunInCI
 from intendant.checks.rl import (
     RL001Changelog,
     RL002ConventionalCommits,
@@ -40,6 +41,7 @@ RULES: list[Rule] = [
     DG005SpecsLocalOnly(),
     LO003DocsDirectory(),
     LO004NestedStackCoverage(),
+    QU001ConfiguredToolsRunInCI(),
     RL001Changelog(),
     RL002ConventionalCommits(),
     RL003ReleasePlease(),
