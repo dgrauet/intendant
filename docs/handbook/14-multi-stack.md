@@ -1,36 +1,37 @@
 # 14 — Multi-stack repositories
 
-Référence de la déclaration multi-langage dans `.intendant.toml`. Cette
-page n'introduit aucune règle : elle documente comment la composition
-de stacks d'un repo est résolue, et comment déclarer plusieurs
-sous-projets cohabitant dans un même dépôt.
+Reference for the multi-language declaration in `.intendant.toml`. This
+page introduces no rule: it documents how a repo's stack composition is
+resolved, and how to declare several sub-projects living in the same
+repository.
 
 ## Resolution model
 
-À l'audit, intendant construit une composition de stacks par repo selon
-trois modes, dans l'ordre :
+At audit time, intendant builds a per-repo stack composition through
+three modes, in order:
 
-1. **Manual top-level pin** — `[intendant] stack = "<name>"` épingle un
-   seul stack pour tout le repo. `mode = "manual"`.
-2. **Manual subprojects** — un ou plusieurs `[[subprojects]]` déclarent
-   explicitement chaque sous-projet avec son chemin et son stack.
+1. **Manual top-level pin** — `[intendant] stack = "<name>"` pins a
+   single stack for the whole repo. `mode = "manual"`.
+2. **Manual subprojects** — one or more `[[subprojects]]` entries
+   explicitly declare each sub-project with its path and stack.
    `mode = "manual"`.
-3. **Auto-detection** — si ni `stack` ni `[[subprojects]]` ne sont
-   présents (ou si `stack = "auto"`, sentinelle legacy), intendant
-   parcourt la racine et détecte chaque stack via ses marqueurs
+3. **Auto-detection** — when neither `stack` nor `[[subprojects]]` is
+   present (or with `stack = "auto"`, the legacy sentinel), intendant
+   scans the root and detects each stack through its markers
    (`pyproject.toml`, `package.json`, `Cargo.toml`, `go.mod`,
-   `Package.swift`, `*.csproj`/`*.sln`, et un walk pour `SKILL.md`). `mode = "auto"`.
+   `Package.swift`, `*.csproj`/`*.sln`, plus a walk for `SKILL.md`).
+   `mode = "auto"`.
 
-Top-level `stack` et `[[subprojects]]` sont mutuellement exclusifs en
-intention : si les deux sont déclarés, `[[subprojects]]` prime pour le
-routage des règles par chemin, et `stack` retombe à un rôle informatif.
-Préférez l'un ou l'autre.
+Top-level `stack` and `[[subprojects]]` are mutually exclusive in
+intent: when both are declared, `[[subprojects]]` wins for per-path rule
+routing and `stack` falls back to an informative role. Prefer one or the
+other.
 
 ## Single-stack repo
 
-Cas le plus courant : un seul langage, à la racine. Deux options.
+The most common case: a single language, at the root. Two options.
 
-**Auto-detection (recommandé)** — laisser intendant détecter :
+**Auto-detection (recommended)** — let intendant detect:
 
 ```toml
 [intendant]
@@ -38,9 +39,8 @@ version = "1"
 enforcement = "strict"
 ```
 
-**Manual pin** — utile pour figer le stack quand l'auto-détection est
-ambiguë (ex. un `pyproject.toml` présent uniquement pour la config de
-tooling) :
+**Manual pin** — useful to freeze the stack when auto-detection is
+ambiguous (e.g. a `pyproject.toml` present only for tooling config):
 
 ```toml
 [intendant]
@@ -51,9 +51,9 @@ enforcement = "strict"
 
 ## Multi-stack repo
 
-Quand un repo héberge plusieurs sous-projets dans des langages
-différents (ex. backend Python + frontend Node + skill Claude),
-déclarez chaque sous-projet via `[[subprojects]]` :
+When a repo hosts several sub-projects in different languages (e.g. a
+Python backend + a Node frontend + a Claude skill), declare each
+sub-project through `[[subprojects]]`:
 
 ```toml
 [intendant]
@@ -69,6 +69,7 @@ stack = "python"
 name = "frontend"
 path = "apps/web"
 stack = "node"
+role = "frontend"   # presentation-only: test-presence rules auto-skip
 
 [[subprojects]]
 name = "agent-skill"
@@ -76,35 +77,34 @@ path = "skills/triage"
 stack = "claude-skill"
 ```
 
-Chaque sous-projet est audité indépendamment : seules les règles
-transverses (`DG`, `LO003`, `RL`, `CI`, `SA`, `TS`) et les règles de
-son stack lui sont appliquées.
+Each sub-project is audited independently: only the transverse rules
+(`DG`, `LO003`, `RL`, `CI`, `SA`, `TS`) and its own stack's rules apply
+to it.
 
 ### Subproject fields
 
-| Champ   | Requis    | Description                                                        |
-| ------- | --------- | ------------------------------------------------------------------ |
-| `path`  | oui       | Chemin relatif depuis la racine du repo. `"."` désigne la racine.  |
-| `stack` | oui       | Un des stacks supportés : `python`, `node`, `claude-skill`, `rust`, `go`, `swift`, `dotnet`. |
-| `name`  | optionnel | Identifiant du sous-projet. Défaut : `basename(path)`, ou `"root"` si `path = "."`. |
-| `role`  | optionnel | `"frontend"` : sous-projet de présentation pure (logique testée ailleurs) — les règles de présence de tests (`*_TS*`) sont automatiquement *skip*, sans exemption à écrire. |
+| Field   | Required | Description                                                        |
+| ------- | -------- | ------------------------------------------------------------------ |
+| `path`  | yes      | Path relative to the repo root. `"."` designates the root.         |
+| `stack` | yes      | One of the supported stacks: `python`, `node`, `claude-skill`, `rust`, `go`, `swift`, `dotnet`. |
+| `name`  | optional | Sub-project identifier. Default: `basename(path)`, or `"root"` when `path = "."`. |
+| `role`  | optional | `"frontend"`: presentation-only sub-project (logic tested elsewhere) — test-presence rules (`*_TS*`) automatically *skip*, no exemption to write. |
 
 ### Constraints
 
-Le parser rejette toute config qui ne respecte pas ces invariants :
+The parser rejects any config violating these invariants:
 
-- `path` doit être relatif (pas de chemin absolu) et ne pas contenir
-  `..`.
-- `name` doit matcher `[a-zA-Z0-9_-]+`.
-- Les `name` doivent être uniques au sein du repo.
-- Les `path` doivent être uniques au sein du repo.
-- `path` et `stack` sont obligatoires ; leur absence fait échouer
-  `intendant audit` avec une erreur explicite.
+- `path` must be relative (no absolute path) and must not contain `..`.
+- `name` must match `[a-zA-Z0-9_-]+`.
+- `name` values must be unique within the repo.
+- `path` values must be unique within the repo.
+- `path` and `stack` are mandatory; their absence fails
+  `intendant audit` with an explicit error.
 
 ### Root as one subproject among others
 
-`path = "."` est valide et permet d'inclure la racine comme un
-sous-projet normal à côté d'autres :
+`path = "."` is valid and lets the root participate as a regular
+sub-project next to others:
 
 ```toml
 [[subprojects]]
@@ -116,54 +116,52 @@ path = "skills/triage"
 stack = "claude-skill"
 ```
 
-Le sous-projet racine prend `name = "root"` par défaut.
+The root sub-project takes `name = "root"` by default.
 
 ## Scoped exemptions
 
-Les exemptions peuvent être déclarées au niveau global ou scopées à un
-sous-projet précis via `[exemptions.<subproject_name>]`. La résolution
-suit l'ordre : **scoped d'abord, puis global**.
+Exemptions can be declared globally or scoped to a specific sub-project
+through `[exemptions.<subproject_name>]`. Resolution order: **scoped
+first, then global**.
 
 ```toml
-# Exemption globale : s'applique à tous les sous-projets
+# Global exemption: applies to every sub-project
 [exemptions]
 DG004 = { reason = "License pending legal review", until = "2026-06-30" }
 
-# Exemption scopée : ne s'applique qu'au sous-projet `backend`
+# Scoped exemption: only applies to the `backend` sub-project
 [exemptions.backend]
 PYTHON_QU002 = "Ruff config inherited from monorepo root, not duplicated here"
 
-# Exemption scopée : ne s'applique qu'à `frontend`
+# Scoped exemption: only applies to `frontend`
 [exemptions.frontend]
 NODE_TS001 = { reason = "Tests live in a sibling repo for now", until = "2026-09-01" }
 ```
 
-Chaque exemption peut être :
+Each exemption can be:
 
-- une **chaîne** — équivaut à `{ reason = "<chaîne>" }`, sans date
-  d'expiration ;
-- une **table** avec `reason` (obligatoire) et `until` (optionnel,
-  format ISO `YYYY-MM-DD`).
+- a **string** — equivalent to `{ reason = "<string>" }`, with no
+  expiry date;
+- a **table** with `reason` (mandatory) and `until` (optional, ISO
+  format `YYYY-MM-DD`).
 
-Une exemption n'efface pas le finding : il apparaît comme
-`EXEMPT(reason)` dans le rapport. La dette technique reste visible.
+An exemption does not erase the finding: it shows up as
+`EXEMPT(reason)` in the report. The technical debt stays visible.
 
 ## Reports and CI
 
-- Le rapport `intendant audit` rend chaque sous-projet sous sa propre
-  section ; le format JSON renvoie un champ `subprojects[]` avec un
-  bloc par sous-projet.
-- `enforcement` (`strict`/`recommended`/`advisory`) reste défini une
-  seule fois au top-level et s'applique uniformément à tous les
-  sous-projets.
-- Le portfolio report (`intendant report`) liste les stacks détectés
-  par repo ; un repo multi-stack apparaît avec sa composition réelle,
-  sans sentinelle `"multi"`.
+- The `intendant audit` report renders each sub-project under its own
+  section; the JSON format returns a `subprojects[]` field with one
+  block per sub-project.
+- `enforcement` (`strict`/`recommended`/`advisory`) stays defined once
+  at the top level and applies uniformly to every sub-project.
+- The portfolio report (`intendant report`) lists the stacks detected
+  per repo; a multi-stack repo shows up with its real composition, with
+  no `"multi"` sentinel.
 
 ## See also
 
-- [00 — Charter](00-charter.md) — modèle d'exemption et niveaux de
-  conformité.
-- ADR-0006 — *Python harness, PyO3 escape hatch* : pourquoi
-  l'architecture rend l'ajout d'un stack équivalent à la création d'un
-  dossier d'adaptateur.
+- [00 — Charter](00-charter.md) — exemption model and compliance
+  levels.
+- ADR-0006 — *Python harness, PyO3 escape hatch*: why the architecture
+  makes adding a stack equivalent to creating an adapter folder.

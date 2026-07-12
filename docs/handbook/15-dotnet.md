@@ -1,11 +1,11 @@
 # 15 — .NET
 
-Convention de gouvernance pour les projets .NET / C#. Le dotnet adapter
-détecte les repos contenant un `*.csproj` ou `*.sln` à la racine. Les
-règles couvrent le strict nécessaire pour un workflow .NET reproductible :
-projet déclaré, lockfile NuGet commité, nullable reference types activés,
-style explicité via `.editorconfig`, tests présents, CI complète, et
-artefacts de build ignorés du VCS.
+Governance convention for .NET / C# projects. The dotnet adapter
+detects repos with a `*.csproj` or `*.sln` at the root. The rules cover
+the bare minimum for a reproducible .NET workflow: declared project,
+committed NuGet lockfile, nullable reference types enabled, style made
+explicit via `.editorconfig`, tests present, complete CI, and build
+artifacts ignored by the VCS.
 
 ## Rules
 

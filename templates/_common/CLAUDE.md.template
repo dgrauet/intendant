@@ -1,35 +1,35 @@
 <!-- intendant-template: v1 -->
 # CLAUDE.md — {{ project_name }}
 
-Contexte agent pour le repo `{{ project_name }}`.
+Agent context for the `{{ project_name }}` repo.
 
-## Quoi
+## What
 
-<phrase courte décrivant le projet>
+<short sentence describing the project>
 
 ## Stack
 
-- <langage et version>
-- <outils principaux>
+- <language and version>
+- <main tools>
 
-## Règles maison
+## House rules
 
-- <règles non triviales pour Claude>
+- <non-trivial rules for Claude>
 
 ## Tests
 
 ```bash
-<commande pour lancer les tests>
+<command to run the tests>
 ```
 
 ## Lint & type
 
 ```bash
-<commande lint>
-<commande type-check>
+<lint command>
+<type-check command>
 ```
 
-## Référence
+## Reference
 
-- Spec : `docs/superpowers/specs/<spec-file>.md`
-- Plan en cours : `docs/superpowers/plans/<plan-file>.md`
+- Spec: `docs/superpowers/specs/<spec-file>.md`
+- Current plan: `docs/superpowers/plans/<plan-file>.md`

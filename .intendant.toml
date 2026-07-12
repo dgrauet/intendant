@@ -4,9 +4,9 @@ stack = "python"
 enforcement = "strict"
 
 [exemptions]
-# Les stacks imbriquées sous tests/fixtures/ sont des repos factices servant
-# de matière aux tests de l'engine — pas des sous-projets à gouverner.
-LO004 = "tests/fixtures/ contient des repos factices (matière des tests), pas des sous-projets"
-# Même cause : les configs outillage sous tests/fixtures/ appartiennent aux
-# repos factices, la CI d'intendant n'a pas à exécuter leurs outils.
-QU001 = "configs outillage sous tests/fixtures/ = matière des tests, pas des outils du repo"
+# Nested stacks under tests/fixtures/ are fake repos used as test
+# material for the engine — not sub-projects to govern.
+LO004 = "tests/fixtures/ holds fake repos (test material), not sub-projects"
+# Same cause: tool configs under tests/fixtures/ belong to the fake
+# repos; intendant's CI has no reason to run their tools.
+QU001 = "tool configs under tests/fixtures/ are test material, not this repo's tooling"

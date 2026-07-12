@@ -1,30 +1,30 @@
 <!-- intendant-template: v1 -->
-# ADR-NNNN : <titre court de la décision>
+# ADR-NNNN: <short decision title>
 
-- **Statut** : proposed | accepted | superseded by ADR-MMMM | deprecated
-- **Date** : YYYY-MM-DD
-- **Stacks concernées** : python | node | rust | * (transverse)
+- **Status**: proposed | accepted | superseded by ADR-MMMM | deprecated
+- **Date**: YYYY-MM-DD
+- **Stacks concerned**: python | node | rust | * (transverse)
 
-## Contexte
+## Context
 
-Pourquoi cette décision se pose-t-elle maintenant ? Quelle contrainte,
-quel choix arbitraire à figer, quel point bloquant à trancher ?
+Why does this decision arise now? Which constraint, which arbitrary
+choice to freeze, which blocking point to settle?
 
-## Décision
+## Decision
 
-Ce qu'on décide, formulé de façon impérative et non ambiguë.
+What we decide, phrased imperatively and unambiguously.
 
-## Conséquences
+## Consequences
 
-Ce qui change concrètement (positif et négatif) en termes de code, de
-process, de coût d'évolution.
+What concretely changes (positive and negative) in terms of code,
+process, and cost of evolution.
 
-## Alternatives considérées
+## Alternatives considered
 
-Liste les options qu'on a écartées, avec une phrase de rationale par
+List the options that were discarded, with a one-sentence rationale per
 option.
 
-## Porte de sortie / révision
+## Exit door / revision
 
-Quel signal observable nous ferait reconsidérer cette décision ?
-Quelle est la procédure de bascule ?
+Which observable signal would make us reconsider this decision? What is
+the switch-over procedure?
