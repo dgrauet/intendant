@@ -10,7 +10,7 @@ compliant repo from scratch.
 
 ## Status
 
-v4.0.0 — stable. 77 rules across 7 stacks (python, claude-skill, node, rust, go, swift, dotnet),
+v4.0.0 — stable. 78 rules across 7 stacks (python, claude-skill, node, rust, go, swift, dotnet),
 795 tests. Multi-language sub-projects supported via
 `[[subprojects]]` in `.intendant.toml` (see [Multi-stack repositories](#multi-stack-repositories)).
 The `intendant` CLI ships `init`, `audit`, `explain`, `new`, `report`, `doctor`, and
@@ -131,7 +131,7 @@ intendant report <portfolio-root> --against snapshots/2026-04-01.json
 
 ```bash
 intendant explain PYTHON_LO001       # handbook entry + linked ADR
-intendant explain --all              # table of all 77 rules
+intendant explain --all              # table of all 78 rules
 ```
 
 ### Health check
@@ -142,7 +142,7 @@ intendant doctor     # verify install integrity
 
 ## Coverage
 
-77 rules total. Transverse rules apply to every stack; adapter rules apply only to
+78 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
 ### Transverse (19 rules)
@@ -235,7 +235,7 @@ matching the schemas of the corresponding CLI commands.
 
 ## Documentation
 
-- [Handbook](docs/handbook/) — charter + all 77 rules with rationale.
+- [Handbook](docs/handbook/) — charter + all 78 rules with rationale.
 - [Multi-stack repositories](docs/handbook/14-multi-stack.md) — `[[subprojects]]` syntax and scoped exemptions.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.
