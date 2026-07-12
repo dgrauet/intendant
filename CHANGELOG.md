@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1](https://github.com/dgrauet/intendant/compare/v4.1.0...v4.1.1) (2026-07-12)
+
+
+### Bug Fixes
+
+* **checks:** drop DG006 — detection heuristic overfitted to two cases ([#73](https://github.com/dgrauet/intendant/issues/73)) ([4e81ee7](https://github.com/dgrauet/intendant/commit/4e81ee7ca2df05055ff7772ccb50e7abe599b642))
+
+
+### Documentation
+
+* translate remaining French content to English ([#75](https://github.com/dgrauet/intendant/issues/75)) ([89270e5](https://github.com/dgrauet/intendant/commit/89270e5fabc1f2eaf6f2c9d927165d0fd21c12db))
+
 ## [4.1.0](https://github.com/dgrauet/intendant/compare/v4.0.3...v4.1.0) (2026-07-12)
 
 
