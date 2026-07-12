@@ -10,7 +10,7 @@ compliant repo from scratch.
 
 ## Status
 
-v4.0.0 — stable. 70 rules across 6 stacks (python, claude-skill, node, rust, go, swift),
+v4.0.0 — stable. 77 rules across 7 stacks (python, claude-skill, node, rust, go, swift, dotnet),
 795 tests. Multi-language sub-projects supported via
 `[[subprojects]]` in `.intendant.toml` (see [Multi-stack repositories](#multi-stack-repositories)).
 The `intendant` CLI ships `init`, `audit`, `explain`, `new`, `report`, `doctor`, and
@@ -67,6 +67,9 @@ intendant new my-svc --stack=go --description="..."
 
 # Swift (SwiftPM library, package + Sources + Tests + swiftlint + CI)
 intendant new my-pkg --stack=swift --description="..."
+
+# .NET (C# library, csproj + xunit test project + .editorconfig + CI)
+intendant new my-lib --stack=dotnet --description="..."
 
 # After scaffolding
 cd my-lib
@@ -128,7 +131,7 @@ intendant report <portfolio-root> --against snapshots/2026-04-01.json
 
 ```bash
 intendant explain PYTHON_LO001       # handbook entry + linked ADR
-intendant explain --all              # table of all 70 rules
+intendant explain --all              # table of all 77 rules
 ```
 
 ### Health check
@@ -139,7 +142,7 @@ intendant doctor     # verify install integrity
 
 ## Coverage
 
-70 rules total. Transverse rules apply to every stack; adapter rules apply only to
+77 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
 ### Transverse (19 rules)
@@ -189,6 +192,14 @@ quality (`SWIFT_QU`: swiftlint/swiftformat config), tests (`SWIFT_TS`:
 swift build/test + lint), and sanitizing (`SWIFT_SA`: `.build/` and
 `xcuserdata/` in `.gitignore`).
 
+### .NET adapter (7 rules — prefix `DOTNET_`)
+
+Covers packaging (`DOTNET_PK`: .csproj with TargetFramework, packages.lock.json),
+quality (`DOTNET_QU`: nullable reference types, .editorconfig), tests
+(`DOTNET_TS`: xunit/NUnit/MSTest test project), CI (`DOTNET_CI`:
+dotnet format/build/test), and sanitizing (`DOTNET_SA`: `bin/` and `obj/`
+in `.gitignore`).
+
 > Rule IDs were renamed in v0.2.0 (e.g. `LO001` → `PYTHON_LO001`).
 > See [docs/migrations/0.2.0-rule-prefix-rename.md](docs/migrations/0.2.0-rule-prefix-rename.md)
 > to update `.intendant.toml` exemptions.
@@ -224,7 +235,7 @@ matching the schemas of the corresponding CLI commands.
 
 ## Documentation
 
-- [Handbook](docs/handbook/) — charter + all 70 rules with rationale.
+- [Handbook](docs/handbook/) — charter + all 77 rules with rationale.
 - [Multi-stack repositories](docs/handbook/14-multi-stack.md) — `[[subprojects]]` syntax and scoped exemptions.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.

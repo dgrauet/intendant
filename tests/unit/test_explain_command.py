@@ -60,6 +60,8 @@ def test_explain_all_lists_every_registered_rule() -> None:
     assert "CLAUDE_SKILL_SK001" in result.stdout
     # node adapter
     assert "NODE_PK001" in result.stdout
+    # dotnet adapter
+    assert "DOTNET_PK001" in result.stdout
 
 
 def test_explain_with_neither_arg_nor_all_is_friendly() -> None:
@@ -77,3 +79,10 @@ def test_explain_with_both_rule_id_and_all_errors() -> None:
     assert result.exit_code == 1
     combined = (result.stdout + (result.stderr or "")).lower()
     assert "both" in combined or "conflict" in combined or "either" in combined
+
+
+def test_explain_dotnet_rule_from_real_handbook() -> None:
+    """Every dotnet rule must have a section in the shipped handbook."""
+    result = runner.invoke(app, ["explain", "DOTNET_PK001"])
+    assert result.exit_code == 0
+    assert "DOTNET_PK001" in result.stdout

@@ -1,0 +1,7 @@
+[intendant]
+version = "1"
+stack = "dotnet"
+enforcement = "strict"
+
+[exemptions]
+DOTNET_PK002 = "fresh scaffold; run `dotnet restore` to generate packages.lock.json, then remove this exemption"

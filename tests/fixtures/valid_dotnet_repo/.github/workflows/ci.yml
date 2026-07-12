@@ -1,0 +1,10 @@
+name: ci
+on: [push]
+jobs:
+  dotnet:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: dotnet format --verify-no-changes
+      - run: dotnet build --configuration Release
+      - run: dotnet test --configuration Release

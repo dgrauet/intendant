@@ -11,7 +11,7 @@ import tomli_w
 from intendant.core.paths import templates_root
 from intendant.scaffold.substitutions import SubstitutionContext, resolve_placeholders
 
-_KNOWN_STACKS = {"python", "claude-skill", "node", "rust", "go", "swift"}
+_KNOWN_STACKS = {"python", "claude-skill", "node", "rust", "go", "swift", "dotnet"}
 
 
 def scaffold_project(target: Path, stack: str, context: SubstitutionContext) -> None:
@@ -230,7 +230,7 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
         )
     elif stack == "swift":
         # Package.swift + Sources/<Name>/<Name>.swift + Tests satisfy SWIFT_PK001/TS001.
-        module = _swift_module_name(context.project_name)
+        module = _module_name(context.project_name)
         (target / "Package.swift").write_text(
             "// swift-tools-version:5.9\n"
             "import PackageDescription\n"
@@ -266,10 +266,62 @@ def _create_programmatic_files(target: Path, stack: str, context: SubstitutionCo
             "    }\n"
             "}\n"
         )
+    elif stack == "dotnet":
+        # Root <Module>.csproj (detection marker) + Lib.cs + xunit test project
+        # satisfy DOTNET_PK001/QU001/TS001 out of the box.
+        module = _module_name(context.project_name)
+        (target / f"{module}.csproj").write_text(
+            '<Project Sdk="Microsoft.NET.Sdk">\n'
+            "  <PropertyGroup>\n"
+            "    <TargetFramework>net8.0</TargetFramework>\n"
+            "    <Nullable>enable</Nullable>\n"
+            "    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>\n"
+            "  </PropertyGroup>\n"
+            "</Project>\n"
+        )
+        (target / "Lib.cs").write_text(
+            f"namespace {module};\n"
+            "\n"
+            "public static class Lib\n"
+            "{\n"
+            "    public static int Add(int a, int b) => a + b;\n"
+            "}\n"
+        )
+        tests_dir = target / "tests" / f"{module}.Tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        (tests_dir / f"{module}.Tests.csproj").write_text(
+            '<Project Sdk="Microsoft.NET.Sdk">\n'
+            "  <PropertyGroup>\n"
+            "    <TargetFramework>net8.0</TargetFramework>\n"
+            "    <Nullable>enable</Nullable>\n"
+            "    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>\n"
+            "  </PropertyGroup>\n"
+            "  <ItemGroup>\n"
+            '    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />\n'
+            '    <PackageReference Include="xunit" Version="2.7.0" />\n'
+            '    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7" />\n'
+            "  </ItemGroup>\n"
+            "  <ItemGroup>\n"
+            f'    <ProjectReference Include="../../{module}.csproj" />\n'
+            "  </ItemGroup>\n"
+            "</Project>\n"
+        )
+        (tests_dir / "LibTests.cs").write_text(
+            f"namespace {module}.Tests;\n"
+            "\n"
+            "using Xunit;\n"
+            "\n"
+            "public class LibTests\n"
+            "{\n"
+            "    [Fact]\n"
+            "    public void AddWorks() =>\n"
+            f"        Assert.Equal(5, {module}.Lib.Add(2, 3));\n"
+            "}\n"
+        )
 
 
-def _swift_module_name(project_name: str) -> str:
-    """Convert ``my-project`` / ``my_project`` → ``MyProject`` (Swift identifier)."""
+def _module_name(project_name: str) -> str:
+    """Convert ``my-project`` / ``my_project`` → ``MyProject`` (Swift/C# identifier)."""
     parts = [p for p in project_name.replace("_", "-").split("-") if p]
     return "".join(p[:1].upper() + p[1:] for p in parts) or "App"
 

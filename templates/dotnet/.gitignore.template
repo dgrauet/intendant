@@ -1,0 +1,8 @@
+bin/
+obj/
+*.user
+.vs/
+.DS_Store
+.idea/
+.vscode/
+docs/superpowers/

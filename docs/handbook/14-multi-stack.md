@@ -19,7 +19,7 @@ trois modes, dans l'ordre :
    présents (ou si `stack = "auto"`, sentinelle legacy), intendant
    parcourt la racine et détecte chaque stack via ses marqueurs
    (`pyproject.toml`, `package.json`, `Cargo.toml`, `go.mod`,
-   `Package.swift`, et un walk pour `SKILL.md`). `mode = "auto"`.
+   `Package.swift`, `*.csproj`/`*.sln`, et un walk pour `SKILL.md`). `mode = "auto"`.
 
 Top-level `stack` et `[[subprojects]]` sont mutuellement exclusifs en
 intention : si les deux sont déclarés, `[[subprojects]]` prime pour le
@@ -85,7 +85,7 @@ son stack lui sont appliquées.
 | Champ   | Requis    | Description                                                        |
 | ------- | --------- | ------------------------------------------------------------------ |
 | `path`  | oui       | Chemin relatif depuis la racine du repo. `"."` désigne la racine.  |
-| `stack` | oui       | Un des stacks supportés : `python`, `node`, `claude-skill`, `rust`, `go`, `swift`. |
+| `stack` | oui       | Un des stacks supportés : `python`, `node`, `claude-skill`, `rust`, `go`, `swift`, `dotnet`. |
 | `name`  | optionnel | Identifiant du sous-projet. Défaut : `basename(path)`, ou `"root"` si `path = "."`. |
 
 ### Constraints
