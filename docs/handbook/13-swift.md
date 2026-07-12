@@ -1,11 +1,10 @@
 # 13 — Swift
 
-Convention de gouvernance pour les projets Swift / SwiftPM. Le Swift
-adapter détecte les repos contenant un `Package.swift` à la racine. Les
-règles couvrent le strict nécessaire pour un workflow Swift reproductible :
-package déclaré, lockfile commité, version d'outillage pinnée, linter
-configuré, tests présents, CI complète, et artefacts de build ignorés du
-VCS.
+Governance convention for Swift / SwiftPM projects. The Swift adapter
+detects repos with a `Package.swift` at the root. The rules cover the
+bare minimum for a reproducible Swift workflow: declared package,
+committed lockfile, pinned tools version, configured linter, tests
+present, complete CI, and build artifacts ignored by the VCS.
 
 ## Rules
 

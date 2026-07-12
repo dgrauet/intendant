@@ -5,6 +5,6 @@ stack = "{{ stack }}"
 enforcement = "advisory"            # "strict" | "recommended" | "advisory"
 
 [exemptions]
-# Exemple :
-# LO001 = "Fork upstream avec layout flat, refactor en V2"
-# CI003 = { reason = "Repo privé, conv. commits non requis", until = "2026-12-31" }
+# Example:
+# LO001 = "Upstream fork with a flat layout, refactor planned for V2"
+# CI003 = { reason = "Private repo, conventional commits not required", until = "2026-12-31" }

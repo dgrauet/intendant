@@ -1,29 +1,29 @@
 <!-- intendant-template: v1 -->
 # {{ project_name }}
 
-> <description en une phrase>
+> <one-sentence description>
 
-## Statut
+## Status
 
-<🚧 en développement | ✅ stable | etc.>
+<🚧 in development | ✅ stable | etc.>
 
 ## Installation
 
 ```bash
-<commande d'installation>
+<install command>
 ```
 
 ## Quickstart
 
 ```bash
-<exemple minimaliste>
+<minimal example>
 ```
 
 ## Documentation
 
-- [Charte](docs/handbook/00-charter.md) (si gouverné par intendant)
-- <autres pointeurs vers docs/>
+- [Charter](docs/handbook/00-charter.md) (if governed by intendant)
+- <other pointers into docs/>
 
-## Licence
+## License
 
-<licence> — voir [LICENSE](LICENSE).
+<license> — see [LICENSE](LICENSE).

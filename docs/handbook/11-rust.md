@@ -1,10 +1,10 @@
 # 11 — Rust
 
-Convention de gouvernance pour les projets Rust. Le Rust adapter détecte les
-repos contenant un `Cargo.toml` à la racine. Les règles couvrent le strict
-nécessaire pour un workflow Cargo reproductible : manifeste valide, lockfile
-commité, edition pinnée, toolchain pinnée, tests présents, CI complète, et
-`target/` ignoré du VCS.
+Governance convention for Rust projects. The Rust adapter detects repos
+with a `Cargo.toml` at the root. The rules cover the bare minimum for a
+reproducible Cargo workflow: valid manifest, committed lockfile, pinned
+edition, pinned toolchain, tests present, complete CI, and `target/`
+ignored by the VCS.
 
 ## Rules
 

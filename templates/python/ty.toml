@@ -1,7 +1,7 @@
 # intendant-template: v1
-# Configuration de référence pour `ty` (Astral type-checker).
-# Vérifier la syntaxe exacte sur https://github.com/astral-sh/ty selon
-# la version utilisée — l'API peut évoluer en pré-1.0 (cf. ADR-0003).
+# Reference configuration for `ty` (Astral type-checker).
+# Check the exact syntax on https://github.com/astral-sh/ty for the
+# version in use — the API may evolve pre-1.0 (see ADR-0003).
 
 [src]
 include = ["src", "tests"]

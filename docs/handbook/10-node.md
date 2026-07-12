@@ -1,10 +1,10 @@
 # 10 — Node / TypeScript
 
-Convention de gouvernance pour les projets Node.js et TypeScript. Le Node
-adapter détecte les repos contenant un `package.json` à la racine. Les règles
-sont volontairement agnostiques quant aux outils — elles vérifient la présence
-d'un linter / framework de tests / lockfile sans imposer un choix particulier
-(npm vs pnpm vs yarn vs bun ; eslint vs biome ; vitest vs jest etc.).
+Governance convention for Node.js and TypeScript projects. The Node
+adapter detects repos with a `package.json` at the root. The rules are
+deliberately tool-agnostic — they check that a linter / test framework /
+lockfile exists without imposing a specific choice (npm vs pnpm vs yarn
+vs bun; eslint vs biome; vitest vs jest, etc.).
 
 ## Rules
 

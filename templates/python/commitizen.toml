@@ -1,6 +1,6 @@
 # intendant-template: v1
-# Standalone commitizen config — préférer la section [tool.commitizen]
-# dans pyproject.toml.
+# Standalone commitizen config — prefer the [tool.commitizen] section
+# in pyproject.toml.
 [tool.commitizen]
 name = "cz_conventional_commits"
 version_provider = "pep621"

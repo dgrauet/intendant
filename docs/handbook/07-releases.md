@@ -66,25 +66,26 @@ The rule does NOT enforce protection itself — branch protection is
 configured server-side via the GitHub API or repo settings UI. RL005
 just audits that it is in place.
 
-### RL006 — release-please câblé via une GitHub App
+### RL006 — release-please wired through a GitHub App
 
 **Severity:** recommended · **Stacks:** * · **ADR:** [0005-release-please](../adr/0005-release-please.md)
 
-Quand le repo utilise `release-please`, le workflow doit minter et utiliser
-un token de **GitHub App** (`actions/create-github-app-token`) plutôt que le
-`GITHUB_TOKEN` par défaut. Une PR de release créée avec le token par défaut ne
-déclenche pas les autres workflows (prévention de boucle GitHub), laissant les
-checks requis non exécutés et la PR non-mergeable.
+When the repo uses `release-please`, the workflow must mint and use a
+**GitHub App** token (`actions/create-github-app-token`) rather than the
+default `GITHUB_TOKEN`. A release PR created with the default token does
+not trigger the other workflows (GitHub's loop prevention), leaving the
+required checks unexecuted and the PR unmergeable.
 
-La règle vérifie, dans le seul workflow utilisant `googleapis/release-please-action` :
+Within the single workflow using `googleapis/release-please-action`, the
+rule checks that:
 
-- une étape `actions/create-github-app-token` est présente ;
-- le `token:` de l'action référence la sortie de cette étape (`...outputs.token`) ;
-- aucun token par défaut (`secrets.GITHUB_TOKEN` / `github.token`) n'est utilisé ;
-- les inputs `config-file:` et `manifest-file:` sont renseignés.
+- an `actions/create-github-app-token` step is present;
+- the action's `token:` references that step's output (`...outputs.token`);
+- no default token (`secrets.GITHUB_TOKEN` / `github.token`) is used;
+- the `config-file:` and `manifest-file:` inputs are set.
 
-Cette vérification est **statique** (lecture du YAML, pas de réseau).
+The check is **static** (YAML read, no network).
 
-La règle **skip silencieusement** quand il n'y a pas de `.github/workflows/`
-(couvert par CI001) ou qu'aucun workflow n'utilise release-please (la présence
-des fichiers JSON est couverte par RL003).
+The rule **skips silently** when there is no `.github/workflows/`
+(covered by CI001) or when no workflow uses release-please (the JSON
+files' presence is covered by RL003).

@@ -1,6 +1,6 @@
 # intendant-template: v1
-# Standalone ruff config — préférer la section [tool.ruff] dans pyproject.toml.
-# Ce fichier est fourni pour les repos où pyproject.toml n'est pas disponible.
+# Standalone ruff config — prefer the [tool.ruff] section in pyproject.toml.
+# This file is provided for repos where pyproject.toml is not available.
 
 line-length = 100
 target-version = "py313"
