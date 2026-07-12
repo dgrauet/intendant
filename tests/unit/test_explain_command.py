@@ -94,3 +94,9 @@ def test_explain_supply_chain_rules_from_real_handbook() -> None:
         result = runner.invoke(app, ["explain", rule_id])
         assert result.exit_code == 0, f"{rule_id} missing from handbook"
         assert rule_id in result.stdout
+
+
+def test_explain_lo004_from_real_handbook() -> None:
+    result = runner.invoke(app, ["explain", "LO004"])
+    assert result.exit_code == 0
+    assert "LO004" in result.stdout

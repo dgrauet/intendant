@@ -4,3 +4,6 @@ stack = "python"
 enforcement = "strict"
 
 [exemptions]
+# Les stacks imbriquées sous tests/fixtures/ sont des repos factices servant
+# de matière aux tests de l'engine — pas des sous-projets à gouverner.
+LO004 = "tests/fixtures/ contient des repos factices (matière des tests), pas des sous-projets"
