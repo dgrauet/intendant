@@ -1,0 +1,20 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+dotnet restore   # generates packages.lock.json
+dotnet build
+```
+
+## Commands
+
+- `dotnet test` — run tests (xunit)
+- `dotnet build` — build the solution
+- `dotnet format --verify-no-changes` — format check
+
+## License
+
+MIT

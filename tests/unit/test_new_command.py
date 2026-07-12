@@ -500,3 +500,12 @@ def test_new_swift_intendant_toml_has_strict_enforcement_and_exemption(tmp_path:
     assert data["intendant"]["enforcement"] == "strict"
     assert data["intendant"]["stack"] == "swift"
     assert "SWIFT_PK002" in data.get("exemptions", {})
+
+
+def test_new_dotnet_prints_quickstart(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app,
+        ["new", "my-lib", "--stack", "dotnet", "--path", str(tmp_path), "--no-git"],
+    )
+    assert result.exit_code == 0
+    assert "dotnet restore" in result.stdout

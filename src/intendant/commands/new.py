@@ -24,7 +24,10 @@ def new(
         str,
         typer.Option(
             "--stack",
-            help="Target stack. Currently supported: python, claude-skill, node, rust, go, swift.",
+            help=(
+                "Target stack. Currently supported: "
+                "python, claude-skill, node, rust, go, swift, dotnet."
+            ),
         ),
     ] = "python",
     description: Annotated[
@@ -149,4 +152,11 @@ def _print_quickstart(target: Path, stack: str) -> None:
         console.print("  swift build                  # build the package")
         console.print("  swift test                   # run XCTest suite")
         console.print("  swiftlint --strict           # lint (requires SwiftLint)")
+        console.print("  intendant audit . --severity=required   # verify the scaffold conforms")
+    elif stack == "dotnet":
+        console.print(f"  cd {target}")
+        console.print("  dotnet restore               # generates packages.lock.json")
+        console.print("  dotnet build                 # build the project")
+        console.print("  dotnet test                  # run xunit suite")
+        console.print("  dotnet format --verify-no-changes   # format check")
         console.print("  intendant audit . --severity=required   # verify the scaffold conforms")

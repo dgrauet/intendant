@@ -23,6 +23,16 @@ def test_detect_swift_from_package_swift(fixtures_dir: Path) -> None:
     assert detect_stacks(fixtures_dir / "swift_repo") == ("swift",)
 
 
+def test_detect_dotnet_from_csproj(tmp_path: Path) -> None:
+    (tmp_path / "App.csproj").write_text('<Project Sdk="Microsoft.NET.Sdk"></Project>\n')
+    assert detect_stacks(tmp_path) == ("dotnet",)
+
+
+def test_detect_dotnet_from_sln(tmp_path: Path) -> None:
+    (tmp_path / "App.sln").write_text("Microsoft Visual Studio Solution File\n")
+    assert detect_stacks(tmp_path) == ("dotnet",)
+
+
 def test_detect_unknown_returns_empty(fixtures_dir: Path) -> None:
     assert detect_stacks(fixtures_dir / "empty_repo") == ()
 

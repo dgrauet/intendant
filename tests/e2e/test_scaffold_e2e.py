@@ -234,3 +234,41 @@ def test_scaffold_go_passes_required_audit(tmp_path: Path) -> None:
     assert audit_proc.returncode == 0, (
         f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
     )
+
+
+@pytest.mark.e2e()
+def test_scaffold_dotnet_passes_required_audit(tmp_path: Path) -> None:
+    """Success criterion: a fresh dotnet scaffold passes intendant audit --severity=required."""
+    target = tmp_path / "my-dotnet-test"
+    intendant_repo = Path(__file__).resolve().parents[2]
+    proc = subprocess.run(
+        [
+            "uv",
+            "run",
+            "intendant",
+            "new",
+            "my-dotnet-test",
+            "--stack",
+            "dotnet",
+            "--path",
+            str(tmp_path),
+        ],
+        cwd=intendant_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, f"scaffold failed: {proc.stderr}"
+    assert target.is_dir()
+    assert (target / "MyDotnetTest.csproj").is_file()
+    assert (target / ".editorconfig").is_file()
+    assert (target / "tests" / "MyDotnetTest.Tests" / "MyDotnetTest.Tests.csproj").is_file()
+    assert (target / ".github" / "workflows" / "ci.yml").is_file()
+    audit_proc = subprocess.run(
+        ["uv", "run", "intendant", "audit", str(target), "--severity=required"],
+        cwd=intendant_repo,
+        capture_output=True,
+        text=True,
+    )
+    assert audit_proc.returncode == 0, (
+        f"audit failed:\nstdout:\n{audit_proc.stdout}\nstderr:\n{audit_proc.stderr}"
+    )

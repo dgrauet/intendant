@@ -16,7 +16,15 @@ _STACK_MARKERS: dict[str, tuple[str, ...]] = {
     "rust": ("Cargo.toml",),
     "go": ("go.mod",),
     "swift": ("Package.swift",),
+    "dotnet": ("*.csproj", "*.sln"),
 }
+
+
+def _marker_present(path: Path, marker: str) -> bool:
+    """A marker is either an exact filename or a glob pattern (contains `*`)."""
+    if "*" in marker:
+        return any(p.is_file() for p in path.glob(marker))
+    return (path / marker).is_file()
 
 
 def detect_stacks(path: Path) -> tuple[str, ...]:
@@ -37,7 +45,7 @@ def detect_stacks(path: Path) -> tuple[str, ...]:
     if find_skill_md(path) is not None:
         found.append("claude-skill")
     for stack, markers in _STACK_MARKERS.items():
-        if any((path / marker).is_file() for marker in markers):
+        if any(_marker_present(path, marker) for marker in markers):
             found.append(stack)
     return tuple(found)
 
