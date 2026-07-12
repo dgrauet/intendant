@@ -10,7 +10,7 @@ compliant repo from scratch.
 
 ## Status
 
-v4.0.0 — stable. 82 rules across 7 stacks (python, claude-skill, node, rust, go, swift, dotnet),
+v4.0.0 — stable. 83 rules across 7 stacks (python, claude-skill, node, rust, go, swift, dotnet),
 795 tests. Multi-language sub-projects supported via
 `[[subprojects]]` in `.intendant.toml` (see [Multi-stack repositories](#multi-stack-repositories)).
 The `intendant` CLI ships `init`, `audit`, `explain`, `new`, `report`, `doctor`, and
@@ -131,7 +131,7 @@ intendant report <portfolio-root> --against snapshots/2026-04-01.json
 
 ```bash
 intendant explain PYTHON_LO001       # handbook entry + linked ADR
-intendant explain --all              # table of all 82 rules
+intendant explain --all              # table of all 83 rules
 ```
 
 ### Health check
@@ -142,10 +142,10 @@ intendant doctor     # verify install integrity
 
 ## Coverage
 
-82 rules total. Transverse rules apply to every stack; adapter rules apply only to
+83 rules total. Transverse rules apply to every stack; adapter rules apply only to
 the declared stack.
 
-### Transverse (23 rules)
+### Transverse (24 rules)
 
 | Family | Prefix | Count | Examples |
 |---|---|---|---|
@@ -153,6 +153,7 @@ the declared stack.
 | Layout | `LO` | 2 | docs/ directory, orphan nested stack roots |
 | Releases | `RL` | 6 | CHANGELOG, conventional commits, release-please, SemVer, branch protection, App-token release |
 | CI | `CI` | 4 | workflow present, commit-msg check, caching, SHA-pinned actions |
+| Quality | `QU` | 1 | configured tools actually run in CI |
 | Sanitizing | `SA` | 5 | pre-commit baseline, gitleaks, .env.example, .gitignore, update automation |
 | Tests | `TS` | 1 | regression_tests/ (when applicable) |
 
@@ -236,7 +237,7 @@ matching the schemas of the corresponding CLI commands.
 
 ## Documentation
 
-- [Handbook](docs/handbook/) — charter + all 82 rules with rationale.
+- [Handbook](docs/handbook/) — charter + all 83 rules with rationale.
 - [Multi-stack repositories](docs/handbook/14-multi-stack.md) — `[[subprojects]]` syntax and scoped exemptions.
 - [ADRs](docs/adr/) — justified architecture decisions.
 - [Migrations](docs/migrations/) — upgrade guides between major versions.

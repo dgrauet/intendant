@@ -37,3 +37,18 @@ projects that haven't opted in).
 
 This rule has no auto-fix — type errors are application logic that requires
 human judgment. Use the rule as a CI gate once your codebase is type-clean.
+
+### QU001 — configured quality tools are exercised in CI
+
+**Severity:** recommended · **Stacks:** *
+
+Every quality-tool configuration committed to the repo (`.swiftformat`,
+`.swiftlint.yml`, `rustfmt.toml`, `clippy.toml`, `.golangci.yml`,
+`deny.toml`, `ruff.toml` / `[tool.ruff]`, `biome.json`, eslint configs)
+must correspond to a workflow step that actually runs the tool. A config
+nobody executes gives a false sense of enforcement and silently rots —
+the champinium `.swiftformat` sat unused while CI only ran `swift build`.
+The scan covers the repo root and subdirectories (bounded depth, build
+and vendored dirs skipped); universal files like `.editorconfig` are out
+of scope to avoid false positives. Skipped when no workflows directory
+exists (covered by `CI001`).

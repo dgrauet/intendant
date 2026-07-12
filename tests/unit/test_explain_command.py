@@ -100,3 +100,9 @@ def test_explain_lo004_from_real_handbook() -> None:
     result = runner.invoke(app, ["explain", "LO004"])
     assert result.exit_code == 0
     assert "LO004" in result.stdout
+
+
+def test_explain_qu001_from_real_handbook() -> None:
+    result = runner.invoke(app, ["explain", "QU001"])
+    assert result.exit_code == 0
+    assert "QU001" in result.stdout
