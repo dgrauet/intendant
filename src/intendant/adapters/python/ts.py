@@ -14,6 +14,7 @@ class TS001Pytest(Rule):
     title = "pytest configured ([tool.pytest.ini_options], pytest.ini, or tests/conftest.py)"
     severity = "required"
     stacks = ("python",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/05-testing.md#python_ts001"
 
     def check(self, repo: Repo) -> CheckResult:
@@ -54,6 +55,7 @@ class TS003CoverageConfigured(Rule):
     title = "[tool.coverage] configured in pyproject.toml"
     severity = "recommended"
     stacks = ("python",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/05-tests.md#python_ts003"
 
     def check(self, repo: Repo) -> CheckResult:

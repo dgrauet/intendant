@@ -12,6 +12,7 @@ class GoTestFiles(Rule):
     title = "at least one *_test.go file with a Test* function"
     severity = "recommended"
     stacks = ("go",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/12-go.md#go_ts001"
 
     def check(self, repo: Repo) -> CheckResult:

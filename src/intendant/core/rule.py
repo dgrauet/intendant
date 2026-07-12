@@ -29,6 +29,9 @@ class Rule(ABC):
     handbook_ref: ClassVar[str]
     adr_ref: ClassVar[str | None] = None
     template_ref: ClassVar[str | None] = None
+    # Subproject roles for which this rule is skipped (e.g. test-presence
+    # rules on a "frontend" subproject whose logic is tested in a core).
+    skipped_for_roles: ClassVar[tuple[str, ...]] = ()
 
     @classmethod
     def supports_fix(cls) -> bool:

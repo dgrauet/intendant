@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from intendant.audit.runner import run_audit
-from intendant.core.config import IntendantConfig
+from intendant.audit.registry import collect_rules
+from intendant.audit.runner import resolve_repo, run_audit
+from intendant.core.config import IntendantConfig, load_config
 from intendant.core.repo import Repo
 from intendant.core.rule import CheckResult, Rule
 from intendant.core.subproject import Subproject
@@ -116,3 +117,46 @@ def test_single_subproject_implicit_no_subprojects_block(tmp_path: Path) -> None
     assert rule_ids == {"ZZ_TRANSVERSE", "ZZ_PY"}
     for f in report.findings:
         assert f.subproject is None
+
+
+# --- role = "frontend" ---
+
+
+def test_frontend_role_skips_test_presence_rules(tmp_path: Path) -> None:
+    """A frontend subproject skips *_TS rules but still runs the others."""
+    (tmp_path / ".intendant.toml").write_text(
+        "[intendant]\n"
+        'version = "1"\n\n'
+        "[[subprojects]]\n"
+        'name = "macos-app"\npath = "apps/macos"\nstack = "swift"\nrole = "frontend"\n'
+    )
+    mac = tmp_path / "apps" / "macos"
+    mac.mkdir(parents=True)
+    (mac / "Package.swift").write_text(
+        '// swift-tools-version:5.9\nlet package = Package(name: "App")\n'
+    )
+    config = load_config(tmp_path)
+    repo = resolve_repo(tmp_path, config)
+    report = run_audit(repo, config, collect_rules())
+    by_id = {f.rule_id: f for f in report.findings if f.subproject == "macos-app"}
+    assert by_id["SWIFT_TS001"].status == "skip"
+    assert "frontend" in by_id["SWIFT_TS001"].evidence
+    assert by_id["SWIFT_PK001"].status == "pass"
+
+
+def test_no_role_still_runs_test_presence_rules(tmp_path: Path) -> None:
+    (tmp_path / ".intendant.toml").write_text(
+        "[intendant]\n"
+        'version = "1"\n\n'
+        "[[subprojects]]\n"
+        'name = "macos-app"\npath = "apps/macos"\nstack = "swift"\n'
+    )
+    mac = tmp_path / "apps" / "macos"
+    mac.mkdir(parents=True)
+    (mac / "Package.swift").write_text(
+        '// swift-tools-version:5.9\nlet package = Package(name: "App")\n'
+    )
+    config = load_config(tmp_path)
+    report = run_audit(resolve_repo(tmp_path, config), config, collect_rules())
+    by_id = {f.rule_id: f for f in report.findings if f.subproject == "macos-app"}
+    assert by_id["SWIFT_TS001"].status == "fail"

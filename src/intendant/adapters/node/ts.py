@@ -14,6 +14,7 @@ class NodeTestFramework(Rule):
     title = "test framework declared OR test script in package.json"
     severity = "required"
     stacks = ("node",)
+    skipped_for_roles = ("frontend",)
     handbook_ref = "docs/handbook/10-node.md#node_ts001"
 
     def check(self, repo: Repo) -> CheckResult:

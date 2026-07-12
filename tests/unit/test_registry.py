@@ -157,3 +157,15 @@ def test_filter_for_repo_with_no_name_returns_only_transverse(tmp_path: Path) ->
     rules = filter_for_repo(collect_rules(), repo, cfg)
     for r in rules:
         assert "*" in r.stacks, f"{r.id} is stack-specific but ran on root meta scope"
+
+
+def test_all_stack_test_presence_rules_skip_for_frontend_role() -> None:
+    """Every stack *_TS rule must be skippable for role="frontend" subprojects."""
+    import re
+
+    from intendant.audit.registry import collect_rules
+
+    ts_rules = [r for r in collect_rules() if re.search(r"_TS\d+$", r.id)]
+    assert ts_rules, "no *_TS rules found — registry broken?"
+    missing = [r.id for r in ts_rules if "frontend" not in r.skipped_for_roles]
+    assert not missing, f"TS rules without frontend role skip: {missing}"
