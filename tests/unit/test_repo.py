@@ -100,3 +100,38 @@ def test_nested_roots_respects_max_depth(tmp_path: Path) -> None:
     (deep / "go.mod").write_text("module x\n")
     assert find_nested_stack_roots(tmp_path, max_depth=5) == ()
     assert find_nested_stack_roots(tmp_path, max_depth=6) == (("a/b/c/d/e/f", "go"),)
+
+
+# --- workflows_dir (root fallback for subprojects) ---
+
+
+def test_workflows_dir_at_repo_path(tmp_path: Path) -> None:
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    repo = Repo(path=tmp_path, stacks=("python",))
+    assert repo.workflows_dir() == wf
+
+
+def test_workflows_dir_falls_back_to_root_for_subproject(tmp_path: Path) -> None:
+    wf = tmp_path / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    sub = tmp_path / "apps" / "macos"
+    sub.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("swift",), name="macos-app", root=tmp_path)
+    assert repo.workflows_dir() == wf
+
+
+def test_workflows_dir_prefers_local_over_root(tmp_path: Path) -> None:
+    (tmp_path / ".github" / "workflows").mkdir(parents=True)
+    sub = tmp_path / "apps" / "macos"
+    local = sub / ".github" / "workflows"
+    local.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("swift",), name="macos-app", root=tmp_path)
+    assert repo.workflows_dir() == local
+
+
+def test_workflows_dir_none_when_absent_everywhere(tmp_path: Path) -> None:
+    sub = tmp_path / "apps" / "macos"
+    sub.mkdir(parents=True)
+    repo = Repo(path=sub, stacks=("swift",), name="macos-app", root=tmp_path)
+    assert repo.workflows_dir() is None

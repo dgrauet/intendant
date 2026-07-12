@@ -14,15 +14,13 @@ class CLAUDE_SKILL_CI001MinimumSteps(Rule):  # noqa: N801
     handbook_ref = "docs/handbook/03-ci.md#claude_skill_ci001"
 
     def check(self, repo: Repo) -> CheckResult:
-        wf_dir = repo.path / ".github" / "workflows"
-        if not wf_dir.is_dir():
+        contents = repo.workflows_text()
+        if contents is None:
             return CheckResult(
                 passing=True,
                 skipped=True,
-                evidence="no .github/workflows/ directory (covered by CI001)",
+                evidence="no .github/workflows/ at the subproject or repo root (covered by CI001)",
             )
-        contents = "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yml"))
-        contents += "\n".join(p.read_text(errors="replace") for p in wf_dir.glob("*.yaml"))
         if "intendant audit" not in contents:
             return CheckResult(
                 passing=False,
