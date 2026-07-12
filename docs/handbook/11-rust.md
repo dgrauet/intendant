@@ -27,13 +27,16 @@ in `.intendant.toml` with a documented reason — but most modern guidance
 recommends committing the lockfile even for libraries to surface upstream
 breakage in CI.
 
-### RUST_PK003 — edition pinned in Cargo.toml [package]
+### RUST_PK003 — edition pinned in every crate ([package] or workspace inheritance)
 
 **Severity:** recommended · **Stacks:** rust
 
-The `[package]` table should declare an explicit `edition` field
-(e.g. `edition = "2021"`). Without it, Cargo silently defaults to the
-2015 edition, which lacks most modern syntax improvements.
+Every crate must pin its `edition`: either an explicit field in its
+`[package]` table (e.g. `edition = "2021"`), or workspace inheritance
+(`edition.workspace = true` in the member plus an `edition` under the
+root `[workspace.package]`). Without it, Cargo silently defaults to the
+2015 edition. On a Cargo workspace, the rule expands `members` globs and
+checks the root package (when present) and every member crate.
 
 ### RUST_QU001 — rust-toolchain.toml pins the toolchain
 
