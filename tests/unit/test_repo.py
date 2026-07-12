@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from intendant.core.repo import Repo, detect_stacks
+from intendant.core.repo import Repo, detect_stacks, find_nested_stack_roots
 
 
 def test_detect_python_from_pyproject(fixtures_dir: Path) -> None:
@@ -62,3 +62,41 @@ def test_repo_can_have_name_for_subproject() -> None:
 
     root = Repo(path=Path("/tmp"), stacks=(), mode="manual")
     assert root.name is None
+
+
+# --- find_nested_stack_roots ---
+
+
+def test_nested_roots_finds_markers_below_root(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text("[workspace]\n")
+    win = tmp_path / "apps" / "windows" / "App"
+    win.mkdir(parents=True)
+    (win / "App.csproj").write_text("<Project/>\n")
+    mac = tmp_path / "apps" / "macos"
+    mac.mkdir(parents=True)
+    (mac / "Package.swift").write_text("// swift-tools-version:5.9\n")
+    assert find_nested_stack_roots(tmp_path) == (
+        ("apps/macos", "swift"),
+        ("apps/windows/App", "dotnet"),
+    )
+
+
+def test_nested_roots_excludes_root_itself(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text("[project]\n")
+    assert find_nested_stack_roots(tmp_path) == ()
+
+
+def test_nested_roots_skips_build_and_hidden_dirs(tmp_path: Path) -> None:
+    for skip in ("node_modules/pkg", "target/debug", ".venv/lib", ".git/x"):
+        d = tmp_path / skip
+        d.mkdir(parents=True)
+        (d / "package.json").write_text("{}\n")
+    assert find_nested_stack_roots(tmp_path) == ()
+
+
+def test_nested_roots_respects_max_depth(tmp_path: Path) -> None:
+    deep = tmp_path / "a" / "b" / "c" / "d" / "e" / "f"
+    deep.mkdir(parents=True)
+    (deep / "go.mod").write_text("module x\n")
+    assert find_nested_stack_roots(tmp_path, max_depth=5) == ()
+    assert find_nested_stack_roots(tmp_path, max_depth=6) == (("a/b/c/d/e/f", "go"),)

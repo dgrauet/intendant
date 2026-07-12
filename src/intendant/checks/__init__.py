@@ -13,7 +13,7 @@ from intendant.checks.dg import (
     DG004License,
     DG005SpecsLocalOnly,
 )
-from intendant.checks.lo import LO003DocsDirectory
+from intendant.checks.lo import LO003DocsDirectory, LO004NestedStackCoverage
 from intendant.checks.rl import (
     RL001Changelog,
     RL002ConventionalCommits,
@@ -39,6 +39,7 @@ RULES: list[Rule] = [
     DG004License(),
     DG005SpecsLocalOnly(),
     LO003DocsDirectory(),
+    LO004NestedStackCoverage(),
     RL001Changelog(),
     RL002ConventionalCommits(),
     RL003ReleasePlease(),

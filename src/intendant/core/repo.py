@@ -50,6 +50,50 @@ def detect_stacks(path: Path) -> tuple[str, ...]:
     return tuple(found)
 
 
+# Directories never scanned for nested stack roots: build output, vendored
+# dependencies, virtualenvs — their manifests are not project roots.
+_NESTED_SCAN_SKIP = {
+    "node_modules",
+    "target",
+    "dist",
+    "build",
+    ".build",
+    "bin",
+    "obj",
+    "vendor",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "Pods",
+}
+
+
+def find_nested_stack_roots(path: Path, max_depth: int = 5) -> tuple[tuple[str, str], ...]:
+    """Return every nested directory holding a stack marker, with its stack.
+
+    Walks subdirectories of ``path`` down to ``max_depth`` levels (the root
+    itself is excluded — root stacks are handled by ``detect_stacks``),
+    skipping hidden directories and ``_NESTED_SCAN_SKIP``. Result is a
+    sorted tuple of ``(posix-relative-dir, stack)`` pairs.
+    """
+    found: list[tuple[str, str]] = []
+
+    def walk(directory: Path, depth: int) -> None:
+        for entry in sorted(directory.iterdir()):
+            if not entry.is_dir():
+                continue
+            if entry.name.startswith(".") or entry.name in _NESTED_SCAN_SKIP:
+                continue
+            for stack, markers in _STACK_MARKERS.items():
+                if any(_marker_present(entry, marker) for marker in markers):
+                    found.append((entry.relative_to(path).as_posix(), stack))
+            if depth < max_depth:
+                walk(entry, depth + 1)
+
+    walk(path, 1)
+    return tuple(sorted(found))
+
+
 @dataclass(frozen=True)
 class Repo:
     """A repository with its stack composition.

@@ -26,3 +26,16 @@ from being accidentally packaged.
 All long-form documentation (handbook, ADRs, specs, tutorials) lives in
 `docs/`. The root `README.md` remains a short entry point that links
 to `docs/`.
+
+### LO004 — nested stack roots covered by declared governance
+
+**Severity:** recommended · **Stacks:** *
+
+Every nested directory holding a stack marker (`pyproject.toml`,
+`package.json`, `Cargo.toml`, `go.mod`, `Package.swift`, `*.csproj`/`*.sln`)
+must be covered by a declared stack at that directory or one of its
+ancestors: a `[[subprojects]]` entry, the top-level `stack` pin, or the
+auto-detected root composition. An uncovered ("orphan") stack root is a
+sub-project that silently escapes governance — declare it or exempt the
+rule with a reason. The scan is bounded (5 levels) and skips build output
+and vendored dependencies (`target/`, `node_modules/`, `bin/`, `obj/`, …).
