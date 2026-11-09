@@ -18,8 +18,9 @@ documented fallback.
 
 ## Decision
 
-- **Default type-checker**: `ty` (invoked via `uvx ty check` or
-  `uv tool install ty`).
+- **Default type-checker**: `ty`, declared in the dev dependencies and
+  invoked via `uv run ty check` so the locked version is used (`ty` is
+  pre-1.0 and adds diagnostics between releases).
 - **Configuration**: `[tool.ty]` in `pyproject.toml`, or a separate `ty.toml`.
 - **Documented fallback**: `pyright` in strict mode, configured in
   `pyrightconfig.json` or `[tool.pyright]`. Activate if `ty` introduces
@@ -27,8 +28,8 @@ documented fallback.
 
 ## Consequences
 
-- CI runs `uvx ty check` (see `templates/github/ci.yml`).
-- `pyproject.toml` can declare `ty` in `[dependency-groups] dev`.
+- CI runs `uv run ty check` (see `templates/github/ci.yml`).
+- `pyproject.toml` declares `ty` in `[dependency-groups] dev`.
 - Type annotations are strict (equivalent to `--strict` in mypy
   parlance): all parameters typed, return types typed, no implicit `Any`.
 

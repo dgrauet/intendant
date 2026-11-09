@@ -12,7 +12,7 @@ jobs:
           enable-cache: true
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uvx ty check
+      - run: uv run ty check
       - run: uv run pytest
   commit-lint:
     runs-on: ubuntu-latest
