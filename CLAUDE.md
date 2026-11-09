@@ -34,7 +34,7 @@ uv run pytest --cov            # with coverage
 ```bash
 uv run ruff check .
 uv run ruff format --check .
-uvx ty check                   # or: uv run ty check (depending on installation)
+uv run ty check                # uses the ty version locked in uv.lock
 ```
 
 ## Design reference
