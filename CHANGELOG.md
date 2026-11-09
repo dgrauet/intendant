@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.3](https://github.com/dgrauet/intendant/compare/v4.1.2...v4.1.3) (2026-11-09)
+
+
+### Bug Fixes
+
+* **checks:** pin PYTHON_QU004's ty from uv.lock without syncing the repo ([#88](https://github.com/dgrauet/intendant/issues/88)) ([80b7995](https://github.com/dgrauet/intendant/commit/80b7995ebbe3abcef44899fae294a8b603b8f706))
+* **checks:** run PYTHON_QU004 with the repo's locked ty ([#86](https://github.com/dgrauet/intendant/issues/86)) ([3c98e2e](https://github.com/dgrauet/intendant/commit/3c98e2e67ec60ef9d696a193167c8244df1150f5))
+
 ## [4.1.2](https://github.com/dgrauet/intendant/compare/v4.1.1...v4.1.2) (2026-11-09)
 
 
