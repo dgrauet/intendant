@@ -101,7 +101,12 @@ class QU003StrictTypeAnnotations(Rule):
 
 
 class QU004TyCheck(Rule):
-    """Run `uvx ty check` against the repo; skip if ty/pyright not in deps."""
+    """Run `ty check` against the repo; skip if ty/pyright not in deps.
+
+    When the repo declares `ty` itself, run the version it locked
+    (`uv run --frozen`, so the audit never rewrites `uv.lock`). On the pyright
+    fallback path `ty` is not installed in the project, so use `uvx`.
+    """
 
     id = "PYTHON_QU004"
     title = "ty check passes (Python type-checker)"
@@ -122,9 +127,16 @@ class QU004TyCheck(Rule):
         return any(d.startswith(("ty", "pyright")) for d in deps)
 
     def check(self, repo: Repo) -> CheckResult:
+        data = load_pyproject(repo.path)
+        ty_declared = data is not None and "ty" in _collect_dev_deps(data)
+        command = (
+            ["uv", "run", "--frozen", "--all-extras", "ty", "check"]
+            if ty_declared
+            else ["uvx", "ty", "check"]
+        )
         try:
             result = subprocess.run(
-                ["uvx", "ty", "check"],
+                command,
                 cwd=repo.path,
                 capture_output=True,
                 text=True,
@@ -137,8 +149,10 @@ class QU004TyCheck(Rule):
         # Capture the diagnostic count from the last line, if present
         output = (result.stdout or "") + (result.stderr or "")
         last_line = output.rstrip().rsplit("\n", 1)[-1] if output else ""
-        summary = last_line if last_line.startswith("Found") else f"ty exited {result.returncode}"
-        return CheckResult(passing=False, evidence=summary)
+        if last_line.startswith("Found"):
+            return CheckResult(passing=False, evidence=last_line)
+        detail = f": {last_line}" if last_line else ""
+        return CheckResult(passing=False, evidence=f"ty exited {result.returncode}{detail}")
 
 
 def _collect_dev_deps(pyproject: dict) -> set[str]:

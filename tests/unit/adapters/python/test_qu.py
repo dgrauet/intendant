@@ -1,6 +1,9 @@
 """Tests for Python adapter QU rules."""
 
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from intendant.adapters.python.qu import (
     QU001Ruff,
@@ -102,6 +105,67 @@ def test_qu004_no_fix(tmp_path: Path) -> None:
     # Must NOT raise; just returns None.
     # We don't actually invoke check (subprocess) here — too slow + flaky.
     assert rule.fix(repo, CheckResult(passing=False, evidence="x")) is None
+
+
+def _record_ty_invocation(
+    monkeypatch: pytest.MonkeyPatch, *, returncode: int = 0, stderr: str = ""
+) -> list[tuple[list[str], Path]]:
+    """Replace subprocess.run in the QU module; return the recorded (argv, cwd) calls."""
+    calls: list[tuple[list[str], Path]] = []
+
+    def fake_run(argv: list[str], *, cwd: Path, **_: object) -> subprocess.CompletedProcess[str]:
+        calls.append((argv, cwd))
+        return subprocess.CompletedProcess(argv, returncode, stdout="", stderr=stderr)
+
+    monkeypatch.setattr("intendant.adapters.python.qu.subprocess.run", fake_run)
+    return calls
+
+
+def test_qu004_runs_the_locked_ty_when_ty_is_a_dev_dep(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n[dependency-groups]\ndev = ["ty>=0.0.1"]\n'
+    )
+    calls = _record_ty_invocation(monkeypatch)
+    repo = Repo(path=tmp_path, stacks=("python",))
+
+    assert QU004TyCheck().check(repo).passing is True
+    assert calls == [(["uv", "run", "--frozen", "--all-extras", "ty", "check"], tmp_path)]
+
+
+def test_qu004_falls_back_to_uvx_when_only_pyright_is_declared(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n[project.optional-dependencies]\ndev = ["pyright"]\n'
+    )
+    calls = _record_ty_invocation(monkeypatch)
+    repo = Repo(path=tmp_path, stacks=("python",))
+
+    assert QU004TyCheck().check(repo).passing is True
+    assert calls == [(["uvx", "ty", "check"], tmp_path)]
+
+
+def test_qu004_evidence_reports_why_the_invocation_failed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\nname = "x"\n[dependency-groups]\ndev = ["ty>=0.0.1"]\n'
+    )
+    _record_ty_invocation(
+        monkeypatch,
+        returncode=2,
+        stderr="error: Unable to find lockfile at `uv.lock`, but `--frozen` was provided.\n",
+    )
+    repo = Repo(path=tmp_path, stacks=("python",))
+
+    result = QU004TyCheck().check(repo)
+
+    assert result.passing is False
+    assert result.evidence == (
+        "ty exited 2: error: Unable to find lockfile at `uv.lock`, but `--frozen` was provided."
+    )
 
 
 # ---------------------------------------------------------------------------

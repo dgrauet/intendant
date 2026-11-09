@@ -15,8 +15,9 @@
 
 **Severity:** required · **Stacks:** python · **ADR:** [0003-ty-with-pyright-fallback](../adr/0003-ty-with-pyright-fallback.md)
 
-`ty` (Astral) is invoked via `uvx ty check`. `pyright` remains documented
-as a fallback (see ADR-0003).
+`ty` (Astral) is declared in the dev dependencies and invoked via
+`uv run ty check`, so CI and local runs use the version locked in `uv.lock`.
+`pyright` remains documented as a fallback (see ADR-0003).
 
 ### PYTHON_QU003 — Strict type annotations
 
@@ -30,8 +31,11 @@ strict mode is enabled.
 
 **Severity:** recommended · **Stacks:** python · **ADR:** [0003-ty-with-pyright-fallback](../adr/0003-ty-with-pyright-fallback.md)
 
-Runs `uvx ty check` in the repo. Passes if exit 0; fails with the diagnostic
-count summary otherwise. Skipped silently if neither `ty` nor `pyright` is
+Runs `uv run --frozen --all-extras ty check` in the repo, i.e. the `ty`
+version the repo locked, without rewriting `uv.lock` (a missing lockfile is
+reported as a failure). Repos on the `pyright` fallback path, which do not
+declare `ty`, are checked with `uvx ty check` instead. Passes if exit 0; fails
+with the diagnostic count summary otherwise. Skipped silently if neither `ty` nor `pyright` is
 declared in the project's dev dependencies (avoids forcing type-checking on
 projects that haven't opted in).
 
