@@ -31,11 +31,12 @@ strict mode is enabled.
 
 **Severity:** recommended · **Stacks:** python · **ADR:** [0003-ty-with-pyright-fallback](../adr/0003-ty-with-pyright-fallback.md)
 
-Runs `uv run --frozen --all-extras ty check` in the repo, i.e. the `ty`
-version the repo locked, without rewriting `uv.lock` (a missing lockfile is
-reported as a failure). Repos on the `pyright` fallback path, which do not
-declare `ty`, are checked with `uvx ty check` instead. Passes if exit 0; fails
-with the diagnostic count summary otherwise. Skipped silently if neither `ty` nor `pyright` is
+Runs `uvx ty==<version> check` in the repo, where `<version>` is the `ty`
+version pinned in the repo's `uv.lock`, so the audit agrees with the repo's
+own `uv run ty check`. The lockfile is only read: the audit never syncs or
+builds the audited project, which would execute its build backend. Without a
+locked `ty` (no lockfile, or the `pyright` fallback path) the latest `ty` is
+used. Passes if exit 0; fails with the diagnostic count summary otherwise. Skipped silently if neither `ty` nor `pyright` is
 declared in the project's dev dependencies (avoids forcing type-checking on
 projects that haven't opted in).
 

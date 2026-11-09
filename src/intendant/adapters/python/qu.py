@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
+import tomllib
+from pathlib import Path
 
 from intendant.adapters.python.inspectors import (
     has_pyproject,
@@ -103,9 +106,11 @@ class QU003StrictTypeAnnotations(Rule):
 class QU004TyCheck(Rule):
     """Run `ty check` against the repo; skip if ty/pyright not in deps.
 
-    When the repo declares `ty` itself, run the version it locked
-    (`uv run --frozen`, so the audit never rewrites `uv.lock`). On the pyright
-    fallback path `ty` is not installed in the project, so use `uvx`.
+    When the repo declares `ty`, run the version pinned in its `uv.lock`
+    through `uvx ty==<version>`. The lockfile is only read as data: the audited
+    project is never synced or built (`uv run` would execute its build backend,
+    i.e. arbitrary code from the repo under audit). Without a usable locked
+    version, fall back to the latest `ty`.
     """
 
     id = "PYTHON_QU004"
@@ -129,11 +134,8 @@ class QU004TyCheck(Rule):
     def check(self, repo: Repo) -> CheckResult:
         data = load_pyproject(repo.path)
         ty_declared = data is not None and "ty" in _collect_dev_deps(data)
-        command = (
-            ["uv", "run", "--frozen", "--all-extras", "ty", "check"]
-            if ty_declared
-            else ["uvx", "ty", "check"]
-        )
+        version = _locked_ty_version(repo.path) if ty_declared else None
+        command = ["uvx", f"ty=={version}" if version else "ty", "check"]
         try:
             result = subprocess.run(
                 command,
@@ -153,6 +155,31 @@ class QU004TyCheck(Rule):
             return CheckResult(passing=False, evidence=last_line)
         detail = f": {last_line}" if last_line else ""
         return CheckResult(passing=False, evidence=f"ty exited {result.returncode}{detail}")
+
+
+_PLAIN_VERSION = re.compile(r"[0-9]+(\.[0-9]+)*((a|b|rc)[0-9]+)?(\.post[0-9]+)?(\.dev[0-9]+)?")
+
+
+def _locked_ty_version(repo_path: Path) -> str | None:
+    """Return the `ty` version pinned in `uv.lock`, or None if there is no usable one.
+
+    The value ends up in a `uvx` requirement, so anything that is not a plain
+    version number (e.g. a direct URL reference) is rejected.
+    """
+    try:
+        lock = tomllib.loads((repo_path / "uv.lock").read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError):
+        return None
+    packages = lock.get("package", [])
+    if not isinstance(packages, list):
+        return None
+    for package in packages:
+        if isinstance(package, dict) and package.get("name") == "ty":
+            version = package.get("version")
+            if isinstance(version, str) and _PLAIN_VERSION.fullmatch(version):
+                return version
+            return None
+    return None
 
 
 def _collect_dev_deps(pyproject: dict) -> set[str]:

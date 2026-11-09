@@ -121,17 +121,59 @@ def _record_ty_invocation(
     return calls
 
 
-def test_qu004_runs_the_locked_ty_when_ty_is_a_dev_dep(
+_TY_DEV_DEP_PYPROJECT = '[project]\nname = "x"\n[dependency-groups]\ndev = ["ty>=0.0.1"]\n'
+
+
+def test_qu004_runs_the_ty_version_pinned_in_the_lockfile(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    (tmp_path / "pyproject.toml").write_text(
-        '[project]\nname = "x"\n[dependency-groups]\ndev = ["ty>=0.0.1"]\n'
+    (tmp_path / "pyproject.toml").write_text(_TY_DEV_DEP_PYPROJECT)
+    (tmp_path / "uv.lock").write_text(
+        '[[package]]\nname = "pytest"\nversion = "8.3.0"\n\n'
+        '[[package]]\nname = "ty"\nversion = "0.0.100"\n'
     )
     calls = _record_ty_invocation(monkeypatch)
     repo = Repo(path=tmp_path, stacks=("python",))
 
     assert QU004TyCheck().check(repo).passing is True
-    assert calls == [(["uv", "run", "--frozen", "--all-extras", "ty", "check"], tmp_path)]
+    assert calls == [(["uvx", "ty==0.0.100", "check"], tmp_path)]
+
+
+def test_qu004_never_syncs_or_builds_the_audited_project(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`uv run` would build the audited repo (arbitrary build-backend code)."""
+    (tmp_path / "pyproject.toml").write_text(_TY_DEV_DEP_PYPROJECT)
+    (tmp_path / "uv.lock").write_text('[[package]]\nname = "ty"\nversion = "0.0.100"\n')
+    calls = _record_ty_invocation(monkeypatch)
+
+    QU004TyCheck().check(Repo(path=tmp_path, stacks=("python",)))
+
+    assert [argv[0] for argv, _ in calls] == ["uvx"]
+
+
+@pytest.mark.parametrize(
+    "lockfile",
+    [
+        None,
+        '[[package]]\nname = "pytest"\nversion = "8.3.0"\n',
+        '[[package]]\nname = "ty"\nversion = "0.0.1 @ https://example.invalid/ty.whl"\n',
+        '[[package]]\nname = "ty"\nversion = 3\n',
+        "this is not toml [[[",
+    ],
+    ids=["no-lockfile", "ty-not-locked", "non-version-string", "non-string-version", "bad-toml"],
+)
+def test_qu004_runs_unpinned_ty_without_a_usable_locked_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, lockfile: str | None
+) -> None:
+    (tmp_path / "pyproject.toml").write_text(_TY_DEV_DEP_PYPROJECT)
+    if lockfile is not None:
+        (tmp_path / "uv.lock").write_text(lockfile)
+    calls = _record_ty_invocation(monkeypatch)
+    repo = Repo(path=tmp_path, stacks=("python",))
+
+    assert QU004TyCheck().check(repo).passing is True
+    assert calls == [(["uvx", "ty", "check"], tmp_path)]
 
 
 def test_qu004_falls_back_to_uvx_when_only_pyright_is_declared(
@@ -150,22 +192,16 @@ def test_qu004_falls_back_to_uvx_when_only_pyright_is_declared(
 def test_qu004_evidence_reports_why_the_invocation_failed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    (tmp_path / "pyproject.toml").write_text(
-        '[project]\nname = "x"\n[dependency-groups]\ndev = ["ty>=0.0.1"]\n'
-    )
+    (tmp_path / "pyproject.toml").write_text(_TY_DEV_DEP_PYPROJECT)
     _record_ty_invocation(
-        monkeypatch,
-        returncode=2,
-        stderr="error: Unable to find lockfile at `uv.lock`, but `--frozen` was provided.\n",
+        monkeypatch, returncode=2, stderr="error: No solution found when resolving tool\n"
     )
     repo = Repo(path=tmp_path, stacks=("python",))
 
     result = QU004TyCheck().check(repo)
 
     assert result.passing is False
-    assert result.evidence == (
-        "ty exited 2: error: Unable to find lockfile at `uv.lock`, but `--frozen` was provided."
-    )
+    assert result.evidence == "ty exited 2: error: No solution found when resolving tool"
 
 
 # ---------------------------------------------------------------------------
