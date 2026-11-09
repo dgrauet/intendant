@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2](https://github.com/dgrauet/intendant/compare/v4.1.1...v4.1.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* **tests:** use ty-native ignore for abstract class instantiation ([#82](https://github.com/dgrauet/intendant/issues/82)) ([8ed2a97](https://github.com/dgrauet/intendant/commit/8ed2a97d0f5252dbbc7e6e961064fda320fb0b99))
+
 ## [4.1.1](https://github.com/dgrauet/intendant/compare/v4.1.0...v4.1.1) (2026-07-12)
 
 
