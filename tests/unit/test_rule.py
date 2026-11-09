@@ -86,4 +86,4 @@ def test_rule_check_is_abstract() -> None:
         handbook_ref = "x"
 
     with pytest.raises(TypeError):
-        _Incomplete()  # type: ignore[abstract]
+        _Incomplete()  # ty: ignore[abstract-class-instantiation]
